@@ -14,7 +14,8 @@ import {
   Moon, 
   ChevronDown,
   Sparkles,
-  Check
+  Check,
+  Search
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -35,7 +36,8 @@ export const Header: React.FC<HeaderProps> = ({ onOpenLanding, isDarkMode, setIs
     markNotificationRead, 
     markAllNotificationsRead,
     setActiveTab,
-    setSelectedAssignmentId
+    setSelectedAssignmentId,
+    setIsCommandPaletteOpen
   } = useStudySync();
 
   const [isNotifOpen, setIsNotifOpen] = useState(false);
@@ -133,11 +135,23 @@ export const Header: React.FC<HeaderProps> = ({ onOpenLanding, isDarkMode, setIs
 
       {/* Right Controls */}
       <div className="flex items-center gap-2 sm:gap-2.5">
+        {/* Command Palette Trigger */}
+        <button
+          onClick={() => setIsCommandPaletteOpen(true)}
+          className="hidden md:flex items-center gap-2 px-2.5 py-1.5 rounded-lg border border-[#E2E8F0] dark:border-[#1E293B] bg-[#F8FAFC] dark:bg-[#15203B] text-xs text-[#64748B] dark:text-[#94A3B8] hover:text-[#0F2044] dark:hover:text-white transition-all shadow-xs"
+        >
+          <Search className="w-3.5 h-3.5 text-[#00B4A6] dark:text-[#00D2C4]" />
+          <span>Search & Actions</span>
+          <kbd className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-white dark:bg-[#080D1A] border border-[#CBD5E1] dark:border-[#334155] font-bold">
+            ⌘K
+          </kbd>
+        </button>
+
         {/* Landing Page Button */}
         {onOpenLanding && (
           <button
             onClick={onOpenLanding}
-            className="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-[#E2E8F0] dark:border-[#1E293B] text-xs font-medium text-[#475569] dark:text-[#94A3B8] hover:text-[#0F2044] dark:hover:text-white hover:bg-[#F1F5F9] dark:hover:bg-[#15203B] transition-all"
+            className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-[#E2E8F0] dark:border-[#1E293B] text-xs font-medium text-[#475569] dark:text-[#94A3B8] hover:text-[#0F2044] dark:hover:text-white hover:bg-[#F1F5F9] dark:hover:bg-[#15203B] transition-all"
           >
             <Sparkles className="w-3.5 h-3.5 text-[#00B4A6] dark:text-[#00D2C4]" />
             <span>Marketing Page</span>

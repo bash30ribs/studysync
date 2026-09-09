@@ -6,6 +6,7 @@ import { RightPanel } from './components/layout/RightPanel';
 import { MobileNav } from './components/layout/MobileNav';
 import { Toast } from './components/common/Feedback';
 import { SubmitDrawer } from './components/assignments/SubmitDrawer';
+import { CommandPalette } from './components/common/CommandPalette';
 
 import { CRDashboard } from './components/dashboard/CRDashboard';
 import { StudentDashboard } from './components/dashboard/StudentDashboard';
@@ -89,6 +90,7 @@ const MainLayout: React.FC<{ isDarkMode: boolean; setIsDarkMode: React.Dispatch<
 
       {/* Global Drawers & Modals */}
       <SubmitDrawer />
+      <CommandPalette />
       <Toast />
     </div>
   );

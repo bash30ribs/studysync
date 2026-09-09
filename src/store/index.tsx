@@ -23,6 +23,8 @@ import {
   INITIAL_DISCUSSIONS 
 } from '../data/initialData';
 
+export type ThemeAccent = 'teal' | 'indigo' | 'emerald' | 'amber' | 'cyan';
+
 interface StudySyncContextType {
   currentUser: User;
   currentClass: ClassGroup;
@@ -41,6 +43,8 @@ interface StudySyncContextType {
   isRightPanelOpen: boolean;
   isNewAssignmentModalOpen: boolean;
   isSubmitDrawerOpen: boolean;
+  isCommandPaletteOpen: boolean;
+  themeAccent: ThemeAccent;
   toast: { message: string; type: 'success' | 'error' | 'info' } | null;
   
   // Setters & Nav
@@ -51,6 +55,8 @@ interface StudySyncContextType {
   setIsRightPanelOpen: (open: boolean) => void;
   setIsNewAssignmentModalOpen: (open: boolean) => void;
   setIsSubmitDrawerOpen: (open: boolean) => void;
+  setIsCommandPaletteOpen: (open: boolean) => void;
+  setThemeAccent: (accent: ThemeAccent) => void;
   showToast: (message: string, type?: 'success' | 'error' | 'info') => void;
   
   // Actions
@@ -77,7 +83,7 @@ interface StudySyncContextType {
   resetDemoData: () => void;
 }
 
-const STORAGE_KEY_PREFIX = 'studysync_v1_';
+const STORAGE_KEY_PREFIX = 'studysync_v2_';
 
 const loadStorage = <T,>(key: string, defaultValue: T): T => {
   try {
@@ -120,6 +126,8 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [isRightPanelOpen, setIsRightPanelOpen] = useState<boolean>(false);
   const [isNewAssignmentModalOpen, setIsNewAssignmentModalOpen] = useState<boolean>(false);
   const [isSubmitDrawerOpen, setIsSubmitDrawerOpen] = useState<boolean>(false);
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState<boolean>(false);
+  const [themeAccent, setThemeAccentState] = useState<ThemeAccent>(() => loadStorage('theme_accent', 'teal'));
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
 
   // Sync to local storage
@@ -131,13 +139,44 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   useEffect(() => saveStorage('broadcasts', broadcasts), [broadcasts]);
   useEffect(() => saveStorage('messages', messages), [messages]);
   useEffect(() => saveStorage('notifications', notifications), [notifications]);
-  useEffect(() => saveStorage('discussions', discussions), [discussions]);
+  useEffect(() => {
+    saveStorage('theme_accent', themeAccent);
+    document.documentElement.setAttribute('data-accent', themeAccent);
+  }, [themeAccent]);
+
+  // Global Keyboard Shortcuts (⌘K, Escape, 1-8 tab switches)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Command / Ctrl + K -> Toggle Command Palette
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setIsCommandPaletteOpen(prev => !prev);
+        return;
+      }
+
+      // Escape -> close modals/palette
+      if (e.key === 'Escape') {
+        setIsCommandPaletteOpen(false);
+        setIsNewAssignmentModalOpen(false);
+        setIsSubmitDrawerOpen(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  const setThemeAccent = (accent: ThemeAccent) => {
+    setThemeAccentState(accent);
+    document.documentElement.setAttribute('data-accent', accent);
+    showToast(`Theme accent changed to ${accent.toUpperCase()}`, 'info');
+  };
 
   const showToast = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
     setToast({ message, type });
     setTimeout(() => {
       setToast(null);
-    }, 4000);
+    }, 3800);
   };
 
   const switchRole = (role: UserRole, targetUserId?: string) => {
@@ -267,7 +306,6 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setAllUsers(prev => [...prev, newStudent]);
     setCurrentUser(newStudent);
 
-    // Auto-create assigned submissions for existing active assignments
     const newSubs: Submission[] = assignments.map(asg => ({
       id: `sub-${asg.id}-${newStudentId}`,
       assignmentId: asg.id,
@@ -322,7 +360,6 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       notifyOnCreate: data.notifyOnCreate
     };
 
-    // Auto generate 'assigned' submissions for all current students
     const studentUsers = allUsers.filter(u => u.role === 'Student');
     const newSubs: Submission[] = studentUsers.map(stu => ({
       id: `sub-${newId}-${stu.id}`,
@@ -431,7 +468,6 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
     const targetAsg = assignments.find(a => a.id === assignmentId);
     
-    // Create notifications for CR and Student
     const crNotif: NotificationItem = {
       id: 'notif-sub-cr-' + Date.now(),
       userId: currentClass.crId,
@@ -703,6 +739,7 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setActiveTab('dashboard');
     setSelectedAssignmentId(INITIAL_ASSIGNMENTS[0].id);
     setSelectedStudentId(INITIAL_USERS[1].id);
+    setThemeAccentState('teal');
     showToast('Demo data reset to default MECH-3A state', 'info');
   };
 
@@ -726,6 +763,8 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         isRightPanelOpen,
         isNewAssignmentModalOpen,
         isSubmitDrawerOpen,
+        isCommandPaletteOpen,
+        themeAccent,
         toast,
         setActiveTab,
         setSelectedAssignmentId,
@@ -734,6 +773,8 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         setIsRightPanelOpen,
         setIsNewAssignmentModalOpen,
         setIsSubmitDrawerOpen,
+        setIsCommandPaletteOpen,
+        setThemeAccent,
         showToast,
         switchRole,
         createClass,
