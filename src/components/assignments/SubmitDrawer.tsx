@@ -4,7 +4,8 @@ import {
   X, 
   UploadCloud, 
   ShieldCheck, 
-  CheckCircle2
+  CheckCircle2,
+  Loader2
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -24,23 +25,29 @@ export const SubmitDrawer: React.FC = () => {
   const [fileName, setFileName] = useState(`${currentUser.name.replace(/\s+/g, '_')}_Assignment.pdf`);
   const [fileSize, setFileSize] = useState('2.4 MB');
   const [hasConfirmed, setHasConfirmed] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!isSubmitDrawerOpen || !selectedAssignmentId) return null;
 
   const targetAsg = assignments.find(a => a.id === selectedAssignmentId);
   if (!targetAsg) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isOffline) {
       showToast('Cannot submit in offline mode. Reconnect first.', 'error');
       return;
     }
 
+    setIsSubmitting(true);
+    await new Promise(r => setTimeout(r, 450));
+
     submitAssignment(selectedAssignmentId, textNote, {
       name: fileName,
       size: fileSize
     });
+
+    setIsSubmitting(false);
 
     try {
       confetti({
@@ -144,6 +151,7 @@ export const SubmitDrawer: React.FC = () => {
           <div className="flex justify-end gap-2 pt-2 border-t border-[#E2E7F0] dark:border-[#1E293B]">
             <button
               type="button"
+              disabled={isSubmitting}
               onClick={() => setIsSubmitDrawerOpen(false)}
               className="px-4 py-2 rounded-lg border border-[#E2E7F0] dark:border-[#1E293B] text-xs font-semibold text-[#64748B] dark:text-[#94A3B8] hover:text-[#0F2044] dark:hover:text-white"
             >
@@ -151,11 +159,15 @@ export const SubmitDrawer: React.FC = () => {
             </button>
             <button
               type="submit"
-              disabled={isOffline || !hasConfirmed}
+              disabled={isOffline || !hasConfirmed || isSubmitting}
               className="px-5 py-2 rounded-lg bg-[#00B4A6] dark:bg-[#00D2C4] hover:bg-[#009E91] dark:hover:bg-[#00B4A6] disabled:opacity-50 text-white dark:text-[#080D1A] text-xs font-extrabold flex items-center gap-1.5 shadow-md transition-all"
             >
-              <CheckCircle2 className="w-4 h-4" />
-              <span>Confirm & Submit</span>
+              {isSubmitting ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <CheckCircle2 className="w-4 h-4" />
+              )}
+              <span>{isSubmitting ? 'Uploading Proof...' : 'Confirm & Submit'}</span>
             </button>
           </div>
         </form>
