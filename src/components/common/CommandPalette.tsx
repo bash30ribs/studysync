@@ -83,10 +83,33 @@ export const CommandPalette: React.FC = () => {
       perform: () => setActiveTab('assignments')
     },
     {
+      id: 'nav-attendance',
+      category: 'Navigation',
+      label: 'Go to Attendance Logger (75% Tracker)',
+      shortcut: 'A',
+      icon: UserCheck,
+      perform: () => setActiveTab('attendance')
+    },
+    {
+      id: 'nav-resources',
+      category: 'Navigation',
+      label: 'Go to Resource Library (PYQs, Notes)',
+      shortcut: 'R',
+      icon: Sparkles,
+      perform: () => setActiveTab('resources')
+    },
+    {
+      id: 'nav-polls',
+      category: 'Navigation',
+      label: 'Go to Polls & Quick Decisions',
+      shortcut: 'P',
+      icon: BarChart3,
+      perform: () => setActiveTab('polls')
+    },
+    {
       id: 'nav-cal',
       category: 'Navigation',
       label: 'Go to Academic Calendar',
-      shortcut: '3',
       icon: Calendar,
       perform: () => setActiveTab('calendar')
     },
@@ -94,7 +117,6 @@ export const CommandPalette: React.FC = () => {
       id: 'nav-members',
       category: 'Navigation',
       label: 'Go to Class Roster & Members',
-      shortcut: '4',
       icon: Users,
       perform: () => setActiveTab('members')
     },
@@ -102,7 +124,7 @@ export const CommandPalette: React.FC = () => {
       id: 'nav-broadcasts',
       category: 'Navigation',
       label: 'Go to Official Broadcasts',
-      shortcut: '5',
+      shortcut: 'B',
       icon: Megaphone,
       perform: () => setActiveTab('broadcasts')
     },
@@ -110,23 +132,20 @@ export const CommandPalette: React.FC = () => {
       id: 'nav-messages',
       category: 'Navigation',
       label: 'Go to Encrypted Messages',
-      shortcut: '6',
       icon: MessageSquare,
       perform: () => setActiveTab('messages')
     },
     {
       id: 'nav-analytics',
       category: 'Navigation',
-      label: 'Go to Class Analytics',
-      shortcut: '7',
+      label: 'Go to Class Analytics & Health',
       icon: BarChart3,
       perform: () => setActiveTab('analytics')
     },
     {
       id: 'nav-settings',
       category: 'Navigation',
-      label: 'Go to Settings',
-      shortcut: '8',
+      label: 'Go to Settings & CR Handover',
       icon: Settings,
       perform: () => setActiveTab('settings')
     },
@@ -137,6 +156,7 @@ export const CommandPalette: React.FC = () => {
         id: 'act-new-asg',
         category: 'Actions' as const,
         label: 'Post New Assignment',
+        shortcut: 'N',
         icon: Plus,
         perform: () => setIsNewAssignmentModalOpen(true)
       },

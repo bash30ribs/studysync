@@ -32,6 +32,7 @@ export const RightPanel: React.FC = () => {
     addDiscussionComment,
     sendBroadcast,
     setIsSubmitDrawerOpen,
+    gradeSubmission,
     showToast,
     isOffline
   } = useStudySync();
@@ -357,9 +358,12 @@ export const RightPanel: React.FC = () => {
                         <CheckCircle2 className="w-3.5 h-3.5 text-[#00B4A6] dark:text-[#00D2C4]" />
                         Submitted ({submittedList.length})
                       </span>
+                      <span className="text-[10px] text-[#64748B] dark:text-[#94A3B8]">
+                        Max: {selectedAsg.maxScore || 20} pts
+                      </span>
                     </div>
 
-                    <div className="space-y-1.5 max-h-40 overflow-y-auto pr-1">
+                    <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
                       {submittedList.length === 0 ? (
                         <p className="text-[11px] text-[#64748B] dark:text-[#94A3B8] py-2">
                           No submissions logged yet.
@@ -368,19 +372,48 @@ export const RightPanel: React.FC = () => {
                         submittedList.map(sub => (
                           <div
                             key={sub.id}
-                            className="flex items-center justify-between p-2 rounded-lg bg-[#F8FAFC] dark:bg-[#0F172A] border border-[#E2E8F0] dark:border-[#1E293B] text-xs"
+                            className="p-2.5 rounded-xl bg-[#F8FAFC] dark:bg-[#0F172A] border border-[#E2E8F0] dark:border-[#1E293B] text-xs space-y-2"
                           >
-                            <div className="min-w-0">
-                              <p className="font-semibold text-[#0F2044] dark:text-white truncate">
-                                {sub.studentName}
-                              </p>
-                              <p className="text-[10px] text-[#64748B] dark:text-[#94A3B8] font-mono">
-                                {sub.submittedAt ? new Date(sub.submittedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Logged'}
-                              </p>
+                            <div className="flex items-center justify-between">
+                              <div className="min-w-0">
+                                <p className="font-bold text-[#0F2044] dark:text-white truncate">
+                                  {sub.studentName}
+                                </p>
+                                <p className="text-[10px] text-[#64748B] dark:text-[#94A3B8] font-mono">
+                                  {sub.submittedAt ? new Date(sub.submittedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Logged'}
+                                </p>
+                              </div>
+                              <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-[#E6F8F6] dark:bg-[#00D2C4]/20 text-[#00897B] dark:text-[#00D2C4]">
+                                {sub.grade ? `${sub.grade.score}/${sub.grade.maxScore}` : 'Needs Grade'}
+                              </span>
                             </div>
-                            <span className="w-4 h-4 rounded-full bg-[#E6F8F6] dark:bg-[#00D2C4]/20 text-[#00897B] dark:text-[#00D2C4] flex items-center justify-center shrink-0">
-                              <Check className="w-2.5 h-2.5" />
-                            </span>
+
+                            {/* Quick Grade Input Form */}
+                            <div className="pt-2 border-t border-[#E2E8F0] dark:border-[#1E293B] flex items-center gap-1.5">
+                              <input
+                                type="number"
+                                placeholder={`Score`}
+                                defaultValue={sub.grade?.score}
+                                onBlur={(e) => {
+                                  const val = Number(e.target.value);
+                                  if (!isNaN(val) && val >= 0) {
+                                    gradeSubmission(sub.id, val, selectedAsg.maxScore || 20, sub.grade?.feedback || 'Good work');
+                                  }
+                                }}
+                                className="w-16 px-2 py-1 text-xs rounded bg-white dark:bg-[#080D1A] border border-[#CBD5E1] dark:border-[#334155] text-[#0F2044] dark:text-white"
+                              />
+                              <input
+                                type="text"
+                                placeholder="Feedback note..."
+                                defaultValue={sub.grade?.feedback}
+                                onBlur={(e) => {
+                                  if (e.target.value.trim()) {
+                                    gradeSubmission(sub.id, sub.grade?.score || 18, selectedAsg.maxScore || 20, e.target.value.trim());
+                                  }
+                                }}
+                                className="flex-1 px-2 py-1 text-xs rounded bg-white dark:bg-[#080D1A] border border-[#CBD5E1] dark:border-[#334155] text-[#0F2044] dark:text-white"
+                              />
+                            </div>
                           </div>
                         ))
                       )}

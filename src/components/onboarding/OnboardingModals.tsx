@@ -5,7 +5,9 @@ import {
   Check, 
   Share2, 
   ArrowRight, 
-  Sparkles
+  Sparkles,
+  ShieldCheck,
+  Mail
 } from 'lucide-react';
 import { Modal } from '../common/Feedback';
 
@@ -16,20 +18,26 @@ export const CreateClassModal: React.FC<{
 }> = ({ isOpen, onClose, onSuccess }) => {
   const { createClass, showToast } = useStudySync();
 
-  const [step, setStep] = useState<1 | 2>(1);
+  const [step, setStep] = useState<1 | 2 | 3>(1); // 1 = Details, 2 = Email OTP, 3 = Success
   const [crName, setCrName] = useState('Aarav Sharma');
   const [crEmail, setCrEmail] = useState('aarav.sharma@college.edu');
   const [className, setClassName] = useState('MECH-3A');
+  const [otp, setOtp] = useState('849201');
   const [generatedCode, setGeneratedCode] = useState('');
   const [copied, setCopied] = useState(false);
 
-  const handleGenerate = (e: React.FormEvent) => {
+  const handleProceedToOTP = (e: React.FormEvent) => {
     e.preventDefault();
     if (!className.trim() || !crName.trim() || !crEmail.trim()) return;
+    setStep(2);
+    showToast(`Verification code dispatched to ${crEmail}`, 'info');
+  };
 
+  const handleVerifyAndGenerate = (e: React.FormEvent) => {
+    e.preventDefault();
     const code = createClass(className, crName, crEmail);
     setGeneratedCode(code);
-    setStep(2);
+    setStep(3);
   };
 
   const handleCopyCode = () => {
@@ -52,9 +60,13 @@ export const CreateClassModal: React.FC<{
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={step === 1 ? "Create New Class" : "Class Created Successfully"}>
+    <Modal 
+      isOpen={isOpen} 
+      onClose={onClose} 
+      title={step === 1 ? "Create New Class" : step === 2 ? "Verify Institutional Email" : "Class Created Successfully"}
+    >
       {step === 1 ? (
-        <form onSubmit={handleGenerate} className="space-y-4">
+        <form onSubmit={handleProceedToOTP} className="space-y-4">
           <p className="text-xs text-[#64748B] dark:text-[#94A3B8]">
             As Class Representative (CR), you will control class assignments, official broadcasts, and submission tracking.
           </p>
@@ -70,7 +82,7 @@ export const CreateClassModal: React.FC<{
                 value={crName}
                 onChange={(e) => setCrName(e.target.value)}
                 placeholder="e.g. Aarav Sharma"
-                className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-[#E2E7F0] dark:border-[#1E293B] bg-[#F8FAFC] dark:bg-[#080D1A] text-[#0F2044] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#00B4A6]/20 focus:border-[#00B4A6] dark:focus:border-[#00D2C4]"
+                className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-[#E2E8F0] dark:border-[#1E293B] bg-[#F8FAFC] dark:bg-[#080D1A] text-[#0F2044] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#00B4A6]/20 focus:border-[#00B4A6] dark:focus:border-[#00D2C4]"
               />
             </div>
 
@@ -84,7 +96,7 @@ export const CreateClassModal: React.FC<{
                 value={crEmail}
                 onChange={(e) => setCrEmail(e.target.value)}
                 placeholder="e.g. aarav.s@college.edu"
-                className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-[#E2E7F0] dark:border-[#1E293B] bg-[#F8FAFC] dark:bg-[#080D1A] text-[#0F2044] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#00B4A6]/20 focus:border-[#00B4A6] dark:focus:border-[#00D2C4]"
+                className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-[#E2E8F0] dark:border-[#1E293B] bg-[#F8FAFC] dark:bg-[#080D1A] text-[#0F2044] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#00B4A6]/20 focus:border-[#00B4A6] dark:focus:border-[#00D2C4]"
               />
             </div>
           </div>
@@ -99,20 +111,20 @@ export const CreateClassModal: React.FC<{
               value={className}
               onChange={(e) => setClassName(e.target.value)}
               placeholder="e.g. MECH-3A, CSE-4B, ECE-2C"
-              className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-[#E2E7F0] dark:border-[#1E293B] bg-[#F8FAFC] dark:bg-[#080D1A] text-[#0F2044] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#00B4A6]/20 focus:border-[#00B4A6] dark:focus:border-[#00D2C4]"
+              className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-[#E2E8F0] dark:border-[#1E293B] bg-[#F8FAFC] dark:bg-[#080D1A] text-[#0F2044] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#00B4A6]/20 focus:border-[#00B4A6] dark:focus:border-[#00D2C4]"
             />
           </div>
 
           <div className="p-3 rounded-xl bg-[#E6F8F6] dark:bg-[#00D2C4]/10 border border-[#00B4A6]/20 text-[11px] text-[#0F2044] dark:text-[#F8FAFC]">
             <span className="font-bold text-[#00897B] dark:text-[#00D2C4] block mb-0.5">CR Security:</span>
-            A unique 6-character alphanumeric code will be generated for student-only joining.
+            A unique 6-character access code will be generated following instant email OTP verification.
           </div>
 
           <div className="flex justify-end gap-2 pt-2">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-lg border border-[#E2E7F0] dark:border-[#1E293B] text-xs font-semibold text-[#64748B] dark:text-[#94A3B8]"
+              className="px-4 py-2 rounded-lg border border-[#E2E8F0] dark:border-[#1E293B] text-xs font-semibold text-[#64748B] dark:text-[#94A3B8]"
             >
               Cancel
             </button>
@@ -120,13 +132,70 @@ export const CreateClassModal: React.FC<{
               type="submit"
               className="px-5 py-2 rounded-lg bg-[#00B4A6] dark:bg-[#00D2C4] hover:bg-[#009E91] dark:hover:bg-[#00B4A6] text-white dark:text-[#080D1A] text-xs font-extrabold flex items-center gap-1.5 shadow-xs"
             >
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Generate Class Code</span>
+              <span>Continue to Verification</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </form>
+      ) : step === 2 ? (
+        /* STEP 2: EMAIL OTP VERIFICATION */
+        <form onSubmit={handleVerifyAndGenerate} className="space-y-4">
+          <div className="p-4 rounded-xl bg-[#F8FAFC] dark:bg-[#15203B]/60 border border-[#E2E8F0] dark:border-[#1E293B] flex items-center gap-3">
+            <Mail className="w-5 h-5 text-[#00B4A6] dark:text-[#00D2C4] shrink-0" />
+            <div className="min-w-0">
+              <span className="text-xs font-bold text-[#0F2044] dark:text-white block">
+                Verification Code Sent
+              </span>
+              <p className="text-[11px] text-[#64748B] dark:text-[#94A3B8] truncate">
+                Enter the 6-digit code sent to <strong className="text-[#0F2044] dark:text-white">{crEmail}</strong>
+              </p>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-[#0F2044] dark:text-white mb-1">
+              6-Digit OTP Code
+            </label>
+            <input
+              type="text"
+              required
+              maxLength={6}
+              value={otp}
+              onChange={(e) => setOtp(e.target.value)}
+              className="w-full text-center font-mono text-2xl font-black tracking-widest px-3 py-2.5 rounded-xl border border-[#E2E8F0] dark:border-[#1E293B] bg-[#F8FAFC] dark:bg-[#080D1A] text-[#00897B] dark:text-[#00D2C4] focus:outline-none focus:ring-2 focus:ring-[#00B4A6]"
+            />
+          </div>
+
+          <div className="flex items-center justify-between text-xs text-[#64748B] dark:text-[#94A3B8]">
+            <span>Didn't receive code?</span>
+            <button
+              type="button"
+              onClick={() => showToast('New OTP dispatched to inbox', 'info')}
+              className="font-bold text-[#00B4A6] dark:text-[#00D2C4] hover:underline"
+            >
+              Resend OTP
+            </button>
+          </div>
+
+          <div className="flex justify-end gap-2 pt-2">
+            <button
+              type="button"
+              onClick={() => setStep(1)}
+              className="px-4 py-2 rounded-lg border border-[#E2E8F0] dark:border-[#1E293B] text-xs font-semibold text-[#64748B] dark:text-[#94A3B8]"
+            >
+              Back
+            </button>
+            <button
+              type="submit"
+              className="px-5 py-2 rounded-lg bg-[#00B4A6] dark:bg-[#00D2C4] hover:bg-[#009E91] dark:hover:bg-[#00B4A6] text-white dark:text-[#080D1A] text-xs font-extrabold flex items-center gap-1.5 shadow-xs"
+            >
+              <ShieldCheck className="w-4 h-4" />
+              <span>Verify & Create Class</span>
             </button>
           </div>
         </form>
       ) : (
-        /* STEP 2: SHARE CARD WITH QR CODE & CODE */
+        /* STEP 3: SHARE CARD WITH QR CODE & CODE */
         <div className="space-y-4">
           <div className="p-6 rounded-2xl bg-[#0F2044] dark:bg-[#080D1A] text-white text-center space-y-3 border border-[#193166] dark:border-[#1E293B] shadow-xl">
             <span className="text-[10px] font-bold text-[#94A3B8] uppercase tracking-wider block">
@@ -140,19 +209,12 @@ export const CreateClassModal: React.FC<{
             <p className="text-xs text-[#94A3B8]">
               Class: <span className="text-white font-bold">{className.toUpperCase()}</span> · CR: {crName}
             </p>
-
-            {/* Simulated Vector QR Code */}
-            <div className="w-28 h-28 mx-auto bg-white p-2.5 rounded-xl shadow-inner flex items-center justify-center">
-              <svg className="w-full h-full text-[#0F2044]" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M2 2h8v8H2V2zm2 2v4h4V4H4zm10-2h8v8h-8V2zm2 2v4h4V4h-4zM2 14h8v8H2v-8zm2 2v4h4v-4H4zm12 2h2v2h-2v-2zm-2-2h2v2h-2v-2zm4 0h2v2h-2v-2zm0 4h2v2h-2v-2zm-4 0h2v2h-2v-2zm2-2h2v2h-2v-2z" />
-              </svg>
-            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-2">
             <button
               onClick={handleCopyCode}
-              className="py-2.5 px-3 rounded-lg border border-[#E2E7F0] dark:border-[#1E293B] bg-white dark:bg-[#080D1A] hover:bg-[#F8FAFC] dark:hover:bg-[#15203B] text-xs font-bold text-[#0F2044] dark:text-white flex items-center justify-center gap-1.5 transition-colors shadow-xs"
+              className="py-2.5 px-3 rounded-lg border border-[#E2E8F0] dark:border-[#1E293B] bg-white dark:bg-[#080D1A] hover:bg-[#F8FAFC] dark:hover:bg-[#15203B] text-xs font-bold text-[#0F2044] dark:text-white flex items-center justify-center gap-1.5 transition-colors shadow-xs"
             >
               {copied ? <Check className="w-3.5 h-3.5 text-[#00B4A6] dark:text-[#00D2C4]" /> : <Copy className="w-3.5 h-3.5 text-[#64748B] dark:text-[#94A3B8]" />}
               <span>{copied ? 'Copied' : 'Copy Code'}</span>
@@ -160,7 +222,7 @@ export const CreateClassModal: React.FC<{
 
             <button
               onClick={handleShareClipboard}
-              className="py-2.5 px-3 rounded-lg border border-[#E2E7F0] dark:border-[#1E293B] bg-white dark:bg-[#080D1A] hover:bg-[#F8FAFC] dark:hover:bg-[#15203B] text-xs font-bold text-[#0F2044] dark:text-white flex items-center justify-center gap-1.5 transition-colors shadow-xs"
+              className="py-2.5 px-3 rounded-lg border border-[#E2E8F0] dark:border-[#1E293B] bg-white dark:bg-[#080D1A] hover:bg-[#F8FAFC] dark:hover:bg-[#15203B] text-xs font-bold text-[#0F2044] dark:text-white flex items-center justify-center gap-1.5 transition-colors shadow-xs"
             >
               <Share2 className="w-3.5 h-3.5 text-[#00B4A6] dark:text-[#00D2C4]" />
               <span>Share Invite</span>
@@ -185,7 +247,7 @@ export const JoinClassModal: React.FC<{
   onClose: () => void;
   onSuccess: () => void;
 }> = ({ isOpen, onClose, onSuccess }) => {
-  const { currentClass, joinClass } = useStudySync();
+  const { currentClass, joinClass, showToast } = useStudySync();
 
   const [studentName, setStudentName] = useState('Ishan Patel');
   const [studentEmail, setStudentEmail] = useState('ishan.p@college.edu');
@@ -225,7 +287,7 @@ export const JoinClassModal: React.FC<{
               value={studentName}
               onChange={(e) => setStudentName(e.target.value)}
               placeholder="e.g. Ishan Patel"
-              className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-[#E2E7F0] dark:border-[#1E293B] bg-[#F8FAFC] dark:bg-[#080D1A] text-[#0F2044] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#00B4A6]/20 focus:border-[#00B4A6] dark:focus:border-[#00D2C4]"
+              className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-[#E2E8F0] dark:border-[#1E293B] bg-[#F8FAFC] dark:bg-[#080D1A] text-[#0F2044] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#00B4A6]/20 focus:border-[#00B4A6] dark:focus:border-[#00D2C4]"
             />
           </div>
 
@@ -239,7 +301,7 @@ export const JoinClassModal: React.FC<{
               value={studentEmail}
               onChange={(e) => setStudentEmail(e.target.value)}
               placeholder="e.g. ishan.p@college.edu"
-              className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-[#E2E7F0] dark:border-[#1E293B] bg-[#F8FAFC] dark:bg-[#080D1A] text-[#0F2044] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#00B4A6]/20 focus:border-[#00B4A6] dark:focus:border-[#00D2C4]"
+              className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-[#E2E8F0] dark:border-[#1E293B] bg-[#F8FAFC] dark:bg-[#080D1A] text-[#0F2044] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#00B4A6]/20 focus:border-[#00B4A6] dark:focus:border-[#00D2C4]"
             />
           </div>
         </div>
@@ -258,7 +320,7 @@ export const JoinClassModal: React.FC<{
               setErrorMessage('');
             }}
             placeholder="e.g. 7F2K9Q"
-            className="w-full text-center font-mono text-xl font-extrabold tracking-widest px-3 py-3 rounded-xl border border-[#E2E7F0] dark:border-[#1E293B] bg-[#F8FAFC] dark:bg-[#080D1A] text-[#00897B] dark:text-[#00D2C4] focus:outline-none focus:ring-2 focus:ring-[#00B4A6]/20 focus:border-[#00B4A6]"
+            className="w-full text-center font-mono text-xl font-extrabold tracking-widest px-3 py-3 rounded-xl border border-[#E2E8F0] dark:border-[#1E293B] bg-[#F8FAFC] dark:bg-[#080D1A] text-[#00897B] dark:text-[#00D2C4] focus:outline-none focus:ring-2 focus:ring-[#00B4A6]/20 focus:border-[#00B4A6]"
           />
         </div>
 
@@ -272,7 +334,7 @@ export const JoinClassModal: React.FC<{
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded-lg border border-[#E2E7F0] dark:border-[#1E293B] text-xs font-semibold text-[#64748B] dark:text-[#94A3B8]"
+            className="px-4 py-2 rounded-lg border border-[#E2E8F0] dark:border-[#1E293B] text-xs font-semibold text-[#64748B] dark:text-[#94A3B8]"
           >
             Cancel
           </button>
@@ -286,4 +348,4 @@ export const JoinClassModal: React.FC<{
       </form>
     </Modal>
   );
-};
+};;

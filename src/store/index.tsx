@@ -10,24 +10,40 @@ import {
   DiscussionComment, 
   NavTab, 
   UserRole,
-  SubmissionProof
+  SubmissionProof,
+  AttendanceSession,
+  AttendanceRecord,
+  ResourceItem,
+  ClassPoll,
+  TrustPageType
 } from '../types';
 import { 
-  INITIAL_CLASS, 
+  INITIAL_CLASS,
+  INITIAL_CLASSES,
   INITIAL_USERS, 
   INITIAL_ASSIGNMENTS, 
   INITIAL_SUBMISSIONS, 
   INITIAL_BROADCASTS, 
   INITIAL_MESSAGES, 
   INITIAL_NOTIFICATIONS, 
-  INITIAL_DISCUSSIONS 
+  INITIAL_DISCUSSIONS,
+  INITIAL_ATTENDANCE,
+  INITIAL_RESOURCES,
+  INITIAL_POLLS
 } from '../data/initialData';
 
 export type ThemeAccent = 'teal' | 'indigo' | 'emerald' | 'amber' | 'cyan';
 
+export interface ToastItem {
+  message: string;
+  type: 'success' | 'error' | 'info';
+  undoAction?: () => void;
+}
+
 interface StudySyncContextType {
   currentUser: User;
   currentClass: ClassGroup;
+  classes: ClassGroup[];
   allUsers: User[];
   assignments: Assignment[];
   submissions: Submission[];
@@ -35,6 +51,9 @@ interface StudySyncContextType {
   messages: Message[];
   notifications: NotificationItem[];
   discussions: DiscussionComment[];
+  attendanceSessions: AttendanceSession[];
+  resources: ResourceItem[];
+  polls: ClassPoll[];
   activeTab: NavTab;
   selectedAssignmentId: string | null;
   selectedStudentId: string | null;
@@ -44,8 +63,11 @@ interface StudySyncContextType {
   isNewAssignmentModalOpen: boolean;
   isSubmitDrawerOpen: boolean;
   isCommandPaletteOpen: boolean;
+  isShortcutsOpen: boolean;
+  isQRCodeOpen: boolean;
+  activeTrustPage: TrustPageType | null;
   themeAccent: ThemeAccent;
-  toast: { message: string; type: 'success' | 'error' | 'info' } | null;
+  toast: ToastItem | null;
   
   // Setters & Nav
   setActiveTab: (tab: NavTab) => void;
@@ -56,20 +78,47 @@ interface StudySyncContextType {
   setIsNewAssignmentModalOpen: (open: boolean) => void;
   setIsSubmitDrawerOpen: (open: boolean) => void;
   setIsCommandPaletteOpen: (open: boolean) => void;
+  setIsShortcutsOpen: (open: boolean) => void;
+  setIsQRCodeOpen: (open: boolean) => void;
+  setActiveTrustPage: (page: TrustPageType | null) => void;
   setThemeAccent: (accent: ThemeAccent) => void;
   showToast: (message: string, type?: 'success' | 'error' | 'info') => void;
+  showUndoToast: (message: string, onUndo: () => void, duration?: number) => void;
   
   // Actions
   switchRole: (role: UserRole, targetUserId?: string) => void;
+  switchClass: (classId: string) => void;
+  archiveCurrentClass: () => void;
+  transferCR: (newCRStudentId: string) => void;
   createClass: (name: string, crName: string, crEmail: string) => string;
   joinClass: (code: string, studentName: string, studentEmail: string) => { success: boolean; error?: string };
-  createAssignment: (data: { title: string; subject: string; description: string; deadline: string; fileName?: string; fileSize?: string; notifyOnCreate: boolean }) => void;
+  createAssignment: (data: { 
+    title: string; 
+    subject: string; 
+    description: string; 
+    deadline: string; 
+    fileName?: string; 
+    fileSize?: string; 
+    notifyOnCreate: boolean;
+    isRecurring?: boolean;
+    recurrenceRule?: 'weekly' | 'biweekly';
+    maxScore?: number;
+  }) => void;
   submitAssignment: (assignmentId: string, textResponse?: string, file?: { name: string; size: string }) => void;
   markAssignmentViewed: (assignmentId: string) => void;
+  gradeSubmission: (submissionId: string, score: number, maxScore: number, feedback?: string) => void;
   sendBroadcast: (content: string) => void;
   sendMessage: (content: string, recipientId: string | null, file?: { name: string }) => void;
   remindPendingStudents: (assignmentId: string) => void;
   addDiscussionComment: (assignmentId: string, content: string) => void;
+  takeAttendance: (data: { subject: string; date: string; topic?: string; conductedBy?: string; records: AttendanceRecord[] }) => void;
+  deleteAttendanceSession: (sessionId: string) => void;
+  uploadResource: (data: { title: string; subject: string; category: any; description: string; fileName: string; fileSize: string }) => void;
+  deleteResource: (resourceId: string) => void;
+  incrementResourceDownload: (resourceId: string) => void;
+  createPoll: (data: { question: string; description?: string; options: string[]; expiresHours?: number }) => void;
+  votePoll: (pollId: string, optionId: string) => void;
+  closePoll: (pollId: string) => void;
   removeStudent: (studentId: string) => void;
   regenerateClassCode: () => string;
   updateClassName: (name: string) => void;
@@ -79,6 +128,7 @@ interface StudySyncContextType {
   toggleOffline: () => void;
   exportSubmissionsCSV: (assignmentId?: string) => void;
   exportMembersCSV: () => void;
+  exportAttendanceCSV: () => void;
   leaveClass: () => void;
   resetDemoData: () => void;
 }
@@ -105,18 +155,23 @@ const saveStorage = <T,>(key: string, value: T): void => {
 const StudySyncContext = createContext<StudySyncContextType | undefined>(undefined);
 
 export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [classes, setClasses] = useState<ClassGroup[]>(() => loadStorage('classes', INITIAL_CLASSES));
+  const [currentClass, setCurrentClass] = useState<ClassGroup>(() => loadStorage('class', INITIAL_CLASS));
   const [allUsers, setAllUsers] = useState<User[]>(() => loadStorage('users', INITIAL_USERS));
   const [currentUser, setCurrentUser] = useState<User>(() => {
     const saved = loadStorage<User | null>('current_user', null);
     return saved || INITIAL_USERS[0];
   });
-  const [currentClass, setCurrentClass] = useState<ClassGroup>(() => loadStorage('class', INITIAL_CLASS));
+  
   const [assignments, setAssignments] = useState<Assignment[]>(() => loadStorage('assignments', INITIAL_ASSIGNMENTS));
   const [submissions, setSubmissions] = useState<Submission[]>(() => loadStorage('submissions', INITIAL_SUBMISSIONS));
   const [broadcasts, setBroadcasts] = useState<Broadcast[]>(() => loadStorage('broadcasts', INITIAL_BROADCASTS));
   const [messages, setMessages] = useState<Message[]>(() => loadStorage('messages', INITIAL_MESSAGES));
   const [notifications, setNotifications] = useState<NotificationItem[]>(() => loadStorage('notifications', INITIAL_NOTIFICATIONS));
   const [discussions, setDiscussions] = useState<DiscussionComment[]>(() => loadStorage('discussions', INITIAL_DISCUSSIONS));
+  const [attendanceSessions, setAttendanceSessions] = useState<AttendanceSession[]>(() => loadStorage('attendance', INITIAL_ATTENDANCE));
+  const [resources, setResources] = useState<ResourceItem[]>(() => loadStorage('resources', INITIAL_RESOURCES));
+  const [polls, setPolls] = useState<ClassPoll[]>(() => loadStorage('polls', INITIAL_POLLS));
 
   const [activeTab, setActiveTab] = useState<NavTab>('dashboard');
   const [selectedAssignmentId, setSelectedAssignmentId] = useState<string | null>(assignments[0]?.id || null);
@@ -127,10 +182,14 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [isNewAssignmentModalOpen, setIsNewAssignmentModalOpen] = useState<boolean>(false);
   const [isSubmitDrawerOpen, setIsSubmitDrawerOpen] = useState<boolean>(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState<boolean>(false);
+  const [isShortcutsOpen, setIsShortcutsOpen] = useState<boolean>(false);
+  const [isQRCodeOpen, setIsQRCodeOpen] = useState<boolean>(false);
+  const [activeTrustPage, setActiveTrustPage] = useState<TrustPageType | null>(null);
   const [themeAccent, setThemeAccentState] = useState<ThemeAccent>(() => loadStorage('theme_accent', 'teal'));
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
+  const [toast, setToast] = useState<ToastItem | null>(null);
 
   // Sync to local storage
+  useEffect(() => saveStorage('classes', classes), [classes]);
   useEffect(() => saveStorage('users', allUsers), [allUsers]);
   useEffect(() => saveStorage('current_user', currentUser), [currentUser]);
   useEffect(() => saveStorage('class', currentClass), [currentClass]);
@@ -139,44 +198,96 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   useEffect(() => saveStorage('broadcasts', broadcasts), [broadcasts]);
   useEffect(() => saveStorage('messages', messages), [messages]);
   useEffect(() => saveStorage('notifications', notifications), [notifications]);
+  useEffect(() => saveStorage('discussions', discussions), [discussions]);
+  useEffect(() => saveStorage('attendance', attendanceSessions), [attendanceSessions]);
+  useEffect(() => saveStorage('resources', resources), [resources]);
+  useEffect(() => saveStorage('polls', polls), [polls]);
   useEffect(() => {
     saveStorage('theme_accent', themeAccent);
     document.documentElement.setAttribute('data-accent', themeAccent);
   }, [themeAccent]);
 
-  // Global Keyboard Shortcuts (⌘K, Escape, 1-8 tab switches)
+  // Global Keyboard Shortcuts (⌘K, ?, N, B, A, P, R, Escape)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      const activeEl = document.activeElement;
+      const isInput = activeEl?.tagName === 'INPUT' || activeEl?.tagName === 'TEXTAREA' || activeEl?.getAttribute('contenteditable') === 'true';
+
       // Command / Ctrl + K -> Toggle Command Palette
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
         setIsCommandPaletteOpen(prev => !prev);
         return;
       }
 
-      // Escape -> close modals/palette
+      // Escape -> close all open overlays
       if (e.key === 'Escape') {
         setIsCommandPaletteOpen(false);
         setIsNewAssignmentModalOpen(false);
         setIsSubmitDrawerOpen(false);
+        setIsShortcutsOpen(false);
+        setIsQRCodeOpen(false);
+        setActiveTrustPage(null);
+        return;
+      }
+
+      // If user is actively typing in an input field, do not trigger single-key navigation
+      if (isInput) return;
+
+      // ? or Shift+/ -> Shortcuts Modal
+      if (e.key === '?' || (e.shiftKey && e.key === '/')) {
+        e.preventDefault();
+        setIsShortcutsOpen(prev => !prev);
+        return;
+      }
+
+      // Single Key Actions
+      if (!e.metaKey && !e.ctrlKey && !e.altKey) {
+        if (e.key.toLowerCase() === 'n') {
+          e.preventDefault();
+          if (currentUser.role === 'CR') {
+            setIsNewAssignmentModalOpen(true);
+          } else {
+            setIsSubmitDrawerOpen(true);
+          }
+        } else if (e.key.toLowerCase() === 'b') {
+          e.preventDefault();
+          setActiveTab('broadcasts');
+        } else if (e.key.toLowerCase() === 'a') {
+          e.preventDefault();
+          setActiveTab('attendance');
+        } else if (e.key.toLowerCase() === 'p') {
+          e.preventDefault();
+          setActiveTab('polls');
+        } else if (e.key.toLowerCase() === 'r') {
+          e.preventDefault();
+          setActiveTab('resources');
+        }
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [currentUser]);
 
   const setThemeAccent = (accent: ThemeAccent) => {
     setThemeAccentState(accent);
     document.documentElement.setAttribute('data-accent', accent);
-    showToast(`Theme accent changed to ${accent.toUpperCase()}`, 'info');
+    showToast(`Theme accent set to ${accent.toUpperCase()}`, 'info');
   };
 
   const showToast = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
     setToast({ message, type });
     setTimeout(() => {
-      setToast(null);
-    }, 3800);
+      setToast(prev => prev?.message === message ? null : prev);
+    }, 4000);
+  };
+
+  const showUndoToast = (message: string, onUndo: () => void, duration: number = 6000) => {
+    setToast({ message, type: 'info', undoAction: onUndo });
+    setTimeout(() => {
+      setToast(prev => prev?.message === message ? null : prev);
+    }, duration);
   };
 
   const switchRole = (role: UserRole, targetUserId?: string) => {
@@ -198,6 +309,50 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       setCurrentUser(student);
       showToast(`Switched to Student View (${student.name})`, 'info');
     }
+  };
+
+  const switchClass = (classId: string) => {
+    const target = classes.find(c => c.id === classId);
+    if (target) {
+      setCurrentClass(target);
+      showToast(`Switched active class to ${target.name}`, 'info');
+    }
+  };
+
+  const archiveCurrentClass = () => {
+    const updated = { ...currentClass, isArchived: true };
+    setCurrentClass(updated);
+    setClasses(prev => prev.map(c => c.id === currentClass.id ? updated : c));
+    showToast(`Class ${currentClass.name} archived for the semester`, 'info');
+  };
+
+  const transferCR = (newCRStudentId: string) => {
+    const newCR = allUsers.find(u => u.id === newCRStudentId);
+    if (!newCR) return;
+
+    const oldCR = currentUser;
+    const updatedUsers = allUsers.map(u => {
+      if (u.id === newCRStudentId) {
+        return { ...u, role: 'CR' as UserRole };
+      }
+      if (u.id === oldCR.id) {
+        return { ...u, role: 'Student' as UserRole };
+      }
+      return u;
+    });
+
+    const updatedClass = {
+      ...currentClass,
+      crId: newCR.id,
+      crName: newCR.name
+    };
+
+    setAllUsers(updatedUsers);
+    setCurrentClass(updatedClass);
+    setClasses(prev => prev.map(c => c.id === currentClass.id ? updatedClass : c));
+    setCurrentUser({ ...oldCR, role: 'Student' });
+
+    showToast(`CR role successfully transferred to ${newCR.name}. You are now in Student view.`, 'success');
   };
 
   const generateCode = () => {
@@ -236,47 +391,26 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       subjects: ['General Mechanics', 'Applied Physics', 'Engineering Drawing', 'Mathematics']
     };
 
+    setClasses(prev => [...prev, newClass]);
     setAllUsers([newCr]);
     setCurrentUser(newCr);
     setCurrentClass(newClass);
     setAssignments([]);
     setSubmissions([]);
+    setAttendanceSessions([]);
+    setResources([]);
+    setPolls([]);
     setBroadcasts([
       {
         id: 'bc-init-' + Date.now(),
         classId: newClassId,
-        content: `Welcome to ${newClass.name}! Join code is ${code}. Official class updates and assignments will be coordinated here.`,
+        content: `Welcome to ${newClass.name}! Join code is ${code}. Official class updates, attendance, and assignments will be coordinated here.`,
         sentAt: new Date().toISOString(),
         sentBy: newCrId,
         authorName: crName,
         deliveredCount: 1,
         isPinned: true,
         readBy: []
-      }
-    ]);
-    setMessages([
-      {
-        id: 'msg-init-' + Date.now(),
-        classId: newClassId,
-        senderId: newCrId,
-        senderName: crName,
-        senderRole: 'CR',
-        recipientId: null,
-        content: `Class room ${newClass.name} created. End-to-end encrypted messaging channel is active.`,
-        sentAt: new Date().toISOString(),
-        readBy: [],
-        isEncrypted: true
-      }
-    ]);
-    setNotifications([
-      {
-        id: 'notif-init-' + Date.now(),
-        userId: newCrId,
-        type: 'system',
-        title: 'Class Created',
-        content: `Class ${newClass.name} created successfully. Share code ${code} with your students.`,
-        read: false,
-        createdAt: new Date().toISOString()
       }
     ]);
     setActiveTab('dashboard');
@@ -286,7 +420,9 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   const joinClass = (code: string, studentName: string, studentEmail: string): { success: boolean; error?: string } => {
     const cleanCode = code.trim().toUpperCase();
-    if (cleanCode !== currentClass.code) {
+    const targetClass = classes.find(c => c.code === cleanCode) || (cleanCode === currentClass.code ? currentClass : null);
+
+    if (!targetClass) {
       return { success: false, error: 'Code not found. Check with your CR.' };
     }
 
@@ -296,13 +432,14 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       name: studentName,
       email: studentEmail,
       role: 'Student',
-      classId: currentClass.id,
+      classId: targetClass.id,
       joinedAt: new Date().toISOString(),
       rollNo: `23ME${Math.floor(100 + Math.random() * 899)}`,
       lastActive: 'Just now',
       device: 'Mobile Browser'
     };
 
+    setCurrentClass(targetClass);
     setAllUsers(prev => [...prev, newStudent]);
     setCurrentUser(newStudent);
 
@@ -316,21 +453,8 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }));
 
     setSubmissions(prev => [...prev, ...newSubs]);
-    setNotifications(prev => [
-      {
-        id: 'notif-join-' + Date.now(),
-        userId: newStudentId,
-        type: 'system',
-        title: 'Joined Class',
-        content: `You have joined ${currentClass.name}. All active assignments are synced.`,
-        read: false,
-        createdAt: new Date().toISOString()
-      },
-      ...prev
-    ]);
-
     setActiveTab('dashboard');
-    showToast(`Successfully joined ${currentClass.name}!`, 'success');
+    showToast(`Successfully joined ${targetClass.name}!`, 'success');
     return { success: true };
   };
 
@@ -341,7 +465,10 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     deadline: string; 
     fileName?: string; 
     fileSize?: string; 
-    notifyOnCreate: boolean 
+    notifyOnCreate: boolean;
+    isRecurring?: boolean;
+    recurrenceRule?: 'weekly' | 'biweekly';
+    maxScore?: number;
   }) => {
     const newId = 'asg-' + Date.now();
     const newAsg: Assignment = {
@@ -357,7 +484,10 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       postedAt: new Date().toISOString(),
       createdBy: currentUser.name,
       status: 'active',
-      notifyOnCreate: data.notifyOnCreate
+      notifyOnCreate: data.notifyOnCreate,
+      isRecurring: data.isRecurring,
+      recurrenceRule: data.recurrenceRule,
+      maxScore: data.maxScore || 20
     };
 
     const studentUsers = allUsers.filter(u => u.role === 'Student');
@@ -480,21 +610,46 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       createdAt: isoTime
     };
 
-    const studentNotif: NotificationItem = {
-      id: 'notif-sub-stu-' + Date.now(),
-      userId: currentUser.id,
-      type: 'submission',
-      title: 'Submission Confirmed',
-      content: `Your submission for ${targetAsg?.title || 'Assignment'} was logged securely.`,
-      refId: assignmentId,
-      refType: 'assignment',
-      read: false,
-      createdAt: isoTime
-    };
-
-    setNotifications(prev => [crNotif, studentNotif, ...prev]);
+    setNotifications(prev => [crNotif, ...prev]);
     setIsSubmitDrawerOpen(false);
-    showToast('Assignment submitted successfully with tamper-evident proof!', 'success');
+    showToast('Assignment submitted with tamper-evident cryptographic proof!', 'success');
+  };
+
+  const gradeSubmission = (submissionId: string, score: number, maxScore: number, feedback?: string) => {
+    const gradedAt = new Date().toISOString();
+    setSubmissions(prev => prev.map(sub => {
+      if (sub.id === submissionId) {
+        return {
+          ...sub,
+          grade: {
+            score,
+            maxScore,
+            feedback,
+            gradedAt,
+            gradedBy: currentUser.name
+          }
+        };
+      }
+      return sub;
+    }));
+
+    const sub = submissions.find(s => s.id === submissionId);
+    if (sub) {
+      const studentNotif: NotificationItem = {
+        id: 'notif-grade-' + Date.now(),
+        userId: sub.studentId,
+        type: 'grade',
+        title: 'Assignment Graded',
+        content: `Score: ${score}/${maxScore}. Feedback: ${feedback ? `"${feedback}"` : 'Well done!'}`,
+        refId: sub.assignmentId,
+        refType: 'assignment',
+        read: false,
+        createdAt: gradedAt
+      };
+      setNotifications(prev => [studentNotif, ...prev]);
+    }
+
+    showToast(`Grade recorded: ${score}/${maxScore}`, 'success');
   };
 
   const sendBroadcast = (content: string) => {
@@ -523,7 +678,7 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       userId: 'ALL',
       type: 'broadcast',
       title: 'Official Broadcast',
-      content: `CR Announcement: ${clean.substring(0, 90)}${clean.length > 90 ? '...' : ''}`,
+      content: `CR Notice: ${clean.substring(0, 90)}${clean.length > 90 ? '...' : ''}`,
       refId: newBc.id,
       refType: 'broadcast',
       read: false,
@@ -608,6 +763,124 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setDiscussions(prev => [...prev, newComm]);
   };
 
+  // Attendance Actions
+  const takeAttendance = (data: { subject: string; date: string; topic?: string; conductedBy?: string; records: AttendanceRecord[] }) => {
+    const newSession: AttendanceSession = {
+      id: 'att-' + Date.now(),
+      classId: currentClass.id,
+      date: data.date,
+      subject: data.subject,
+      topic: data.topic || 'Class Lecture',
+      conductedBy: data.conductedBy || currentUser.name,
+      records: data.records,
+      createdAt: new Date().toISOString()
+    };
+
+    setAttendanceSessions(prev => [newSession, ...prev]);
+
+    // Check for defaulters below 75%
+    const absentees = data.records.filter(r => r.status === 'absent');
+    if (absentees.length > 0) {
+      const absentNotifs: NotificationItem[] = absentees.map(a => ({
+        id: 'notif-att-' + a.studentId + '-' + Date.now(),
+        userId: a.studentId,
+        type: 'attendance',
+        title: 'Attendance Alert',
+        content: `Marked absent for ${data.subject} on ${data.date}. Keep attendance above 75% to avoid defaulter list.`,
+        refType: 'attendance',
+        read: false,
+        createdAt: new Date().toISOString()
+      }));
+      setNotifications(prev => [...absentNotifs, ...prev]);
+    }
+
+    showToast(`Attendance recorded for ${data.records.length} students in ${data.subject}`, 'success');
+  };
+
+  const deleteAttendanceSession = (sessionId: string) => {
+    const previous = [...attendanceSessions];
+    setAttendanceSessions(prev => prev.filter(s => s.id !== sessionId));
+    showUndoToast('Attendance session deleted', () => {
+      setAttendanceSessions(previous);
+    });
+  };
+
+  // Resource Actions
+  const uploadResource = (data: { title: string; subject: string; category: any; description: string; fileName: string; fileSize: string }) => {
+    const newResource: ResourceItem = {
+      id: 'res-' + Date.now(),
+      classId: currentClass.id,
+      title: data.title,
+      subject: data.subject,
+      category: data.category,
+      description: data.description,
+      fileName: data.fileName,
+      fileSize: data.fileSize,
+      fileUrl: '#',
+      uploadedBy: currentUser.id,
+      uploadedByName: currentUser.name + (currentUser.role === 'CR' ? ' (CR)' : ''),
+      uploadedAt: new Date().toISOString(),
+      downloadsCount: 0
+    };
+
+    setResources(prev => [newResource, ...prev]);
+    showToast(`Resource "${data.title}" uploaded to library`, 'success');
+  };
+
+  const deleteResource = (resourceId: string) => {
+    const previous = [...resources];
+    setResources(prev => prev.filter(r => r.id !== resourceId));
+    showUndoToast('Resource removed', () => {
+      setResources(previous);
+    });
+  };
+
+  const incrementResourceDownload = (resourceId: string) => {
+    setResources(prev => prev.map(r => r.id === resourceId ? { ...r, downloadsCount: r.downloadsCount + 1 } : r));
+    showToast('Download started', 'info');
+  };
+
+  // Polls Actions
+  const createPoll = (data: { question: string; description?: string; options: string[]; expiresHours?: number }) => {
+    const newPoll: ClassPoll = {
+      id: 'poll-' + Date.now(),
+      classId: currentClass.id,
+      question: data.question,
+      description: data.description,
+      options: data.options.map((opt, i) => ({ id: `opt-${i + 1}`, text: opt, votes: [] })),
+      createdBy: currentUser.id,
+      createdByName: currentUser.name,
+      createdAt: new Date().toISOString(),
+      expiresAt: new Date(Date.now() + (data.expiresHours || 24) * 3600 * 1000).toISOString(),
+      isClosed: false
+    };
+
+    setPolls(prev => [newPoll, ...prev]);
+    showToast(`Quick Poll created: "${data.question}"`, 'success');
+  };
+
+  const votePoll = (pollId: string, optionId: string) => {
+    setPolls(prev => prev.map(p => {
+      if (p.id === pollId) {
+        const updatedOptions = p.options.map(opt => {
+          const filteredVotes = opt.votes.filter(id => id !== currentUser.id);
+          if (opt.id === optionId) {
+            return { ...opt, votes: [...filteredVotes, currentUser.id] };
+          }
+          return { ...opt, votes: filteredVotes };
+        });
+        return { ...p, options: updatedOptions };
+      }
+      return p;
+    }));
+    showToast('Vote cast successfully!', 'success');
+  };
+
+  const closePoll = (pollId: string) => {
+    setPolls(prev => prev.map(p => p.id === pollId ? { ...p, isClosed: true } : p));
+    showToast('Poll closed for voting', 'info');
+  };
+
   const removeStudent = (studentId: string) => {
     const stu = allUsers.find(u => u.id === studentId);
     setAllUsers(prev => prev.filter(u => u.id !== studentId));
@@ -620,10 +893,8 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   const regenerateClassCode = (): string => {
     const newCode = generateCode();
-    setCurrentClass(prev => ({
-      ...prev,
-      code: newCode
-    }));
+    setCurrentClass(prev => ({ ...prev, code: newCode }));
+    setClasses(prev => prev.map(c => c.id === currentClass.id ? { ...c, code: newCode } : c));
     showToast(`New class code generated: ${newCode}`, 'info');
     return newCode;
   };
@@ -632,6 +903,7 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const clean = name.trim().toUpperCase();
     if (!clean) return;
     setCurrentClass(prev => ({ ...prev, name: clean }));
+    setClasses(prev => prev.map(c => c.id === currentClass.id ? { ...c, name: clean } : c));
     showToast('Class name updated', 'success');
   };
 
@@ -668,7 +940,7 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const targetAsg = assignmentId ? assignments.find(a => a.id === assignmentId) : assignments[0];
     const targetSubs = submissions.filter(s => !targetAsg || s.assignmentId === targetAsg.id);
 
-    const headers = ['Student Name', 'Email', 'Assignment', 'Subject', 'Status', 'Submitted At', 'Submission Proof Hash'];
+    const headers = ['Student Name', 'Email', 'Assignment', 'Subject', 'Status', 'Grade Score', 'Grade Feedback', 'Submitted At', 'Submission Hash'];
     const rows = targetSubs.map(s => {
       const asg = assignments.find(a => a.id === s.assignmentId);
       return [
@@ -677,6 +949,8 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         `"${asg?.title || ''}"`,
         `"${asg?.subject || ''}"`,
         `"${s.status.toUpperCase()}"`,
+        `"${s.grade ? `${s.grade.score}/${s.grade.maxScore}` : 'Not Graded'}"`,
+        `"${s.grade?.feedback || ''}"`,
         `"${s.submittedAt ? new Date(s.submittedAt).toLocaleString() : 'N/A'}"`,
         `"${s.proof?.submissionHash || 'N/A'}"`
       ].join(',');
@@ -717,6 +991,34 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     showToast('Class roster exported to CSV', 'success');
   };
 
+  const exportAttendanceCSV = () => {
+    const headers = ['Session Date', 'Subject', 'Topic', 'Student RollNo', 'Student Name', 'Attendance Status'];
+    const rows: string[] = [];
+    attendanceSessions.forEach(sess => {
+      sess.records.forEach(rec => {
+        rows.push([
+          `"${sess.date}"`,
+          `"${sess.subject}"`,
+          `"${sess.topic || ''}"`,
+          `"${rec.rollNo}"`,
+          `"${rec.studentName}"`,
+          `"${rec.status.toUpperCase()}"`
+        ].join(','));
+      });
+    });
+
+    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `StudySync_${currentClass.name}_Attendance_Report_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    showToast('Attendance report exported to CSV', 'success');
+  };
+
   const leaveClass = () => {
     setAllUsers(prev => prev.filter(u => u.id !== currentUser.id));
     setSubmissions(prev => prev.filter(s => s.studentId !== currentUser.id));
@@ -727,6 +1029,7 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   const resetDemoData = () => {
     localStorage.clear();
+    setClasses(INITIAL_CLASSES);
     setAllUsers(INITIAL_USERS);
     setCurrentUser(INITIAL_USERS[0]);
     setCurrentClass(INITIAL_CLASS);
@@ -736,6 +1039,9 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setMessages(INITIAL_MESSAGES);
     setNotifications(INITIAL_NOTIFICATIONS);
     setDiscussions(INITIAL_DISCUSSIONS);
+    setAttendanceSessions(INITIAL_ATTENDANCE);
+    setResources(INITIAL_RESOURCES);
+    setPolls(INITIAL_POLLS);
     setActiveTab('dashboard');
     setSelectedAssignmentId(INITIAL_ASSIGNMENTS[0].id);
     setSelectedStudentId(INITIAL_USERS[1].id);
@@ -748,6 +1054,7 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       value={{
         currentUser,
         currentClass,
+        classes,
         allUsers,
         assignments,
         submissions,
@@ -755,6 +1062,9 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         messages,
         notifications,
         discussions,
+        attendanceSessions,
+        resources,
+        polls,
         activeTab,
         selectedAssignmentId,
         selectedStudentId,
@@ -764,6 +1074,9 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         isNewAssignmentModalOpen,
         isSubmitDrawerOpen,
         isCommandPaletteOpen,
+        isShortcutsOpen,
+        isQRCodeOpen,
+        activeTrustPage,
         themeAccent,
         toast,
         setActiveTab,
@@ -774,18 +1087,34 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         setIsNewAssignmentModalOpen,
         setIsSubmitDrawerOpen,
         setIsCommandPaletteOpen,
+        setIsShortcutsOpen,
+        setIsQRCodeOpen,
+        setActiveTrustPage,
         setThemeAccent,
         showToast,
+        showUndoToast,
         switchRole,
+        switchClass,
+        archiveCurrentClass,
+        transferCR,
         createClass,
         joinClass,
         createAssignment,
         submitAssignment,
         markAssignmentViewed,
+        gradeSubmission,
         sendBroadcast,
         sendMessage,
         remindPendingStudents,
         addDiscussionComment,
+        takeAttendance,
+        deleteAttendanceSession,
+        uploadResource,
+        deleteResource,
+        incrementResourceDownload,
+        createPoll,
+        votePoll,
+        closePoll,
         removeStudent,
         regenerateClassCode,
         updateClassName,
@@ -795,6 +1124,7 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         toggleOffline,
         exportSubmissionsCSV,
         exportMembersCSV,
+        exportAttendanceCSV,
         leaveClass,
         resetDemoData
       }}

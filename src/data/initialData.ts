@@ -1,4 +1,16 @@
-import { User, ClassGroup, Assignment, Submission, Broadcast, Message, NotificationItem, DiscussionComment } from '../types';
+import { 
+  User, 
+  ClassGroup, 
+  Assignment, 
+  Submission, 
+  Broadcast, 
+  Message, 
+  NotificationItem, 
+  DiscussionComment,
+  AttendanceSession,
+  ResourceItem,
+  ClassPoll
+} from '../types';
 
 export const INITIAL_CLASS: ClassGroup = {
   id: 'class-mech-3a',
@@ -644,3 +656,149 @@ export const INITIAL_DISCUSSIONS: DiscussionComment[] = [
     createdAt: new Date(now.getTime() - 19 * 60 * 60 * 1000).toISOString()
   }
 ];
+
+export const INITIAL_CLASSES: ClassGroup[] = [
+  INITIAL_CLASS,
+  {
+    id: 'class-cs-e102',
+    name: 'CS-E102 (AI Elective)',
+    code: '9P4X2A',
+    crId: 'user-cr-1',
+    crName: 'Aarav Sharma',
+    createdAt: '2026-08-05T09:00:00.000Z',
+    subjects: ['Machine Learning', 'Python Programming', 'Linear Algebra']
+  },
+  {
+    id: 'class-robo-lab',
+    name: 'ROBO-LAB Batch B',
+    code: '3L8Y7W',
+    crId: 'user-cr-1',
+    crName: 'Aarav Sharma',
+    createdAt: '2026-08-10T09:00:00.000Z',
+    subjects: ['Microcontroller Systems', 'Kinematics', 'Embedded C']
+  }
+];
+
+export const INITIAL_ATTENDANCE: AttendanceSession[] = [
+  {
+    id: 'att-1',
+    classId: 'class-mech-3a',
+    date: '2026-09-08',
+    subject: 'Fluid Mechanics',
+    topic: 'Navier-Stokes Equation Derivation',
+    conductedBy: 'Prof. S. Rao',
+    createdAt: new Date(now.getTime() - 48 * 60 * 60 * 1000).toISOString(),
+    records: [
+      { studentId: 'user-stu-1', studentName: 'Ishan Patel', rollNo: '23ME014', status: 'present' },
+      { studentId: 'user-stu-2', studentName: 'Neha Kulkarni', rollNo: '23ME028', status: 'present' },
+      { studentId: 'user-stu-3', studentName: 'Rohan Verma', rollNo: '23ME045', status: 'present' },
+      { studentId: 'user-stu-4', studentName: 'Priya Nair', rollNo: '23ME039', status: 'present' },
+      { studentId: 'user-stu-5', studentName: 'Ananya Deshmukh', rollNo: '23ME008', status: 'present' },
+      { studentId: 'user-stu-6', studentName: 'Kabir Mehta', rollNo: '23ME022', status: 'late' },
+      { studentId: 'user-stu-7', studentName: 'Tanvi Iyer', rollNo: '23ME056', status: 'present' },
+      { studentId: 'user-stu-8', studentName: 'Aditya Gupta', rollNo: '23ME003', status: 'absent' },
+      { studentId: 'user-stu-9', studentName: 'Sneha Reddy', rollNo: '23ME049', status: 'absent' },
+      { studentId: 'user-stu-10', studentName: 'Vikram Joshi', rollNo: '23ME062', status: 'absent' }
+    ]
+  },
+  {
+    id: 'att-2',
+    classId: 'class-mech-3a',
+    date: '2026-09-09',
+    subject: 'Thermodynamics',
+    topic: 'Brayton Cycle & Gas Turbine Efficiency',
+    conductedBy: 'Dr. V. Menon',
+    createdAt: new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString(),
+    records: [
+      { studentId: 'user-stu-1', studentName: 'Ishan Patel', rollNo: '23ME014', status: 'present' },
+      { studentId: 'user-stu-2', studentName: 'Neha Kulkarni', rollNo: '23ME028', status: 'present' },
+      { studentId: 'user-stu-3', studentName: 'Rohan Verma', rollNo: '23ME045', status: 'present' },
+      { studentId: 'user-stu-4', studentName: 'Priya Nair', rollNo: '23ME039', status: 'present' },
+      { studentId: 'user-stu-5', studentName: 'Ananya Deshmukh', rollNo: '23ME008', status: 'present' },
+      { studentId: 'user-stu-6', studentName: 'Kabir Mehta', rollNo: '23ME022', status: 'present' },
+      { studentId: 'user-stu-7', studentName: 'Tanvi Iyer', rollNo: '23ME056', status: 'present' },
+      { studentId: 'user-stu-8', studentName: 'Aditya Gupta', rollNo: '23ME003', status: 'present' },
+      { studentId: 'user-stu-9', studentName: 'Sneha Reddy', rollNo: '23ME049', status: 'absent' },
+      { studentId: 'user-stu-10', studentName: 'Vikram Joshi', rollNo: '23ME062', status: 'absent' }
+    ]
+  }
+];
+
+export const INITIAL_RESOURCES: ResourceItem[] = [
+  {
+    id: 'res-1',
+    classId: 'class-mech-3a',
+    title: 'Mid-Sem 2025 Solved PYQ Paper',
+    subject: 'Fluid Mechanics',
+    category: 'pyq',
+    description: 'Complete step-by-step solved previous year question paper with marking scheme.',
+    fileName: 'FM_Midsem_2025_Solved.pdf',
+    fileSize: '4.8 MB',
+    uploadedBy: 'user-cr-1',
+    uploadedByName: 'Aarav Sharma (CR)',
+    uploadedAt: '2026-09-02T11:00:00.000Z',
+    downloadsCount: 38
+  },
+  {
+    id: 'res-2',
+    classId: 'class-mech-3a',
+    title: 'Steam Tables & Mollier Diagram Reference',
+    subject: 'Thermodynamics',
+    category: 'formula',
+    description: 'Official approved steam tables reference sheet for midterm and final examinations.',
+    fileName: 'Thermo_Steam_Tables_2026.pdf',
+    fileSize: '2.1 MB',
+    uploadedBy: 'user-cr-1',
+    uploadedByName: 'Aarav Sharma (CR)',
+    uploadedAt: '2026-09-03T14:30:00.000Z',
+    downloadsCount: 42
+  },
+  {
+    id: 'res-3',
+    classId: 'class-mech-3a',
+    title: 'Unit 3: Navier-Stokes Handwritten Lecture Notes',
+    subject: 'Fluid Mechanics',
+    category: 'notes',
+    description: 'Comprehensive handwritten lecture notes covering cylindrical coordinates and boundary layer theory.',
+    fileName: 'FM_Unit3_LectureNotes.pdf',
+    fileSize: '12.4 MB',
+    uploadedBy: 'user-stu-2',
+    uploadedByName: 'Neha Kulkarni',
+    uploadedAt: '2026-09-05T16:00:00.000Z',
+    downloadsCount: 29
+  },
+  {
+    id: 'res-4',
+    classId: 'class-mech-3a',
+    title: 'CAD Lab Manual & Isometric Dimensioning Guide',
+    subject: 'Engineering Graphics',
+    category: 'lab',
+    description: 'Standard CAD drawing templates and tolerance limits for weekly lab submissions.',
+    fileName: 'CAD_Lab_Manual_v3.pdf',
+    fileSize: '6.2 MB',
+    uploadedBy: 'user-cr-1',
+    uploadedByName: 'Aarav Sharma (CR)',
+    uploadedAt: '2026-09-06T09:15:00.000Z',
+    downloadsCount: 34
+  }
+];
+
+export const INITIAL_POLLS: ClassPoll[] = [
+  {
+    id: 'poll-1',
+    classId: 'class-mech-3a',
+    question: 'When should we submit Fluid Mechanics Assignment 2?',
+    description: 'Prof. Rao offered an optional extension if the majority agrees.',
+    options: [
+      { id: 'opt-1', text: 'Thursday 11:59 PM (As Scheduled)', votes: ['user-stu-1', 'user-stu-2', 'user-stu-5'] },
+      { id: 'opt-2', text: 'Friday 5:00 PM (After Lab Session)', votes: ['user-stu-3', 'user-stu-4', 'user-stu-6', 'user-stu-7', 'user-stu-8'] },
+      { id: 'opt-3', text: 'Saturday 11:59 PM (Weekend Window)', votes: ['user-stu-9', 'user-stu-10'] }
+    ],
+    createdBy: 'user-cr-1',
+    createdByName: 'Aarav Sharma',
+    createdAt: new Date(now.getTime() - 14 * 60 * 60 * 1000).toISOString(),
+    expiresAt: new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString(),
+    isClosed: false
+  }
+];
+

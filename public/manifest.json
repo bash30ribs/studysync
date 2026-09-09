@@ -1,0 +1,17 @@
+{
+  "short_name": "StudySync",
+  "name": "StudySync — College Class Coordination",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#0F2044",
+  "theme_color": "#00B4A6",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "description": "Precision role-aware college class coordination web platform for students and Class Representatives."
+}

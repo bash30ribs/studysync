@@ -98,12 +98,69 @@ export const SettingsView: React.FC = () => {
         </form>
       </div>
 
-      {/* CR Specific Settings */}
+      {/* CR Specific Settings: Handover & Archiving */}
       {currentUser.role === 'CR' && (
-        <div className="p-5 sm:p-6 rounded-xl bg-white dark:bg-[#0F172A] border border-[#E2E7F0] dark:border-[#1E293B] shadow-xs space-y-5">
+        <div className="p-5 sm:p-6 rounded-2xl bg-white dark:bg-[#0F172A] border border-[#E2E8F0] dark:border-[#1E293B] shadow-xs space-y-5">
           <h2 className="font-bold text-sm text-[#0F2044] dark:text-white">
-            Class Administration
+            Class Administration & CR Handover
           </h2>
+
+          {/* CR Handover Tool */}
+          <div className="p-4 rounded-xl bg-[#F8FAFC] dark:bg-[#15203B]/50 border border-[#E2E8F0] dark:border-[#1E293B] space-y-3">
+            <div>
+              <span className="text-xs font-bold text-[#0F2044] dark:text-white block">
+                Democratic CR Handover
+              </span>
+              <p className="text-xs text-[#64748B] dark:text-[#94A3B8] mt-0.5">
+                Transfer full Class Representative authority to another enrolled student upon new semester election.
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+              <select
+                id="cr-handover-select"
+                defaultValue=""
+                className="flex-1 px-3 py-2 text-xs rounded-xl bg-white dark:bg-[#0B132B] border border-[#CBD5E1] dark:border-[#334155] text-[#0F2044] dark:text-white focus:outline-none"
+              >
+                <option value="" disabled>Select student to promote to CR...</option>
+                {useStudySync().allUsers.filter(u => u.role === 'Student').map(s => (
+                  <option key={s.id} value={s.id}>{s.name} ({s.rollNo})</option>
+                ))}
+              </select>
+              <button
+                type="button"
+                onClick={() => {
+                  const selectEl = document.getElementById('cr-handover-select') as HTMLSelectElement;
+                  if (selectEl?.value) {
+                    useStudySync().transferCR(selectEl.value);
+                  }
+                }}
+                className="px-4 py-2 rounded-xl bg-[#0F2044] dark:bg-[#00D2C4] text-white dark:text-[#09132B] text-xs font-bold shrink-0 hover:opacity-90 transition-opacity"
+              >
+                Transfer CR Role
+              </button>
+            </div>
+          </div>
+
+          {/* Semester Archiving */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-[#E2E8F0] dark:border-[#1E293B]">
+            <div>
+              <span className="text-xs font-bold text-[#0F2044] dark:text-white block">
+                Semester Archiving
+              </span>
+              <p className="text-xs text-[#64748B] dark:text-[#94A3B8] mt-0.5">
+                Lock class history in read-only mode for historical grade and submission audits.
+              </p>
+            </div>
+            <button
+              onClick={() => useStudySync().archiveCurrentClass()}
+              className="px-3.5 py-2 rounded-xl border border-[#E2E8F0] dark:border-[#1E293B] bg-white dark:bg-[#080D1A] hover:bg-[#F8FAFC] text-xs font-bold text-[#0F2044] dark:text-white transition-colors self-start sm:self-auto"
+            >
+              Archive Class
+            </button>
+          </div>
+
+          <div className="h-px bg-[#E2E8F0] dark:border-[#1E293B]" />
 
           {/* Edit Class Name */}
           <form onSubmit={handleUpdateClassName} className="space-y-2">
@@ -115,18 +172,18 @@ export const SettingsView: React.FC = () => {
                 type="text"
                 value={classNameInput}
                 onChange={(e) => setClassNameInput(e.target.value)}
-                className="flex-1 text-xs px-3.5 py-2.5 rounded-lg border border-[#E2E7F0] dark:border-[#1E293B] bg-[#F8FAFC] dark:bg-[#080D1A] text-[#0F2044] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#00B4A6]/20 focus:border-[#00B4A6] dark:focus:border-[#00D2C4]"
+                className="flex-1 text-xs px-3.5 py-2.5 rounded-xl border border-[#E2E8F0] dark:border-[#1E293B] bg-[#F8FAFC] dark:bg-[#080D1A] text-[#0F2044] dark:text-white focus:outline-none focus:ring-1 focus:ring-[#00B4A6]"
               />
               <button
                 type="submit"
-                className="px-4 py-2.5 rounded-lg bg-[#0F2044] dark:bg-[#15203B] hover:bg-[#193166] text-white text-xs font-bold border border-transparent dark:border-[#25427C]"
+                className="px-4 py-2.5 rounded-xl bg-[#0F2044] dark:bg-[#15203B] hover:bg-[#193166] text-white text-xs font-bold"
               >
                 Update Name
               </button>
             </div>
           </form>
 
-          <div className="h-px bg-[#E2E7F0] dark:bg-[#1E293B]" />
+          <div className="h-px bg-[#E2E8F0] dark:border-[#1E293B]" />
 
           {/* Regenerate Class Code */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -140,35 +197,57 @@ export const SettingsView: React.FC = () => {
             </div>
             <button
               onClick={() => setIsRegenerateModalOpen(true)}
-              className="px-3.5 py-2 rounded-lg border border-[#E2E7F0] dark:border-[#1E293B] bg-white dark:bg-[#080D1A] hover:bg-[#F8FAFC] dark:hover:bg-[#15203B] text-xs font-bold text-[#0F2044] dark:text-white flex items-center gap-1.5 self-start sm:self-auto transition-all shadow-xs"
+              className="px-3.5 py-2 rounded-xl border border-[#E2E8F0] dark:border-[#1E293B] bg-white dark:bg-[#080D1A] hover:bg-[#F8FAFC] dark:hover:bg-[#15203B] text-xs font-bold text-[#0F2044] dark:text-white flex items-center gap-1.5 self-start sm:self-auto transition-all shadow-xs"
             >
               <RotateCw className="w-3.5 h-3.5 text-[#00B4A6] dark:text-[#00D2C4]" />
               <span>Regenerate Code</span>
             </button>
           </div>
-
-          <div className="h-px bg-[#E2E7F0] dark:bg-[#1E293B]" />
-
-          {/* CSV Roster Export */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div>
-              <span className="text-xs font-bold text-[#0F2044] dark:text-white block">
-                Class Roster Data Backup
-              </span>
-              <p className="text-xs text-[#64748B] dark:text-[#94A3B8] mt-0.5">
-                Download student names, roll numbers, and submission rates in CSV format.
-              </p>
-            </div>
-            <button
-              onClick={exportMembersCSV}
-              className="px-3.5 py-2 rounded-lg border border-[#E2E7F0] dark:border-[#1E293B] bg-white dark:bg-[#080D1A] hover:bg-[#F8FAFC] dark:hover:bg-[#15203B] text-xs font-bold text-[#0F2044] dark:text-white flex items-center gap-1.5 self-start sm:self-auto transition-all shadow-xs"
-            >
-              <Download className="w-3.5 h-3.5 text-[#64748B] dark:text-[#94A3B8]" />
-              <span>Export CSV</span>
-            </button>
-          </div>
         </div>
       )}
+
+      {/* Trust & Legal Links */}
+      <div className="p-5 sm:p-6 rounded-2xl bg-white dark:bg-[#0F172A] border border-[#E2E8F0] dark:border-[#1E293B] shadow-xs space-y-3">
+        <h2 className="font-bold text-sm text-[#0F2044] dark:text-white">
+          Trust & Platform Governance
+        </h2>
+        <p className="text-xs text-[#64748B] dark:text-[#94A3B8]">
+          Review academic integrity compliance, GDPR-aware data practices, encryption standards, and live system latency.
+        </p>
+
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 pt-2">
+          <button
+            onClick={() => useStudySync().setActiveTrustPage('privacy')}
+            className="p-2.5 rounded-xl bg-[#F8FAFC] dark:bg-[#15203B] border border-[#E2E8F0] dark:border-[#1E293B] text-xs font-semibold text-[#0F2044] dark:text-white hover:border-[#00B4A6] transition-colors"
+          >
+            Privacy Policy
+          </button>
+          <button
+            onClick={() => useStudySync().setActiveTrustPage('terms')}
+            className="p-2.5 rounded-xl bg-[#F8FAFC] dark:bg-[#15203B] border border-[#E2E8F0] dark:border-[#1E293B] text-xs font-semibold text-[#0F2044] dark:text-white hover:border-[#00B4A6] transition-colors"
+          >
+            Terms of Service
+          </button>
+          <button
+            onClick={() => useStudySync().setActiveTrustPage('security')}
+            className="p-2.5 rounded-xl bg-[#F8FAFC] dark:bg-[#15203B] border border-[#E2E8F0] dark:border-[#1E293B] text-xs font-semibold text-[#0F2044] dark:text-white hover:border-[#00B4A6] transition-colors"
+          >
+            Security Architecture
+          </button>
+          <button
+            onClick={() => useStudySync().setActiveTrustPage('status')}
+            className="p-2.5 rounded-xl bg-[#F8FAFC] dark:bg-[#15203B] border border-[#E2E8F0] dark:border-[#1E293B] text-xs font-semibold text-[#0F2044] dark:text-white hover:border-[#00B4A6] transition-colors"
+          >
+            Status Monitor
+          </button>
+          <button
+            onClick={() => useStudySync().setActiveTrustPage('about')}
+            className="p-2.5 rounded-xl bg-[#F8FAFC] dark:bg-[#15203B] border border-[#E2E8F0] dark:border-[#1E293B] text-xs font-semibold text-[#0F2044] dark:text-white hover:border-[#00B4A6] transition-colors"
+          >
+            About Story
+          </button>
+        </div>
+      </div>
 
       {/* Notification Preferences */}
       <div className="p-5 sm:p-6 rounded-xl bg-white dark:bg-[#0F172A] border border-[#E2E7F0] dark:border-[#1E293B] shadow-xs space-y-3">

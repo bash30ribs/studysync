@@ -7,10 +7,16 @@ import { MobileNav } from './components/layout/MobileNav';
 import { Toast } from './components/common/Feedback';
 import { SubmitDrawer } from './components/assignments/SubmitDrawer';
 import { CommandPalette } from './components/common/CommandPalette';
+import { ShortcutsModal } from './components/common/ShortcutsModal';
+import { QRCodeModal } from './components/common/QRCodeModal';
+import { TrustPages } from './components/public/TrustPages';
 
 import { CRDashboard } from './components/dashboard/CRDashboard';
 import { StudentDashboard } from './components/dashboard/StudentDashboard';
 import { AssignmentsView } from './components/assignments/AssignmentsView';
+import { AttendanceView } from './components/attendance/AttendanceView';
+import { ResourceLibraryView } from './components/resources/ResourceLibraryView';
+import { PollsView } from './components/polls/PollsView';
 import { CalendarView } from './components/calendar/CalendarView';
 import { MembersView } from './components/members/MembersView';
 import { BroadcastsView } from './components/broadcasts/BroadcastsView';
@@ -36,6 +42,12 @@ const MainLayout: React.FC<{ isDarkMode: boolean; setIsDarkMode: React.Dispatch<
         return currentUser.role === 'CR' ? <CRDashboard /> : <StudentDashboard />;
       case 'assignments':
         return <AssignmentsView />;
+      case 'attendance':
+        return <AttendanceView />;
+      case 'resources':
+        return <ResourceLibraryView />;
+      case 'polls':
+        return <PollsView />;
       case 'calendar':
         return <CalendarView />;
       case 'members':
@@ -88,9 +100,12 @@ const MainLayout: React.FC<{ isDarkMode: boolean; setIsDarkMode: React.Dispatch<
       {/* Mobile Bottom Navigation */}
       <MobileNav />
 
-      {/* Global Drawers & Modals */}
+      {/* Global Drawers, Palettes & Modals */}
       <SubmitDrawer />
       <CommandPalette />
+      <ShortcutsModal />
+      <QRCodeModal />
+      <TrustPages />
       <Toast />
     </div>
   );

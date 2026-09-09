@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useStudySync } from '../../store';
 import { 
   Key, 
   CheckCircle2, 
@@ -10,6 +11,7 @@ import {
 import { CreateClassModal, JoinClassModal } from '../onboarding/OnboardingModals';
 
 export const LandingPage: React.FC<{ onEnterApp: () => void }> = ({ onEnterApp }) => {
+  const { setActiveTrustPage } = useStudySync();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isJoinOpen, setIsJoinOpen] = useState(false);
 
@@ -232,14 +234,38 @@ export const LandingPage: React.FC<{ onEnterApp: () => void }> = ({ onEnterApp }
           <span>One class code. Nobody left behind.</span>
         </div>
 
-        <div className="flex items-center gap-6 text-[11px]">
-          <a href="#" onClick={(e) => { e.preventDefault(); alert("StudySync respects student privacy. Device info and hashes are stored tamper-evident for CR validation only."); }} className="hover:text-white transition-colors">
-            Privacy Notice
-          </a>
-          <a href="https://github.com" target="_blank" rel="noreferrer" className="hover:text-white flex items-center gap-1 transition-colors">
-            <Code2 className="w-3.5 h-3.5" />
-            <span>GitHub</span>
-          </a>
+        <div className="flex items-center gap-4 text-[11px]">
+          <button 
+            onClick={() => setActiveTrustPage('privacy')} 
+            className="hover:text-white transition-colors"
+          >
+            Privacy Policy
+          </button>
+          <button 
+            onClick={() => setActiveTrustPage('terms')} 
+            className="hover:text-white transition-colors"
+          >
+            Terms of Service
+          </button>
+          <button 
+            onClick={() => setActiveTrustPage('security')} 
+            className="hover:text-white transition-colors"
+          >
+            Security & E2EE
+          </button>
+          <button 
+            onClick={() => setActiveTrustPage('status')} 
+            className="hover:text-white transition-colors flex items-center gap-1 text-[#00D2C4]"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-[#00D2C4]" />
+            <span>status.studysync.app</span>
+          </button>
+          <button 
+            onClick={() => setActiveTrustPage('about')} 
+            className="hover:text-white transition-colors"
+          >
+            About Story
+          </button>
         </div>
       </footer>
 

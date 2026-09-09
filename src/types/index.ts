@@ -6,11 +6,13 @@ export interface User {
   email: string;
   role: UserRole;
   classId: string;
+  enrolledClassIds?: string[];
   joinedAt: string;
   rollNo?: string;
   avatar?: string;
   lastActive: string;
   device?: string;
+  isEmailVerified?: boolean;
 }
 
 export interface ClassGroup {
@@ -21,6 +23,10 @@ export interface ClassGroup {
   crName: string;
   createdAt: string;
   subjects: string[];
+  semester?: string;
+  academicYear?: string;
+  isArchived?: boolean;
+  memberCount?: number;
 }
 
 export interface Assignment {
@@ -37,6 +43,11 @@ export interface Assignment {
   createdBy: string;
   status: 'active' | 'closed' | 'overdue';
   notifyOnCreate: boolean;
+  isRecurring?: boolean;
+  recurrenceRule?: 'weekly' | 'biweekly';
+  aiSummary?: string;
+  difficultyEstimate?: 'Low' | 'Medium' | 'High';
+  maxScore?: number;
 }
 
 export type SubmissionStatus = 'assigned' | 'viewed' | 'submitted' | 'missed';
@@ -47,6 +58,14 @@ export interface SubmissionProof {
   ipMock?: string;
   submissionHash: string;
   timestamp: string;
+}
+
+export interface SubmissionGrade {
+  score: number;
+  maxScore: number;
+  feedback?: string;
+  gradedAt: string;
+  gradedBy: string;
 }
 
 export interface Submission {
@@ -63,6 +82,7 @@ export interface Submission {
   fileSize?: string;
   fileUrl?: string;
   proof?: SubmissionProof;
+  grade?: SubmissionGrade;
 }
 
 export interface Broadcast {
@@ -92,7 +112,7 @@ export interface Message {
   isEncrypted: boolean;
 }
 
-export type NotificationType = 'assignment' | 'reminder' | 'broadcast' | 'submission' | 'system';
+export type NotificationType = 'assignment' | 'reminder' | 'broadcast' | 'submission' | 'attendance' | 'grade' | 'poll' | 'system';
 
 export interface NotificationItem {
   id: string;
@@ -101,7 +121,7 @@ export interface NotificationItem {
   title: string;
   content: string;
   refId?: string;
-  refType?: 'assignment' | 'broadcast' | 'message';
+  refType?: 'assignment' | 'broadcast' | 'message' | 'attendance' | 'poll' | 'resource';
   read: boolean;
   createdAt: string;
 }
@@ -125,13 +145,77 @@ export interface ReminderLog {
   type: 'manual' | 'auto_24h' | 'auto_2h';
 }
 
+// Attendance Types
+export type AttendanceStatus = 'present' | 'absent' | 'late' | 'excused';
+
+export interface AttendanceRecord {
+  studentId: string;
+  studentName: string;
+  rollNo: string;
+  status: AttendanceStatus;
+}
+
+export interface AttendanceSession {
+  id: string;
+  classId: string;
+  date: string; // YYYY-MM-DD
+  subject: string;
+  topic?: string;
+  conductedBy: string;
+  records: AttendanceRecord[];
+  createdAt: string;
+}
+
+// Resource Library Types
+export type ResourceCategory = 'notes' | 'pyq' | 'syllabus' | 'lab' | 'formula';
+
+export interface ResourceItem {
+  id: string;
+  classId: string;
+  title: string;
+  subject: string;
+  category: ResourceCategory;
+  description: string;
+  fileName: string;
+  fileSize: string;
+  fileUrl?: string;
+  uploadedBy: string;
+  uploadedByName: string;
+  uploadedAt: string;
+  downloadsCount: number;
+}
+
+// Polls & Quick Votes Types
+export interface PollOption {
+  id: string;
+  text: string;
+  votes: string[]; // student IDs
+}
+
+export interface ClassPoll {
+  id: string;
+  classId: string;
+  question: string;
+  description?: string;
+  options: PollOption[];
+  createdBy: string;
+  createdByName: string;
+  createdAt: string;
+  expiresAt: string;
+  isClosed: boolean;
+}
+
+export type TrustPageType = 'privacy' | 'terms' | 'security' | 'status' | 'about';
+
 export type NavTab = 
   | 'dashboard' 
   | 'assignments' 
+  | 'attendance'
+  | 'resources'
+  | 'polls'
   | 'calendar' 
   | 'members' 
   | 'broadcasts' 
   | 'messages' 
   | 'analytics' 
-  | 'settings'
-  | 'profile';
+  | 'settings';
