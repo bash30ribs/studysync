@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useStudySync } from '../../store';
+import { AttendanceSession } from '../../types';
 import { 
   Plus, 
   Users, 
@@ -7,7 +8,12 @@ import {
   FileCheck, 
   BellRing, 
   ChevronRight, 
-  Download
+  Download,
+  Megaphone,
+  Vote,
+  UserCheck,
+  Send,
+  FileText
 } from 'lucide-react';
 
 export const CRDashboard: React.FC = () => {
@@ -17,14 +23,21 @@ export const CRDashboard: React.FC = () => {
     allUsers, 
     assignments, 
     submissions, 
+    polls,
+    attendanceSessions,
+    broadcasts,
+    sendBroadcast,
     selectedAssignmentId, 
     setSelectedAssignmentId, 
     setIsRightPanelOpen, 
     setIsNewAssignmentModalOpen,
     remindPendingStudents,
-    exportSubmissionsCSV
+    exportSubmissionsCSV,
+    setActiveTab,
+    showToast
   } = useStudySync();
 
+  const [broadcastText, setBroadcastText] = useState('');
   const totalStudents = allUsers.filter(u => u.role === 'Student').length;
   
   const activeAssignments = assignments.filter(a => a.status === 'active');
@@ -46,198 +59,370 @@ export const CRDashboard: React.FC = () => {
     setIsRightPanelOpen(true);
   };
 
+  const handleQuickBroadcast = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!broadcastText.trim()) return;
+    sendBroadcast(broadcastText.trim());
+    setBroadcastText('');
+    showToast('Broadcast sent to all students', 'success');
+  };
+
   return (
-    <div className="p-4 lg:p-7 space-y-6 max-w-6xl mx-auto">
-      {/* Top Bar Greeting & CTA */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-xl lg:text-2xl font-extrabold text-[#0F2044] dark:text-white tracking-tight">
-            Class Dashboard · {currentClass.name}
-          </h1>
-          <p className="text-xs sm:text-sm text-[#64748B] dark:text-[#94A3B8] mt-0.5">
-            Real-time submission monitoring and broadcast coordinator.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2.5">
-          <button
-            onClick={() => exportSubmissionsCSV()}
-            className="px-3 py-2 rounded-lg border border-[#E2E7F0] dark:border-[#1E293B] bg-white dark:bg-[#0F172A] hover:bg-[#F8FAFC] dark:hover:bg-[#15203B] text-xs font-semibold text-[#0F2044] dark:text-white flex items-center gap-1.5 transition-all shadow-xs"
-          >
-            <Download className="w-3.5 h-3.5 text-[#64748B] dark:text-[#94A3B8]" />
-            <span>Export CSV</span>
-          </button>
-
-          <button
-            onClick={() => setIsNewAssignmentModalOpen(true)}
-            className="px-3.5 py-2 rounded-lg bg-[#00B4A6] dark:bg-[#00D2C4] hover:bg-[#009E91] dark:hover:bg-[#00B4A6] text-white dark:text-[#080D1A] text-xs font-bold flex items-center gap-1.5 transition-all shadow-md shadow-[#00B4A6]/15"
-          >
-            <Plus className="w-4 h-4" />
-            <span>New Assignment</span>
-          </button>
-        </div>
-      </div>
-
-      {/* 3 Horizontal Stat Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="p-5 rounded-xl bg-white dark:bg-[#0F172A] border border-[#E2E7F0] dark:border-[#1E293B] shadow-xs flex items-center justify-between transition-all hover:border-[#CBD5E1] dark:hover:border-[#334155]">
+    <div className="p-4 lg:p-7 space-y-6 max-w-7xl mx-auto">
+      {/* 1. Executive Hero Header & Actions */}
+      <div className="relative rounded-2xl p-5 sm:p-6 bg-gradient-to-r from-slate-900 via-[#0B1528] to-slate-900 text-white border border-slate-800 shadow-lg overflow-hidden">
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <span className="text-xs font-bold text-[#64748B] dark:text-[#94A3B8] block uppercase tracking-wider text-[11px]">
-              Total Students
-            </span>
-            <div className="flex items-baseline gap-1.5 mt-1.5">
-              <span className="text-2xl lg:text-3xl font-extrabold text-[#0F2044] dark:text-white font-mono">
-                {totalStudents}
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-teal-500/20 text-teal-300 border border-teal-500/30">
+                CR Executive Command Hub
               </span>
-              <span className="text-xs text-[#64748B] dark:text-[#94A3B8]">enrolled</span>
-            </div>
-          </div>
-          <div className="w-11 h-11 rounded-xl bg-[#E6F8F6] dark:bg-[#00D2C4]/10 text-[#00897B] dark:text-[#00D2C4] flex items-center justify-center border border-[#00B4A6]/20 shadow-xs">
-            <Users className="w-5 h-5" />
-          </div>
-        </div>
-
-        <div className="p-5 rounded-xl bg-white dark:bg-[#0F172A] border border-[#E2E7F0] dark:border-[#1E293B] shadow-xs flex items-center justify-between transition-all hover:border-[#CBD5E1] dark:hover:border-[#334155]">
-          <div>
-            <span className="text-xs font-bold text-[#64748B] dark:text-[#94A3B8] block uppercase tracking-wider text-[11px]">
-              Pending Submissions
-            </span>
-            <div className="flex items-baseline gap-1.5 mt-1.5">
-              <span className="text-2xl lg:text-3xl font-extrabold text-[#D97706] dark:text-[#FBBF24] font-mono">
-                {pendingSubmissionsCount}
+              <span className="text-slate-400 text-xs font-mono">
+                Cohort {currentClass.name} · Code {currentClass.code}
               </span>
-              <span className="text-xs text-[#64748B] dark:text-[#94A3B8]">need action</span>
             </div>
-          </div>
-          <div className="w-11 h-11 rounded-xl bg-[#FEF6EC] dark:bg-[#F59E0B]/10 text-[#D97706] dark:text-[#FBBF24] flex items-center justify-center border border-[#F59E0B]/20 shadow-xs">
-            <Clock className="w-5 h-5" />
-          </div>
-        </div>
-
-        <div className="p-5 rounded-xl bg-white dark:bg-[#0F172A] border border-[#E2E7F0] dark:border-[#1E293B] shadow-xs flex items-center justify-between transition-all hover:border-[#CBD5E1] dark:hover:border-[#334155]">
-          <div>
-            <span className="text-xs font-bold text-[#64748B] dark:text-[#94A3B8] block uppercase tracking-wider text-[11px]">
-              Active Assignments
-            </span>
-            <div className="flex items-baseline gap-1.5 mt-1.5">
-              <span className="text-2xl lg:text-3xl font-extrabold text-[#0F2044] dark:text-white font-mono">
-                {activeAssignments.length}
-              </span>
-              <span className="text-xs text-[#64748B] dark:text-[#94A3B8]">this week</span>
-            </div>
-          </div>
-          <div className="w-11 h-11 rounded-xl bg-[#E6F8F6] dark:bg-[#00D2C4]/10 text-[#00897B] dark:text-[#00D2C4] flex items-center justify-center border border-[#00B4A6]/20 shadow-xs">
-            <FileCheck className="w-5 h-5" />
-          </div>
-        </div>
-      </div>
-
-      {/* Live Submission Feed */}
-      <div className="bg-white dark:bg-[#0F172A] border border-[#E2E7F0] dark:border-[#1E293B] rounded-xl shadow-xs overflow-hidden">
-        <div className="px-5 py-4 border-b border-[#E2E7F0] dark:border-[#1E293B] flex items-center justify-between bg-[#F8FAFC]/50 dark:bg-[#15203B]/40">
-          <div>
-            <h2 className="font-extrabold text-sm sm:text-base text-[#0F2044] dark:text-white">
-              Live Submission Feed
-            </h2>
-            <p className="text-xs text-[#64748B] dark:text-[#94A3B8] mt-0.5">
-              Select any assignment row to inspect individual student logs in the right panel.
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-white tracking-tight">
+              Class Coordinator Dashboard
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-xl leading-relaxed">
+              Real-time submission monitoring, 1-tap reminders, attendance audit, and class-wide announcements.
             </p>
           </div>
-          <span className="text-xs text-[#00897B] dark:text-[#00D2C4] font-bold flex items-center gap-1.5 bg-[#E6F8F6] dark:bg-[#00D2C4]/10 px-2.5 py-1 rounded-full border border-[#00B4A6]/20">
-            <span className="w-2 h-2 rounded-full bg-[#00B4A6] dark:bg-[#00D2C4] animate-live-pulse" />
-            Live Sync
-          </span>
+
+          {/* CR Action Buttons */}
+          <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap">
+            <button
+              onClick={() => exportSubmissionsCSV()}
+              className="px-3.5 py-2 rounded-xl border border-slate-700 bg-slate-800/80 hover:bg-slate-700 text-xs font-semibold text-white flex items-center gap-1.5 transition-all shadow-xs"
+            >
+              <Download className="w-3.5 h-3.5 text-teal-400" />
+              <span>Export CSV</span>
+            </button>
+
+            <button
+              onClick={() => setIsNewAssignmentModalOpen(true)}
+              className="px-4 py-2 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 text-xs font-extrabold flex items-center gap-1.5 transition-all shadow-md shadow-teal-500/20"
+            >
+              <Plus className="w-4 h-4" />
+              <span>New Assignment</span>
+            </button>
+          </div>
         </div>
 
-        <div className="divide-y divide-[#E2E7F0] dark:divide-[#1E293B]">
-          {assignments.length === 0 ? (
-            <div className="p-8 text-center text-xs text-[#64748B] dark:text-[#94A3B8]">
-              No assignments posted yet. Create your first assignment with the button above.
+        {/* Subtle decorative background glow */}
+        <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 rounded-full bg-teal-500/10 blur-3xl pointer-events-none" />
+      </div>
+
+      {/* 2. Key Metrics Bento Row */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div 
+          onClick={() => setActiveTab('members')}
+          className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#0E1626] border border-slate-200 dark:border-slate-800 shadow-xs hover:border-slate-300 dark:hover:border-slate-700 transition-all cursor-pointer group"
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              Enrolled Students
+            </span>
+            <div className="w-8 h-8 rounded-xl bg-teal-50 dark:bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center">
+              <Users className="w-4 h-4" />
             </div>
-          ) : (
-            assignments.map(asg => {
-              const relDeadline = getRelativeDeadline(asg.deadline);
-              const asgSubs = submissions.filter(s => s.assignmentId === asg.id && s.status === 'submitted');
-              const submittedCount = asgSubs.length;
-              const percent = totalStudents > 0 ? Math.round((submittedCount / totalStudents) * 100) : 0;
-              const isSelected = selectedAssignmentId === asg.id;
+          </div>
+          <div className="flex items-baseline gap-1.5 mt-2">
+            <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white font-mono">
+              {totalStudents}
+            </span>
+            <span className="text-xs text-slate-500 dark:text-slate-400">members</span>
+          </div>
+        </div>
 
-              return (
-                <div
-                  key={asg.id}
-                  onClick={() => handleSelectAssignment(asg.id)}
-                  className={`p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer transition-all ${
-                    isSelected 
-                      ? 'bg-[#E6F8F6]/60 dark:bg-[#00D2C4]/10 border-l-4 border-l-[#00B4A6] dark:border-l-[#00D2C4]' 
-                      : 'hover:bg-[#F8FAFC] dark:hover:bg-[#15203B]/60'
-                  }`}
-                >
-                  {/* Left info */}
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#F1F5F9] dark:bg-[#1E293B] text-[#475569] dark:text-[#94A3B8] border border-[#E2E7F0] dark:border-[#334155]">
-                        {asg.subject}
-                      </span>
-                      
-                      <span
-                        className={`text-xs font-bold px-2 py-0.5 rounded ${
-                          relDeadline.isOverdue
-                            ? 'text-[#E63946] dark:text-[#FB7185] bg-[#FDECEC] dark:bg-[#E63946]/15'
-                            : relDeadline.isUrgent
-                            ? 'text-[#D97706] dark:text-[#FBBF24] bg-[#FEF6EC] dark:bg-[#F59E0B]/15'
-                            : 'text-[#64748B] dark:text-[#94A3B8] bg-[#F1F5F9] dark:bg-[#1E293B]'
-                        }`}
-                      >
-                        {relDeadline.label}
-                      </span>
-                    </div>
+        <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#0E1626] border border-slate-200 dark:border-slate-800 shadow-xs hover:border-slate-300 dark:hover:border-slate-700 transition-all">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              Pending Submissions
+            </span>
+            <div className="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+              <Clock className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="flex items-baseline gap-1.5 mt-2">
+            <span className="text-2xl sm:text-3xl font-extrabold text-amber-600 dark:text-amber-400 font-mono">
+              {pendingSubmissionsCount}
+            </span>
+            <span className="text-xs text-slate-500 dark:text-slate-400">awaiting</span>
+          </div>
+        </div>
 
-                    <h3 className="font-bold text-sm sm:text-base text-[#0F2044] dark:text-white mt-1.5 truncate">
-                      {asg.title}
-                    </h3>
-                  </div>
+        <div 
+          onClick={() => setActiveTab('assignments')}
+          className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#0E1626] border border-slate-200 dark:border-slate-800 shadow-xs hover:border-slate-300 dark:hover:border-slate-700 transition-all cursor-pointer"
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              Active Tasks
+            </span>
+            <div className="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+              <FileCheck className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="flex items-baseline gap-1.5 mt-2">
+            <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white font-mono">
+              {activeAssignments.length}
+            </span>
+            <span className="text-xs text-slate-500 dark:text-slate-400">this week</span>
+          </div>
+        </div>
 
-                  {/* Center Progress Bar */}
-                  <div className="w-full md:w-64 space-y-1.5">
-                    <div className="flex items-center justify-between text-xs font-bold">
-                      <span className="text-[#0F2044] dark:text-white font-mono">
-                        {submittedCount}/{totalStudents} submitted
-                      </span>
-                      <span className="text-[#00897B] dark:text-[#00D2C4] font-mono">
-                        {percent}%
-                      </span>
-                    </div>
+        <div 
+          onClick={() => setActiveTab('polls')}
+          className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#0E1626] border border-slate-200 dark:border-slate-800 shadow-xs hover:border-slate-300 dark:hover:border-slate-700 transition-all cursor-pointer"
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              Active Polls
+            </span>
+            <div className="w-8 h-8 rounded-xl bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+              <Vote className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="flex items-baseline gap-1.5 mt-2">
+            <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white font-mono">
+              {polls.filter(p => !p.isClosed).length}
+            </span>
+            <span className="text-xs text-slate-500 dark:text-slate-400">decisions</span>
+          </div>
+        </div>
+      </div>
 
-                    <div className="w-full h-2 rounded-full bg-[#E2E7F0] dark:bg-[#1E293B] overflow-hidden">
-                      <div
-                        className="h-full bg-[#00B4A6] dark:bg-[#00D2C4] progress-bar-fill rounded-full"
-                        style={{ width: `${percent}%` }}
-                      />
-                    </div>
-                  </div>
+      {/* 3. Main Dashboard Body */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* LEFT 8 COLS: Live Submission Feed & Broadcast Composer */}
+        <div className="lg:col-span-8 space-y-6">
+          {/* Quick Broadcast Composer */}
+          <div className="bg-white dark:bg-[#0E1626] rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="font-extrabold text-sm sm:text-base text-slate-900 dark:text-white flex items-center gap-2">
+                <Megaphone className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+                <span>Instant Class Announcement</span>
+              </h2>
+              <span className="text-[10px] font-semibold text-slate-400 font-mono">
+                Notifies all {totalStudents} students
+              </span>
+            </div>
 
-                  {/* Right Actions */}
-                  <div className="flex items-center gap-2 shrink-0" onClick={(e) => e.stopPropagation()}>
-                    <button
-                      onClick={() => remindPendingStudents(asg.id)}
-                      title="Send notification to all non-submitters"
-                      className="px-2.5 py-1.5 rounded-lg border border-[#E2E7F0] dark:border-[#1E293B] bg-white dark:bg-[#080D1A] hover:bg-[#F8FAFC] dark:hover:bg-[#15203B] text-xs font-semibold text-[#0F2044] dark:text-white flex items-center gap-1.5 transition-all shadow-xs"
-                    >
-                      <BellRing className="w-3.5 h-3.5 text-[#F59E0B]" />
-                      <span className="hidden sm:inline">Remind pending</span>
-                    </button>
+            <form onSubmit={handleQuickBroadcast} className="flex gap-2">
+              <input
+                type="text"
+                value={broadcastText}
+                onChange={(e) => setBroadcastText(e.target.value)}
+                placeholder="Post urgent class update (e.g. Schedule change, deadline shift, room update)..."
+                className="flex-1 text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-teal-500"
+              />
+              <button
+                type="submit"
+                disabled={!broadcastText.trim()}
+                className="px-4 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 disabled:opacity-50 text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow-xs shrink-0"
+              >
+                <Send className="w-3.5 h-3.5" />
+                <span>Broadcast</span>
+              </button>
+            </form>
+          </div>
 
-                    <button
+          {/* Live Submission Feed */}
+          <div className="bg-white dark:bg-[#0E1626] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
+            <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/60 dark:bg-slate-900/40">
+              <div>
+                <h2 className="font-extrabold text-sm sm:text-base text-slate-900 dark:text-white flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+                  <span>Live Assignment Tracking</span>
+                </h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  Select any row to inspect student submission hashes, download files, or grade work.
+                </p>
+              </div>
+              <span className="text-xs text-emerald-700 dark:text-emerald-300 font-bold flex items-center gap-1.5 bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-200 dark:border-emerald-500/20">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-live-pulse" />
+                Live Sync
+              </span>
+            </div>
+
+            <div className="divide-y divide-slate-100 dark:divide-slate-800">
+              {assignments.length === 0 ? (
+                <div className="p-8 text-center text-xs text-slate-500 dark:text-slate-400">
+                  No assignments posted yet. Create your first assignment with the button above.
+                </div>
+              ) : (
+                assignments.map(asg => {
+                  const relDeadline = getRelativeDeadline(asg.deadline);
+                  const asgSubs = submissions.filter(s => s.assignmentId === asg.id && s.status === 'submitted');
+                  const submittedCount = asgSubs.length;
+                  const percent = totalStudents > 0 ? Math.round((submittedCount / totalStudents) * 100) : 0;
+                  const isSelected = selectedAssignmentId === asg.id;
+
+                  return (
+                    <div
+                      key={asg.id}
                       onClick={() => handleSelectAssignment(asg.id)}
-                      className="p-1.5 rounded-lg hover:bg-[#E2E7F0] dark:hover:bg-[#1E293B] text-[#64748B] hover:text-[#0F2044] dark:hover:text-white transition-colors"
+                      className={`p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer transition-all ${
+                        isSelected 
+                          ? 'bg-teal-50/50 dark:bg-teal-500/10 border-l-4 border-l-teal-500' 
+                          : 'hover:bg-slate-50 dark:hover:bg-slate-850/60'
+                      }`}
                     >
-                      <ChevronRight className="w-4 h-4" />
-                    </button>
+                      {/* Left info */}
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 flex-wrap mb-1">
+                          <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                            {asg.subject}
+                          </span>
+                          
+                          <span
+                            className={`text-[11px] font-bold px-2 py-0.5 rounded-md ${
+                              relDeadline.isOverdue
+                                ? 'text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-500/15'
+                                : relDeadline.isUrgent
+                                ? 'text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-500/15'
+                                : 'text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800'
+                            }`}
+                          >
+                            {relDeadline.label}
+                          </span>
+                        </div>
+
+                        <h3 className="font-bold text-sm sm:text-base text-slate-900 dark:text-white truncate">
+                          {asg.title}
+                        </h3>
+                      </div>
+
+                      {/* Center Progress Bar */}
+                      <div className="w-full md:w-56 space-y-1.5">
+                        <div className="flex items-center justify-between text-xs font-bold">
+                          <span className="text-slate-800 dark:text-slate-200 font-mono">
+                            {submittedCount}/{totalStudents} submitted
+                          </span>
+                          <span className="text-teal-600 dark:text-teal-400 font-mono">
+                            {percent}%
+                          </span>
+                        </div>
+
+                        <div className="w-full h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                          <div
+                            className="h-full bg-teal-500 progress-bar-fill rounded-full"
+                            style={{ width: `${percent}%` }}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Right Actions */}
+                      <div className="flex items-center gap-2 shrink-0" onClick={(e) => e.stopPropagation()}>
+                        <button
+                          onClick={() => remindPendingStudents(asg.id)}
+                          title="Send notification to all non-submitters"
+                          className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-1.5 transition-all shadow-2xs"
+                        >
+                          <BellRing className="w-3.5 h-3.5 text-amber-500" />
+                          <span className="hidden sm:inline">Remind pending</span>
+                        </button>
+
+                        <button
+                          onClick={() => handleSelectAssignment(asg.id)}
+                          className="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                        >
+                          <ChevronRight className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* RIGHT 4 COLS: Active Polls & Attendance Quick Overview */}
+        <div className="lg:col-span-4 space-y-6">
+          {/* Active Polls Quick View */}
+          <div className="bg-white dark:bg-[#0E1626] rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs space-y-3">
+            <div className="flex items-center justify-between">
+              <h3 className="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
+                <Vote className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                <span>Class Consensus / Polls</span>
+              </h3>
+              <button
+                onClick={() => setActiveTab('polls')}
+                className="text-xs text-teal-600 dark:text-teal-400 hover:underline"
+              >
+                Manage
+              </button>
+            </div>
+
+            {polls.slice(0, 1).map(p => {
+              const totalVotes = p.options.reduce((sum, o) => sum + o.votes.length, 0);
+              return (
+                <div key={p.id} className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2.5">
+                  <p className="text-xs font-bold text-slate-900 dark:text-white">
+                    {p.question}
+                  </p>
+                  <div className="space-y-1.5">
+                    {p.options.map(opt => {
+                      const pct = totalVotes > 0 ? Math.round((opt.votes.length / totalVotes) * 100) : 0;
+                      return (
+                        <div key={opt.id} className="space-y-1">
+                          <div className="flex justify-between text-[11px]">
+                            <span className="text-slate-600 dark:text-slate-300 truncate pr-2">{opt.text}</span>
+                            <span className="font-mono font-bold text-slate-800 dark:text-slate-200">{pct}%</span>
+                          </div>
+                          <div className="w-full h-1.5 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                            <div className="h-full bg-purple-500 rounded-full" style={{ width: `${pct}%` }} />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div className="text-[10px] text-slate-400 text-right font-mono">
+                    Total {totalVotes} student votes cast
                   </div>
                 </div>
               );
-            })
-          )}
+            })}
+          </div>
+
+          {/* Today's Attendance Headcount */}
+          <div className="bg-white dark:bg-[#0E1626] rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs space-y-3">
+            <div className="flex items-center justify-between">
+              <h3 className="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
+                <UserCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                <span>Attendance Log</span>
+              </h3>
+              <button
+                onClick={() => setActiveTab('attendance')}
+                className="text-xs text-teal-600 dark:text-teal-400 hover:underline"
+              >
+                Open view
+              </button>
+            </div>
+
+            <div className="space-y-2">
+              {attendanceSessions.slice(0, 2).map((att: AttendanceSession) => {
+                const presentCount = att.records.filter(r => r.status === 'present').length;
+                const pct = Math.round((presentCount / att.records.length) * 100);
+                return (
+                  <div
+                    key={att.id}
+                    className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-1.5"
+                  >
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-bold text-slate-900 dark:text-white">{att.subject}</span>
+                      <span className="font-mono text-emerald-600 dark:text-emerald-400 font-bold">{pct}% Present</span>
+                    </div>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                      {att.topic} · {att.date}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
       </div>
     </div>
