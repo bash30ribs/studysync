@@ -5,14 +5,17 @@ import { Assignment } from '../types';
 describe('calendarExport utility', () => {
   const mockAssignment: Assignment = {
     id: 'asg-1',
+    classId: 'class-1',
     title: 'Operating Systems Semaphore Lab',
-    course: 'CS-301',
-    dueDate: '2026-09-20T23:59:00Z',
+    subject: 'CS-301',
+    deadline: '2026-09-20T23:59:00Z',
+    postedAt: '2026-09-14T10:00:00Z',
+    createdBy: 'user-1',
     description: 'Implement mutex locks and semaphore primitives',
-    priority: 'high',
-    status: 'pending',
-    points: 100,
-    tags: ['C++', 'Concurrency'],
+    status: 'active',
+    notifyOnCreate: true,
+    maxScore: 100,
+    difficultyEstimate: 'High',
   };
 
   it('should correctly format date strings to RFC 5545 UTC timestamps', () => {

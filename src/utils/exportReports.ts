@@ -1,18 +1,17 @@
-import { Assignment, AttendanceRecord, Member } from '../types';
+import { Assignment, AttendanceSession, User } from '../types';
 
 /**
  * Converts assignment array to formatted CSV data string
  */
 export function exportAssignmentsToCSV(assignments: Assignment[]): string {
-  const headers = ['ID', 'Title', 'Course', 'Due Date', 'Priority', 'Status', 'Points', 'Description'];
+  const headers = ['ID', 'Title', 'Subject', 'Deadline', 'Status', 'Max Score', 'Description'];
   const rows = assignments.map((a) => [
     `"${a.id}"`,
     `"${(a.title || '').replace(/"/g, '""')}"`,
-    `"${a.course || ''}"`,
-    `"${a.dueDate || ''}"`,
-    `"${a.priority || ''}"`,
+    `"${a.subject || ''}"`,
+    `"${a.deadline || ''}"`,
     `"${a.status || ''}"`,
-    `"${a.points || 100}"`,
+    `"${a.maxScore || 100}"`,
     `"${(a.description || '').replace(/"/g, '""')}"`,
   ]);
 
@@ -22,22 +21,23 @@ export function exportAssignmentsToCSV(assignments: Assignment[]): string {
 /**
  * Converts attendance history to CSV
  */
-export function exportAttendanceToCSV(records: AttendanceRecord[], members: Member[]): string {
-  const memberMap = new Map(members.map((m) => [m.id, m]));
-  const headers = ['Record ID', 'Date', 'Subject', 'Student Name', 'Roll Number', 'Status'];
+export function exportAttendanceToCSV(sessions: AttendanceSession[], users: User[]): string {
+  const userMap = new Map(users.map((u) => [u.id, u]));
+  const headers = ['Session ID', 'Date', 'Subject', 'Student Name', 'Roll Number', 'Status'];
 
   const rows: string[] = [];
-  records.forEach((rec) => {
-    // If details are present
-    const member = memberMap.get(rec.studentId);
-    rows.push([
-      `"${rec.id}"`,
-      `"${rec.date}"`,
-      `"${rec.subject}"`,
-      `"${member?.name || rec.studentName || 'Student'}"`,
-      `"${member?.rollNumber || rec.rollNumber || 'N/A'}"`,
-      `"${rec.status}"`,
-    ].join(','));
+  sessions.forEach((session) => {
+    session.records.forEach((rec) => {
+      const user = userMap.get(rec.studentId);
+      rows.push([
+        `"${session.id}"`,
+        `"${session.date}"`,
+        `"${session.subject}"`,
+        `"${user?.name || rec.studentName || 'Student'}"`,
+        `"${user?.rollNo || rec.rollNo || 'N/A'}"`,
+        `"${rec.status}"`,
+      ].join(','));
+    });
   });
 
   return [headers.join(','), ...rows].join('\r\n');
@@ -65,9 +65,9 @@ export function printAssignmentReport(assignments: Assignment[], className = 'St
   const printWindow = window.open('', '_blank');
   if (!printWindow) return;
 
-  const completed = assignments.filter((a) => a.status === 'completed').length;
-  const pending = assignments.filter((a) => a.status === 'pending').length;
-  const completionRate = assignments.length ? Math.round((completed / assignments.length) * 100) : 0;
+  const active = assignments.filter((a) => a.status === 'active').length;
+  const closed = assignments.filter((a) => a.status === 'closed').length;
+  const overdue = assignments.filter((a) => a.status === 'overdue').length;
 
   const html = `
     <!DOCTYPE html>
@@ -86,11 +86,9 @@ export function printAssignmentReport(assignments: Assignment[], className = 'St
           th { background: #f1f5f9; text-align: left; padding: 10px 12px; border-bottom: 2px solid #cbd5e1; font-weight: 600; }
           td { padding: 10px 12px; border-bottom: 1px solid #e2e8f0; }
           .badge { display: inline-block; padding: 2px 8px; border-radius: 9999px; font-size: 11px; font-weight: 600; }
-          .badge-high { background: #fee2e2; color: #991b1b; }
-          .badge-med { background: #fef3c7; color: #92400e; }
-          .badge-low { background: #e0e7ff; color: #3730a3; }
-          .badge-completed { background: #dcfce7; color: #166534; }
-          .badge-pending { background: #f1f5f9; color: #475569; }
+          .badge-active { background: #e0e7ff; color: #3730a3; }
+          .badge-closed { background: #dcfce7; color: #166534; }
+          .badge-overdue { background: #fee2e2; color: #991b1b; }
           @media print {
             body { padding: 0; }
             button { display: none; }
@@ -98,7 +96,7 @@ export function printAssignmentReport(assignments: Assignment[], className = 'St
         </style>
       </head>
       <body>
-        <h1>${className} • Assignment & Submission Report</h1>
+        <h1>${className} • Assignment & Course Report</h1>
         <div class="subtitle">Generated on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}</div>
 
         <div class="summary-cards">
@@ -107,26 +105,25 @@ export function printAssignmentReport(assignments: Assignment[], className = 'St
             <div class="card-label">Total Assignments</div>
           </div>
           <div class="card">
-            <div class="card-value">${completed}</div>
-            <div class="card-label">Completed</div>
+            <div class="card-value">${active}</div>
+            <div class="card-label">Active</div>
           </div>
           <div class="card">
-            <div class="card-value">${pending}</div>
-            <div class="card-label">Pending / In Progress</div>
+            <div class="card-value">${closed}</div>
+            <div class="card-label">Closed</div>
           </div>
           <div class="card">
-            <div class="card-value">${completionRate}%</div>
-            <div class="card-label">Completion Velocity</div>
+            <div class="card-value">${overdue}</div>
+            <div class="card-label">Overdue</div>
           </div>
         </div>
 
         <table>
           <thead>
             <tr>
-              <th>Course</th>
+              <th>Subject</th>
               <th>Assignment Title</th>
-              <th>Due Date</th>
-              <th>Priority</th>
+              <th>Deadline</th>
               <th>Status</th>
               <th>Max Score</th>
             </tr>
@@ -136,22 +133,17 @@ export function printAssignmentReport(assignments: Assignment[], className = 'St
               .map(
                 (a) => `
               <tr>
-                <td><strong>${a.course}</strong></td>
+                <td><strong>${a.subject}</strong></td>
                 <td>${a.title}</td>
-                <td>${new Date(a.dueDate).toLocaleDateString()}</td>
+                <td>${new Date(a.deadline).toLocaleDateString()}</td>
                 <td>
                   <span class="badge ${
-                    a.priority === 'high' ? 'badge-high' : a.priority === 'medium' ? 'badge-med' : 'badge-low'
+                    a.status === 'closed' ? 'badge-closed' : a.status === 'overdue' ? 'badge-overdue' : 'badge-active'
                   }">
-                    ${a.priority.toUpperCase()}
+                    ${a.status.toUpperCase()}
                   </span>
                 </td>
-                <td>
-                  <span class="badge ${a.status === 'completed' ? 'badge-completed' : 'badge-pending'}">
-                    ${a.status}
-                  </span>
-                </td>
-                <td>${a.points || 100} pts</td>
+                <td>${a.maxScore || 100} pts</td>
               </tr>
             `
               )

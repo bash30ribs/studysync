@@ -1,4 +1,4 @@
-import { Assignment, ScheduleEvent } from '../types';
+import { Assignment } from '../types';
 
 /**
  * Format a Date or date string to iCalendar standard UTC timestamp (YYYYMMDDTHHmmssZ)
@@ -18,9 +18,9 @@ export function generateAssignmentsICS(assignments: Assignment[], className = 'S
   const now = formatToICSDate(new Date());
 
   const events = assignments.map((a) => {
-    const dueTime = formatToICSDate(a.dueDate);
-    const summary = `[${a.course}] ${a.title}`;
-    const description = `${a.description || 'Assignment due for ' + a.course}\\n\\nPriority: ${a.priority}\\nStatus: ${a.status}\\nPlatform: StudySync`;
+    const dueTime = formatToICSDate(a.deadline);
+    const summary = `[${a.subject}] ${a.title}`;
+    const description = `${a.description || 'Assignment due for ' + a.subject}\\n\\nDifficulty: ${a.difficultyEstimate || 'Medium'}\\nStatus: ${a.status}\\nPlatform: StudySync`;
     const uid = `studysync-assignment-${a.id}@studysync.app`;
 
     return [
@@ -31,7 +31,7 @@ export function generateAssignmentsICS(assignments: Assignment[], className = 'S
       `DTEND:${dueTime}`,
       `SUMMARY:${summary}`,
       `DESCRIPTION:${description}`,
-      `CATEGORIES:${a.course},ACADEMIC`,
+      `CATEGORIES:${a.subject},ACADEMIC`,
       'STATUS:CONFIRMED',
       'BEGIN:VALARM',
       'TRIGGER:-PT24H',
@@ -49,47 +49,6 @@ export function generateAssignmentsICS(assignments: Assignment[], className = 'S
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
     `X-WR-CALNAME:${className} - Assignments`,
-    'X-WR-TIMEZONE:UTC',
-    ...events,
-    'END:VCALENDAR',
-  ];
-
-  return icsLines.join('\r\n');
-}
-
-/**
- * Generate standard RFC 5545 .ics formatted calendar string for class schedule
- */
-export function generateScheduleICS(schedule: ScheduleEvent[], className = 'StudySync Class'): string {
-  const now = formatToICSDate(new Date());
-
-  const events = schedule.map((s) => {
-    // Generate dates based on start and end time or current week dates
-    const uid = `studysync-schedule-${s.id}@studysync.app`;
-    const summary = `${s.subject}: ${s.title || s.subject}`;
-    const description = `Instructor: ${s.instructor || 'TBD'}\\nLocation/Room: ${s.room || 'Online'}\\nType: ${s.type || 'Lecture'}`;
-
-    return [
-      'BEGIN:VEVENT',
-      `UID:${uid}`,
-      `DTSTAMP:${now}`,
-      `DTSTART:${formatToICSDate(s.startTime)}`,
-      `DTEND:${formatToICSDate(s.endTime)}`,
-      `SUMMARY:${summary}`,
-      `LOCATION:${s.room || 'Main Campus'}`,
-      `DESCRIPTION:${description}`,
-      'STATUS:CONFIRMED',
-      'END:VEVENT',
-    ].join('\r\n');
-  });
-
-  const icsLines = [
-    'BEGIN:VCALENDAR',
-    'VERSION:2.0',
-    'PRODID:-//StudySync//Academic Schedule//EN',
-    'CALSCALE:GREGORIAN',
-    'METHOD:PUBLISH',
-    `X-WR-CALNAME:${className} - Class Schedule`,
     'X-WR-TIMEZONE:UTC',
     ...events,
     'END:VCALENDAR',
@@ -117,11 +76,11 @@ export function downloadICSFile(content: string, filename = 'studysync-calendar.
  * Generate a direct Google Calendar event creation URL
  */
 export function createGoogleCalendarUrl(assignment: Assignment): string {
-  const startTime = formatToICSDate(assignment.dueDate);
-  const endTime = formatToICSDate(assignment.dueDate);
-  const title = encodeURIComponent(`[${assignment.course}] ${assignment.title}`);
+  const startTime = formatToICSDate(assignment.deadline);
+  const endTime = formatToICSDate(assignment.deadline);
+  const title = encodeURIComponent(`[${assignment.subject}] ${assignment.title}`);
   const details = encodeURIComponent(
-    `${assignment.description || 'Assignment due for ' + assignment.course}\n\nPriority: ${assignment.priority}\nTracked via StudySync`
+    `${assignment.description || 'Assignment due for ' + assignment.subject}\n\nDifficulty: ${assignment.difficultyEstimate || 'Medium'}\nTracked via StudySync`
   );
   
   return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${startTime}/${endTime}&details=${details}`;
