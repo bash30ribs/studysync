@@ -12,10 +12,11 @@ import {
   BookOpen, 
   FileCode, 
   Layers, 
-  Sparkles,
   Upload,
-  CheckCircle2
+  CheckCircle2,
+  X
 } from 'lucide-react';
+import { generateResourceStudyAids, FormattedSummary } from '../../utils/resourceFormatter';
 
 export const ResourceLibraryView: React.FC = () => {
   const { 
@@ -31,6 +32,7 @@ export const ResourceLibraryView: React.FC = () => {
   const [selectedSubject, setSelectedSubject] = useState<string>('ALL');
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [activeStudyAid, setActiveStudyAid] = useState<{ item: ResourceItem; guide: FormattedSummary } | null>(null);
 
   // Form state
   const [title, setTitle] = useState('');
@@ -221,6 +223,17 @@ export const ResourceLibraryView: React.FC = () => {
 
                 <div className="flex items-center gap-1 shrink-0">
                   <button
+                    onClick={() => {
+                      const guide = generateResourceStudyAids(res.title, res.description, res.subject);
+                      setActiveStudyAid({ item: res, guide });
+                    }}
+                    className="p-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 font-bold text-xs hover:bg-indigo-600 hover:text-white transition-colors"
+                    title="Generate AI Key Takeaways & Exam Review Prompts"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" />
+                  </button>
+
+                  <button
                     onClick={() => incrementResourceDownload(res.id)}
                     className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#E6F8F6] dark:bg-[#00D2C4]/15 text-[#00897B] dark:text-[#00D2C4] font-bold text-xs hover:bg-[#00B4A6] hover:text-white dark:hover:bg-[#00D2C4] dark:hover:text-[#09132B] transition-colors"
                   >
@@ -352,6 +365,73 @@ export const ResourceLibraryView: React.FC = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* AI Study Guide Modal */}
+      {activeStudyAid && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-slate-900 border border-slate-700/80 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-900/90">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-lg bg-indigo-500/20 text-indigo-400">
+                  <Sparkles className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm sm:text-base font-bold text-white">
+                    AI Study Guide: {activeStudyAid.item.subject}
+                  </h3>
+                  <p className="text-xs text-slate-400">
+                    Est. {activeStudyAid.guide.estimatedReadMinutes} min review • {activeStudyAid.item.title}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setActiveStudyAid(null)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-5 max-h-[70vh] overflow-y-auto">
+              <div>
+                <h4 className="text-xs font-bold uppercase tracking-wider text-indigo-400 mb-2">
+                  Key Conceptual Takeaways
+                </h4>
+                <ul className="space-y-2">
+                  {activeStudyAid.guide.keyTakeaways.map((takeaway, idx) => (
+                    <li key={idx} className="text-xs text-slate-300 flex items-start gap-2 bg-slate-800/40 p-2.5 rounded-lg border border-slate-800">
+                      <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 mt-1.5 shrink-0" />
+                      <span>{takeaway}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div>
+                <h4 className="text-xs font-bold uppercase tracking-wider text-teal-400 mb-2">
+                  Suggested Exam Review Prompts
+                </h4>
+                <ul className="space-y-2">
+                  {activeStudyAid.guide.suggestedReviewQuestions.map((q, idx) => (
+                    <li key={idx} className="text-xs text-slate-300 bg-slate-800/40 p-2.5 rounded-lg border border-slate-800">
+                      <strong>Q{idx + 1}:</strong> {q}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            <div className="px-6 py-3 border-t border-slate-800 bg-slate-900/60 flex justify-end">
+              <button
+                onClick={() => setActiveStudyAid(null)}
+                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold transition"
+              >
+                Done
+              </button>
+            </div>
           </div>
         </div>
       )}
