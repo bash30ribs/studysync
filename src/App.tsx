@@ -10,6 +10,9 @@ import { CommandPalette } from './components/common/CommandPalette';
 import { ShortcutsModal } from './components/common/ShortcutsModal';
 import { QRCodeModal } from './components/common/QRCodeModal';
 import { TrustPages } from './components/public/TrustPages';
+import { StudySoundscapesModal } from './components/common/StudySoundscapesModal';
+import { AchievementsModal } from './components/common/AchievementsModal';
+import { KeyboardShortcutsModal } from './components/common/KeyboardShortcutsModal';
 
 import { CRDashboard } from './components/dashboard/CRDashboard';
 import { StudentDashboard } from './components/dashboard/StudentDashboard';
@@ -65,6 +68,26 @@ const MainLayout: React.FC<{ isDarkMode: boolean; setIsDarkMode: React.Dispatch<
     }
   };
 
+  const [showSoundscapes, setShowSoundscapes] = useState(false);
+  const [showAchievements, setShowAchievements] = useState(false);
+  const [showShortcuts, setShowShortcuts] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (e.key === '?' && !e.metaKey && !e.ctrlKey) {
+        e.preventDefault();
+        setShowShortcuts((prev) => !prev);
+      }
+      if (e.altKey && e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        setShowSoundscapes((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   return (
     <div className="flex flex-col h-screen w-screen overflow-hidden bg-[#F8FAFC] dark:bg-[#080D1A] text-[#0F172A] dark:text-[#F8FAFC] transition-colors duration-150">
       {/* Top Bar */}
@@ -106,6 +129,9 @@ const MainLayout: React.FC<{ isDarkMode: boolean; setIsDarkMode: React.Dispatch<
       <ShortcutsModal />
       <QRCodeModal />
       <TrustPages />
+      <StudySoundscapesModal isOpen={showSoundscapes} onClose={() => setShowSoundscapes(false)} />
+      <AchievementsModal isOpen={showAchievements} onClose={() => setShowAchievements(false)} />
+      <KeyboardShortcutsModal isOpen={showShortcuts} onClose={() => setShowShortcuts(false)} />
       <Toast />
     </div>
   );
