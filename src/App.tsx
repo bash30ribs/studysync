@@ -93,6 +93,9 @@ const MainLayout: React.FC<{ isDarkMode: boolean; setIsDarkMode: React.Dispatch<
       {/* Top Bar */}
       <Header
         onOpenLanding={() => setShowLanding(true)}
+        onOpenSoundscapes={() => setShowSoundscapes(true)}
+        onOpenAchievements={() => setShowAchievements(true)}
+        onOpenShortcuts={() => setShowShortcuts(true)}
         isDarkMode={isDarkMode}
         setIsDarkMode={setIsDarkMode}
       />

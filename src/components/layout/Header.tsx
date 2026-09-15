@@ -15,16 +15,29 @@ import {
   ChevronDown,
   Sparkles,
   Search,
-  BookOpen
+  BookOpen,
+  Headphones,
+  Trophy,
+  HelpCircle
 } from 'lucide-react';
 
 interface HeaderProps {
   onOpenLanding?: () => void;
+  onOpenSoundscapes?: () => void;
+  onOpenAchievements?: () => void;
+  onOpenShortcuts?: () => void;
   isDarkMode: boolean;
   setIsDarkMode: (val: boolean | ((prev: boolean) => boolean)) => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onOpenLanding, isDarkMode, setIsDarkMode }) => {
+export const Header: React.FC<HeaderProps> = ({ 
+  onOpenLanding, 
+  onOpenSoundscapes,
+  onOpenAchievements,
+  onOpenShortcuts,
+  isDarkMode, 
+  setIsDarkMode 
+}) => {
   const { 
     currentUser, 
     currentClass, 
@@ -152,6 +165,39 @@ export const Header: React.FC<HeaderProps> = ({ onOpenLanding, isDarkMode, setIs
             ⌘K
           </kbd>
         </button>
+
+        {/* Soundscapes Ambient Focus Button */}
+        {onOpenSoundscapes && (
+          <button
+            onClick={onOpenSoundscapes}
+            title="Open Focus Soundscapes (Alt+S)"
+            className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-600 hover:text-indigo-600 dark:text-slate-300 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all shadow-2xs"
+          >
+            <Headphones className="w-4 h-4" />
+          </button>
+        )}
+
+        {/* Milestones & Badges Button */}
+        {onOpenAchievements && (
+          <button
+            onClick={onOpenAchievements}
+            title="View Milestones & Daily Quests"
+            className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-amber-500 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-slate-800 transition-all shadow-2xs"
+          >
+            <Trophy className="w-4 h-4" />
+          </button>
+        )}
+
+        {/* Keyboard Shortcuts Helper */}
+        {onOpenShortcuts && (
+          <button
+            onClick={onOpenShortcuts}
+            title="Keyboard Shortcuts Cheat Sheet (?)"
+            className="hidden sm:flex p-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-all shadow-2xs"
+          >
+            <HelpCircle className="w-4 h-4" />
+          </button>
+        )}
 
         {/* Landing Page Button */}
         {onOpenLanding && (
