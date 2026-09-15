@@ -8,11 +8,13 @@ import {
   Sparkles,
   Repeat,
   AlertTriangle,
-  FileCheck2,
   Clock,
-  Loader2
+  Loader2,
+  Calendar,
+  Download
 } from 'lucide-react';
 import { Modal } from '../common/Feedback';
+import { generateAssignmentsICS, downloadICSFile } from '../../utils/calendarExport';
 
 export const AssignmentsView: React.FC = () => {
   const { 
@@ -132,15 +134,30 @@ export const AssignmentsView: React.FC = () => {
           </p>
         </div>
 
-        {currentUser.role === 'CR' && (
+        <div className="flex items-center gap-2 self-start sm:self-auto">
           <button
-            onClick={() => setIsNewAssignmentModalOpen(true)}
-            className="px-3.5 py-2 rounded-lg bg-[#00B4A6] dark:bg-[#00D2C4] hover:bg-[#009E91] dark:hover:bg-[#00B4A6] text-white dark:text-[#080D1A] text-xs font-bold flex items-center gap-1.5 transition-all shadow-md shadow-[#00B4A6]/15 self-start sm:self-auto"
+            onClick={() => {
+              const icsContent = generateAssignmentsICS(assignments, currentClass.name);
+              downloadICSFile(icsContent, `${currentClass.name.toLowerCase().replace(/\s+/g, '-')}-assignments.ics`);
+              showToast('Exported calendar (.ics) with reminder alarms!', 'success');
+            }}
+            className="px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold flex items-center gap-1.5 transition-all shadow-2xs"
+            title="Download iCalendar format for Apple Calendar, Google Calendar, Outlook"
           >
-            <Plus className="w-4 h-4" />
-            <span>New Assignment</span>
+            <Download className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+            <span>Sync iCal</span>
           </button>
-        )}
+
+          {currentUser.role === 'CR' && (
+            <button
+              onClick={() => setIsNewAssignmentModalOpen(true)}
+              className="px-3.5 py-2 rounded-lg bg-[#00B4A6] dark:bg-[#00D2C4] hover:bg-[#009E91] dark:hover:bg-[#00B4A6] text-white dark:text-[#080D1A] text-xs font-bold flex items-center gap-1.5 transition-all shadow-md shadow-[#00B4A6]/15"
+            >
+              <Plus className="w-4 h-4" />
+              <span>New Assignment</span>
+            </button>
+          )}
+        </div>
       </div>
 
       {/* AI Late Submission Pace Alert for CR */}
