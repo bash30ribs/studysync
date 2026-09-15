@@ -11,7 +11,8 @@ import {
   Clock,
   Loader2,
   Calendar,
-  Download
+  Download,
+  FileCheck2
 } from 'lucide-react';
 import { Modal } from '../common/Feedback';
 import { generateAssignmentsICS, downloadICSFile } from '../../utils/calendarExport';

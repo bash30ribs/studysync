@@ -14,7 +14,8 @@ import {
   Layers, 
   Upload,
   CheckCircle2,
-  X
+  X,
+  Sparkles
 } from 'lucide-react';
 import { generateResourceStudyAids, FormattedSummary } from '../../utils/resourceFormatter';
 
