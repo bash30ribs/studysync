@@ -53,7 +53,12 @@ export const StudySoundscapesModal: React.FC<Props> = ({ isOpen, onClose }) => {
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="soundscapes-title"
+    >
       <div className="bg-slate-900 border border-slate-700/80 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl">
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-900/80">
           <div className="flex items-center gap-2.5">
@@ -61,7 +66,7 @@ export const StudySoundscapesModal: React.FC<Props> = ({ isOpen, onClose }) => {
               <Headphones className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-semibold text-white">Study Soundscapes</h2>
+              <h2 id="soundscapes-title" className="text-base font-semibold text-white">Study Soundscapes</h2>
               <p className="text-xs text-slate-400">Procedural Web Audio ambience for distraction-free focus</p>
             </div>
           </div>

@@ -45,7 +45,12 @@ export const KeyboardShortcutsModal: React.FC<Props> = ({ isOpen, onClose }) => 
   const categories = ['Navigation', 'Actions', 'View & Filter', 'Focus & Tools'] as const;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="shortcuts-title"
+    >
       <div className="bg-slate-900 border border-slate-700/80 rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[85vh]">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-900/90">
@@ -54,7 +59,7 @@ export const KeyboardShortcutsModal: React.FC<Props> = ({ isOpen, onClose }) => 
               <Keyboard className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-semibold text-white">Keyboard Shortcuts</h2>
+              <h2 id="shortcuts-title" className="text-base font-semibold text-white">Keyboard Shortcuts</h2>
               <p className="text-xs text-slate-400">Power-user keybindings for high velocity class management</p>
             </div>
           </div>
