@@ -1,0 +1,22 @@
+StudySync Academic Notes: Concurrency Patterns & Synchronization Primitives
+=============================================================================
+Subject: CS-301 Operating Systems & Concurrent Systems
+Date: 2026-09-16
+
+1. Mutex (Mutual Exclusion):
+   - Only one thread can acquire the lock at a given time.
+   - Prevents race conditions during critical section access.
+
+2. Counting Semaphores:
+   - Maintains an internal counter representing available resource tokens.
+   - wait() / P() decrements the counter, signal() / V() increments.
+
+3. Read-Write Locks:
+   - Multiple concurrent readers permitted.
+   - Writers acquire exclusive access to avoid dirty reads.
+
+4. Deadlock Prevention Conditions:
+   - Mutual Exclusion
+   - Hold and Wait
+   - No Preemption
+   - Circular Wait
