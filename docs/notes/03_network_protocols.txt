@@ -1,0 +1,17 @@
+StudySync Academic Notes: Network Protocols (TCP vs UDP vs QUIC)
+=============================================================================
+Subject: CS-305 Computer Networks
+Date: 2026-09-16
+
+1. TCP Handshake & Congestion Control:
+   - Three-way handshake: SYN -> SYN-ACK -> ACK.
+   - Flow control via Sliding Window mechanism.
+   - Algorithms: Tahoe, Reno, Cubic, BBR.
+
+2. UDP (User Datagram Protocol):
+   - Connectionless, unreliable, low-overhead.
+   - Ideal for VoIP, live video streaming, DNS lookups.
+
+3. HTTP/3 & QUIC:
+   - Runs over UDP, solving TCP Head-of-Line (HoL) blocking.
+   - 0-RTT connection resumption for previously visited hosts.
