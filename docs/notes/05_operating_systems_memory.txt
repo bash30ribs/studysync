@@ -1,0 +1,18 @@
+StudySync Academic Notes: Virtual Memory & Page Replacement Policies
+=============================================================================
+Subject: CS-301 Operating Systems
+Date: 2026-09-16
+
+1. Virtual Memory Architecture:
+   - MMU (Memory Management Unit) translates Virtual Page Numbers (VPN) to Physical Frame Numbers (PFN).
+   - Translation Lookaside Buffer (TLB) acts as a high-speed hardware cache.
+
+2. Page Fault Handling:
+   - Trap to OS kernel.
+   - Locate page on swap partition.
+   - Allocate physical frame, swap in data, update page table, resume instruction.
+
+3. Page Replacement Algorithms:
+   - LRU (Least Recently Used)
+   - Clock / Second-Chance Algorithm
+   - Optimal (Belady's Min Algorithm - theoretical benchmark)
