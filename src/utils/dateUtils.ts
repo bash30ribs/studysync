@@ -31,8 +31,8 @@ export function isSameDay(date1: string | Date, date2: string | Date): boolean {
   const d1 = new Date(date1);
   const d2 = new Date(date2);
   return (
-    d1.getFullYear() === d2.getFullYear() &&
-    d1.getMonth() === d2.getMonth() &&
-    d1.getDate() === d2.getDate()
+    d1.getUTCFullYear() === d2.getUTCFullYear() &&
+    d1.getUTCMonth() === d2.getUTCMonth() &&
+    d1.getUTCDate() === d2.getUTCDate()
   );
 }
