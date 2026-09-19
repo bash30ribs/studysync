@@ -1,0 +1,6 @@
+StudySync Sample Dataset Fixture 02
+===================================
+Syllabus: Operating Systems Core Modules
+Lectures: 42 Hours
+Lab Sessions: 14 Weeks
+Status: Sample Template
