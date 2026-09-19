@@ -1,0 +1,6 @@
+StudySync Sample Dataset Fixture 10
+===================================
+Academic Milestone Goals
+Semester Target: 9.2 GPA
+Project Deliverable: Final Showcase
+Status: Sample Template
