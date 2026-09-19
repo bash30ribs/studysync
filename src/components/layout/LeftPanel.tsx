@@ -42,6 +42,13 @@ export const LeftPanel: React.FC = () => {
 
   const [copied, setCopied] = useState(false);
   const [isClassDropdownOpen, setIsClassDropdownOpen] = useState(false);
+  const [showCode, setShowCode] = useState(false);
+
+  // Deterministic avatar color from name
+  const avatarColors = [
+    'bg-[#0095F6]', 'bg-purple-500', 'bg-emerald-500', 'bg-amber-500', 'bg-rose-500', 'bg-indigo-500'
+  ];
+  const avatarColor = avatarColors[currentUser.name.charCodeAt(0) % avatarColors.length];
 
   const handleCopyCode = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -77,7 +84,7 @@ export const LeftPanel: React.FC = () => {
   const visibleNav = navItems.filter(item => !item.crOnly || currentUser.role === 'CR');
 
   return (
-    <aside className="hidden md:flex w-[72px] lg:w-[240px] bg-white dark:bg-black text-[#262626] dark:text-[#F5F5F5] flex-col justify-between h-full border-r border-[#DBDBDB] dark:border-[#262626] shrink-0 transition-all duration-150 select-none">
+    <aside className="hidden md:flex w-[68px] lg:w-[236px] bg-white dark:bg-black text-[#262626] dark:text-[#F5F5F5] flex-col justify-between h-full border-r border-[#DBDBDB] dark:border-[#262626] shrink-0 transition-all duration-150 select-none">
       {/* Top: Class Switcher Card */}
       <div className="p-3 lg:p-4 border-b border-[#DBDBDB] dark:border-[#262626] relative">
         {/* Desktop View */}
@@ -87,30 +94,34 @@ export const LeftPanel: React.FC = () => {
               Class Cohort
             </span>
             <div className="flex items-center gap-1.5 text-[11px] text-[#737373] dark:text-[#A8A8A8]">
-              <span className={`w-2 h-2 rounded-full ${isOffline ? 'bg-amber-500' : 'bg-[#0095F6]'}`} />
-              <span className="font-medium">{isOffline ? 'Offline' : 'Connected'}</span>
+              <span className={`w-2 h-2 rounded-full ${isOffline ? 'bg-amber-500' : 'bg-emerald-500'}`} />
+              <span className="font-medium">{isOffline ? 'Offline' : 'Live'}</span>
             </div>
           </div>
 
           <button
             onClick={() => setIsClassDropdownOpen(prev => !prev)}
-            className="w-full flex items-center justify-between p-2.5 rounded-xl bg-[#EFEFEF] dark:bg-[#121212] hover:bg-[#E5E5E5] dark:hover:bg-[#1E1E1E] text-left transition-all group"
+            className="w-full flex items-center justify-between p-2.5 rounded-xl bg-[#F5F5F5] dark:bg-[#121212] hover:bg-[#EFEFEF] dark:hover:bg-[#1E1E1E] text-left transition-all group border border-[#DBDBDB] dark:border-[#262626]"
           >
             <div className="min-w-0 pr-2">
               <h2 className="text-xs font-bold text-black dark:text-white tracking-tight truncate flex items-center gap-1.5">
                 <GraduationCap className="w-3.5 h-3.5 text-[#0095F6] shrink-0" />
                 <span>{currentClass.name}</span>
               </h2>
-              <span className="text-[10px] font-mono text-[#737373] dark:text-[#A8A8A8] block mt-0.5">
-                Code: {currentClass.code}
-              </span>
+              <button
+                onClick={e => { e.stopPropagation(); setShowCode(p => !p); }}
+                className="text-[10px] font-mono text-[#737373] dark:text-[#A8A8A8] mt-0.5 hover:text-[#0095F6] transition-colors tracking-widest"
+                title={showCode ? 'Click to hide' : 'Click to reveal class code'}
+              >
+                Code: {showCode ? currentClass.code : '••••••'}
+              </button>
             </div>
             <ChevronDown className="w-3.5 h-3.5 text-[#737373] dark:text-[#A8A8A8] group-hover:text-black dark:group-hover:text-white transition-colors shrink-0" />
           </button>
 
           {/* Class Dropdown */}
           {isClassDropdownOpen && (
-            <div className="absolute left-3 right-3 top-20 bg-white dark:bg-[#121212] border border-[#DBDBDB] dark:border-[#262626] rounded-xl shadow-xl z-50 p-1.5 space-y-1 animate-in fade-in zoom-in-95 duration-100">
+            <div className="absolute left-3 right-3 top-[88px] bg-white dark:bg-[#121212] border border-[#DBDBDB] dark:border-[#262626] rounded-xl shadow-xl z-50 p-1.5 space-y-1 animate-in fade-in zoom-in-95 duration-100">
               <div className="px-2 py-1 text-[9px] font-semibold text-[#737373] dark:text-[#A8A8A8] uppercase">
                 Switch Class
               </div>
@@ -151,7 +162,7 @@ export const LeftPanel: React.FC = () => {
       </div>
 
       {/* Navigation Items */}
-      <nav className="flex-1 px-2.5 py-3 space-y-1 overflow-y-auto">
+      <nav className="flex-1 px-2 py-3 space-y-0.5 overflow-y-auto">
         {visibleNav.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
@@ -161,20 +172,21 @@ export const LeftPanel: React.FC = () => {
               key={item.id}
               onClick={() => setActiveTab(item.id)}
               title={item.label}
-              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs lg:text-sm transition-all ${
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs lg:text-[13px] font-medium transition-all relative ${
                 isActive
-                  ? 'font-bold text-black dark:text-white bg-[#EFEFEF] dark:bg-[#1A1A1A]'
-                  : 'font-normal text-[#737373] dark:text-[#A8A8A8] hover:text-black dark:hover:text-white hover:bg-[#F7F7F7] dark:hover:bg-[#121212]'
-              } justify-center lg:justify-between`}
+                  ? 'text-black dark:text-white bg-[#F5F5F5] dark:bg-[#1A1A1A] font-semibold'
+                  : 'text-[#737373] dark:text-[#A8A8A8] hover:text-black dark:hover:text-white hover:bg-[#F7F7F7] dark:hover:bg-[#0F0F0F]'
+              } justify-center lg:justify-start`}
             >
-              <div className="flex items-center gap-3">
-                <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-black dark:text-white stroke-[2.5]' : 'stroke-[1.8]'}`} />
-                <span className="hidden lg:inline tracking-tight">{item.label}</span>
-              </div>
-
-              {/* Badge count indicator */}
+              {/* Left active indicator bar */}
+              {isActive && (
+                <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-full bg-black dark:bg-white" />
+              )}
+              <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'stroke-[2.2]' : 'stroke-[1.7]'}`} />
+              <span className="hidden lg:inline tracking-tight">{item.label}</span>
+              {/* Badge */}
               {item.badgeCount !== undefined && item.badgeCount > 0 && (
-                <span className="hidden lg:inline-flex px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-[#FF3040] text-white">
+                <span className="hidden lg:inline-flex ml-auto px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-[#0095F6] text-white min-w-4 justify-center">
                   {item.badgeCount}
                 </span>
               )}
@@ -213,11 +225,11 @@ export const LeftPanel: React.FC = () => {
       </div>
 
       {/* Bottom Profile & Role Badge */}
-      <div className="p-3 lg:p-3.5 border-t border-[#DBDBDB] dark:border-[#262626] bg-[#F7F7F7] dark:bg-[#0A0A0A]">
+      <div className="p-3 border-t border-[#DBDBDB] dark:border-[#262626]">
         {/* Desktop View */}
-        <div className="hidden lg:flex items-center justify-between">
+        <div className="hidden lg:flex items-center justify-between gap-2">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-7 h-7 rounded-full bg-[#EFEFEF] dark:bg-[#262626] text-black dark:text-white flex items-center justify-center font-bold text-xs shrink-0 border border-[#DBDBDB] dark:border-[#363636]">
+            <div className={`w-8 h-8 rounded-full ${avatarColor} text-white flex items-center justify-center font-bold text-xs shrink-0`}>
               {currentUser.name.charAt(0)}
             </div>
             <div className="min-w-0">
@@ -229,22 +241,21 @@ export const LeftPanel: React.FC = () => {
               </p>
             </div>
           </div>
-
-          <span
-            className="px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide shrink-0 bg-[#EFEFEF] dark:bg-[#262626] text-[#262626] dark:text-[#E0E0E0]"
-          >
+          <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold tracking-wide shrink-0 ${
+            currentUser.role === 'CR'
+              ? 'bg-[#0095F6]/15 text-[#0095F6]'
+              : 'bg-[#EFEFEF] dark:bg-[#262626] text-[#737373] dark:text-[#A8A8A8]'
+          }`}>
             {currentUser.role}
           </span>
         </div>
 
         {/* Tablet Mini View */}
         <div className="flex lg:hidden flex-col items-center gap-1">
-          <div className="w-7 h-7 rounded-full bg-[#EFEFEF] dark:bg-[#262626] text-black dark:text-white flex items-center justify-center font-bold text-xs">
+          <div className={`w-7 h-7 rounded-full ${avatarColor} text-white flex items-center justify-center font-bold text-xs`}>
             {currentUser.name.charAt(0)}
           </div>
-          <span className="text-[9px] font-bold text-[#737373]">
-            {currentUser.role}
-          </span>
+          <span className="text-[9px] font-bold text-[#737373]">{currentUser.role}</span>
         </div>
       </div>
     </aside>

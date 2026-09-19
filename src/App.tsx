@@ -34,10 +34,16 @@ const MainLayout: React.FC<{ isDarkMode: boolean; setIsDarkMode: React.Dispatch<
   setIsDarkMode
 }) => {
   const { currentUser, activeTab, isRightPanelOpen, setIsRightPanelOpen } = useStudySync();
-  const [showLanding, setShowLanding] = useState(false);
+  const [showLanding, setShowLanding] = useState(() => {
+    // Show landing on first visit; remember if user has entered the app before
+    try { return !sessionStorage.getItem('studysync_entered'); } catch { return true; }
+  });
 
   if (showLanding) {
-    return <LandingPage onEnterApp={() => setShowLanding(false)} />;
+    return <LandingPage onEnterApp={() => {
+      try { sessionStorage.setItem('studysync_entered', '1'); } catch {}
+      setShowLanding(false);
+    }} />;
   }
 
   const renderCenterContent = () => {
