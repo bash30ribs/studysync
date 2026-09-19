@@ -107,19 +107,19 @@ export const RightPanel: React.FC = () => {
   return (
     <aside
       className={`
-        fixed inset-y-0 right-0 z-40 w-[360px] bg-white dark:bg-[#090E1A] border-l border-slate-200 dark:border-slate-800 flex flex-col h-full shadow-2xl lg:shadow-none lg:static lg:block
+        fixed inset-y-0 right-0 z-40 w-[360px] bg-white dark:bg-[#121212] border-l border-[#DBDBDB] dark:border-[#262626] flex flex-col h-full shadow-2xl lg:shadow-none lg:static lg:block
         panel-transition
         ${isRightPanelOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}
       `}
     >
       {/* Mobile / Tablet close drawer header */}
-      <div className="flex lg:hidden items-center justify-between p-3.5 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#060913]">
-        <span className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+      <div className="flex lg:hidden items-center justify-between p-3.5 border-b border-[#DBDBDB] dark:border-[#262626] bg-[#FAFAFA] dark:bg-[#181818]">
+        <span className="text-xs font-bold text-black dark:text-white uppercase tracking-wider">
           Context Details
         </span>
         <button
           onClick={() => setIsRightPanelOpen(false)}
-          className="p-1 rounded-md text-slate-500 hover:text-slate-900 dark:hover:text-white"
+          className="p-1 rounded-md text-[#8E8E8E] hover:text-black dark:hover:text-white"
         >
           <X className="w-4 h-4" />
         </button>
@@ -129,11 +129,11 @@ export const RightPanel: React.FC = () => {
         {/* VIEW 1: BROADCASTS TAB RIGHT PANEL */}
         {activeTab === 'broadcasts' && currentUser.role === 'CR' ? (
           <div className="p-5 space-y-4">
-            <div className="border-b border-slate-200 dark:border-slate-800 pb-3">
-              <h3 className="font-bold text-sm text-slate-900 dark:text-white">
+            <div className="border-b border-[#DBDBDB] dark:border-[#262626] pb-3">
+              <h3 className="font-semibold text-sm text-black dark:text-white">
                 Compose Official Broadcast
               </h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
+              <p className="text-xs text-[#8E8E8E] mt-0.5 leading-relaxed">
                 Broadcasts notify all enrolled students immediately. Immutable for accountability.
               </p>
             </div>
@@ -145,22 +145,22 @@ export const RightPanel: React.FC = () => {
                   onChange={(e) => setBroadcastInput(e.target.value.slice(0, 500))}
                   rows={6}
                   placeholder="Write clear class announcement (e.g. Schedule changes, lab guidelines, urgent notices)..."
-                  className="w-full text-xs p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 resize-none"
+                  className="w-full text-xs p-3 rounded-lg border border-[#DBDBDB] dark:border-[#262626] bg-[#FAFAFA] dark:bg-[#181818] text-black dark:text-white focus:outline-none focus:border-[#0095F6] resize-none"
                 />
-                <div className="text-right text-[10px] font-mono text-slate-400 mt-1">
+                <div className="text-right text-[10px] font-mono text-[#8E8E8E] mt-1">
                   {broadcastInput.length}/500 characters
                 </div>
               </div>
 
-              <div className="p-3 rounded-xl bg-teal-50 dark:bg-teal-500/10 border border-teal-200 dark:border-teal-500/20 text-xs text-slate-800 dark:text-slate-200">
-                <span className="font-bold text-teal-700 dark:text-teal-300 block mb-0.5">Note:</span>
+              <div className="p-3 rounded-lg bg-[#EFEFEF] dark:bg-[#1C1C1C] border border-[#DBDBDB] dark:border-[#262626] text-xs text-[#262626] dark:text-[#E0E0E0]">
+                <span className="font-semibold text-[#0095F6] block mb-0.5">Note:</span>
                 Sent broadcasts are cryptographically signed and cannot be deleted.
               </div>
 
               <button
                 type="submit"
                 disabled={!broadcastInput.trim()}
-                className="w-full py-2.5 px-4 rounded-xl bg-teal-600 hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-400 disabled:opacity-50 text-white dark:text-slate-950 font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-xs"
+                className="w-full py-2.5 px-4 rounded-lg bg-[#0095F6] hover:bg-[#1877F2] disabled:opacity-50 text-white font-semibold text-xs flex items-center justify-center gap-2 transition-all shadow-xs"
               >
                 <Send className="w-3.5 h-3.5" />
                 <span>Send to All Students</span>
@@ -170,16 +170,16 @@ export const RightPanel: React.FC = () => {
         ) : activeTab === 'members' && selectedStudent ? (
           /* VIEW 2: MEMBER PROFILE BREAKDOWN (CR ONLY) */
           <div className="p-5 space-y-4">
-            <div className="border-b border-slate-200 dark:border-slate-800 pb-4">
+            <div className="border-b border-[#DBDBDB] dark:border-[#262626] pb-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center font-extrabold text-sm shadow-xs">
+                <div className="w-10 h-10 rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center font-bold text-sm shadow-xs">
                   {selectedStudent.name.charAt(0)}
                 </div>
                 <div className="min-w-0">
-                  <h3 className="font-bold text-sm text-slate-900 dark:text-white truncate">
+                  <h3 className="font-semibold text-sm text-black dark:text-white truncate">
                     {selectedStudent.name}
                   </h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 font-mono">
+                  <p className="text-xs text-[#8E8E8E] font-mono">
                     {selectedStudent.rollNo} · {selectedStudent.email}
                   </p>
                 </div>
@@ -188,7 +188,7 @@ export const RightPanel: React.FC = () => {
 
             {/* Submission Performance */}
             <div>
-              <h4 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+              <h4 className="text-[11px] font-semibold text-[#8E8E8E] uppercase tracking-wider mb-2">
                 Submission Records
               </h4>
               <div className="space-y-2">
@@ -199,24 +199,24 @@ export const RightPanel: React.FC = () => {
                   return (
                     <div
                       key={asg.id}
-                      className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60"
+                      className="p-3 rounded-lg border border-[#DBDBDB] dark:border-[#262626] bg-[#FAFAFA] dark:bg-[#181818]"
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0">
-                          <p className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                          <p className="text-xs font-semibold text-black dark:text-white truncate">
                             {asg.title}
                           </p>
-                          <p className="text-[10px] text-slate-500 dark:text-slate-400">
+                          <p className="text-[10px] text-[#8E8E8E]">
                             {asg.subject}
                           </p>
                         </div>
                         <span
-                          className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider ${
+                          className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                             isSubmitted
-                              ? 'bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300'
+                              ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
                               : sub?.status === 'viewed'
-                              ? 'bg-amber-50 dark:bg-amber-500/15 text-amber-700 dark:text-amber-300'
-                              : 'bg-rose-50 dark:bg-rose-500/15 text-rose-700 dark:text-rose-300'
+                              ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
+                              : 'bg-rose-500/10 text-rose-600 dark:text-rose-400'
                           }`}
                         >
                           {sub?.status || 'assigned'}
@@ -224,23 +224,23 @@ export const RightPanel: React.FC = () => {
                       </div>
 
                       {isSubmitted && sub && (
-                        <div className="mt-2.5 pt-2 border-t border-slate-200 dark:border-slate-800 text-xs space-y-1.5">
-                          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-[11px]">
+                        <div className="mt-2.5 pt-2 border-t border-[#DBDBDB] dark:border-[#262626] text-xs space-y-1.5">
+                          <div className="flex items-center justify-between text-[#8E8E8E] text-[11px]">
                             <span>Submitted:</span>
                             <span className="font-mono">
                               {new Date(sub.submittedAt || '').toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                             </span>
                           </div>
                           {sub.proof && (
-                            <div className="flex items-center gap-1.5 text-[10px] text-teal-600 dark:text-teal-400 font-mono bg-teal-50 dark:bg-teal-500/10 p-1.5 rounded-lg border border-teal-200 dark:border-teal-500/20">
+                            <div className="flex items-center gap-1.5 text-[10px] text-[#0095F6] font-mono bg-[#0095F6]/10 p-1.5 rounded border border-[#0095F6]/20">
                               <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
                               <span className="truncate">Hash: {sub.proof.submissionHash}</span>
                             </div>
                           )}
                           {sub.fileName && (
-                            <div className="flex items-center justify-between text-xs text-slate-900 dark:text-white bg-white dark:bg-slate-900 p-2 rounded-lg border border-slate-200 dark:border-slate-800">
+                            <div className="flex items-center justify-between text-xs text-black dark:text-white bg-white dark:bg-[#121212] p-2 rounded border border-[#DBDBDB] dark:border-[#262626]">
                               <span className="truncate font-medium">{sub.fileName}</span>
-                              <Download className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 cursor-pointer" />
+                              <Download className="w-3.5 h-3.5 text-[#0095F6] cursor-pointer" />
                             </div>
                           )}
                         </div>
@@ -252,14 +252,14 @@ export const RightPanel: React.FC = () => {
             </div>
 
             {/* Device Info */}
-            <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 text-xs space-y-1">
-              <span className="font-bold text-slate-900 dark:text-white block">
+            <div className="p-3 rounded-lg bg-[#FAFAFA] dark:bg-[#181818] border border-[#DBDBDB] dark:border-[#262626] text-xs space-y-1">
+              <span className="font-semibold text-black dark:text-white block">
                 Device & Activity Audit
               </span>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400">
+              <p className="text-[11px] text-[#8E8E8E]">
                 Last Device: {selectedStudent.device || 'Desktop Session'}
               </p>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400">
+              <p className="text-[11px] text-[#8E8E8E]">
                 Joined: {new Date(selectedStudent.joinedAt).toLocaleDateString()}
               </p>
             </div>
@@ -270,38 +270,38 @@ export const RightPanel: React.FC = () => {
             {/* Header info */}
             <div>
               <div className="flex items-center justify-between gap-2">
-                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-teal-50 dark:bg-teal-500/15 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-500/30">
+                <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#EFEFEF] dark:bg-[#262626] text-black dark:text-white border border-[#DBDBDB] dark:border-[#363636]">
                   {selectedAsg.subject}
                 </span>
-                <span className="text-[11px] font-mono text-slate-400">
+                <span className="text-[11px] font-mono text-[#8E8E8E]">
                   {new Date(selectedAsg.deadline).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                 </span>
               </div>
 
-              <h3 className="font-extrabold text-base text-slate-900 dark:text-white mt-2 leading-snug">
+              <h3 className="font-bold text-base text-black dark:text-white mt-2 leading-snug">
                 {selectedAsg.title}
               </h3>
 
-              <p className="text-xs text-slate-600 dark:text-slate-300 mt-1.5 leading-relaxed">
+              <p className="text-xs text-[#737373] dark:text-[#A8A8A8] mt-1.5 leading-relaxed">
                 {selectedAsg.description}
               </p>
 
               {/* Attachment link if exists */}
               {selectedAsg.fileName && (
-                <div className="mt-3 flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 text-xs">
+                <div className="mt-3 flex items-center justify-between p-2.5 rounded-lg bg-[#FAFAFA] dark:bg-[#181818] border border-[#DBDBDB] dark:border-[#262626] text-xs">
                   <div className="flex items-center gap-2 truncate">
-                    <FileText className="w-4 h-4 text-teal-600 dark:text-teal-400 shrink-0" />
-                    <span className="font-semibold text-slate-900 dark:text-white truncate">
+                    <FileText className="w-4 h-4 text-[#0095F6] shrink-0" />
+                    <span className="font-medium text-black dark:text-white truncate">
                       {selectedAsg.fileName}
                     </span>
-                    <span className="text-[10px] text-slate-400">
+                    <span className="text-[10px] text-[#8E8E8E]">
                       ({selectedAsg.fileSize})
                     </span>
                   </div>
                   <a
                     href="#"
                     onClick={(e) => { e.preventDefault(); showToast('Attachment downloaded', 'info'); }}
-                    className="p-1 rounded text-teal-600 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-500/20 transition-colors"
+                    className="p-1 rounded text-[#0095F6] hover:bg-[#0095F6]/10 transition-colors"
                     title="Download reference attachment"
                   >
                     <Download className="w-3.5 h-3.5" />
@@ -311,12 +311,12 @@ export const RightPanel: React.FC = () => {
 
               {/* Countdown timer for student */}
               {currentUser.role === 'Student' && (
-                <div className="mt-3 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
-                    <Clock className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+                <div className="mt-3 p-2.5 rounded-lg bg-[#FAFAFA] dark:bg-[#181818] border border-[#DBDBDB] dark:border-[#262626] flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-1.5 text-[#8E8E8E]">
+                    <Clock className="w-3.5 h-3.5 text-[#0095F6]" />
                     <span className="font-medium">Time Remaining:</span>
                   </div>
-                  <span className="font-mono font-bold text-slate-900 dark:text-white">
+                  <span className="font-mono font-semibold text-black dark:text-white">
                     {countdown}
                   </span>
                 </div>
@@ -324,23 +324,23 @@ export const RightPanel: React.FC = () => {
             </div>
 
             {/* Submissions / Discussion Toggle */}
-            <div className="flex rounded-xl bg-slate-100 dark:bg-slate-900 p-0.5 border border-slate-200 dark:border-slate-800">
+            <div className="flex rounded-lg bg-[#EFEFEF] dark:bg-[#262626] p-0.5 border border-[#DBDBDB] dark:border-[#363636]">
               <button
                 onClick={() => setActiveTabSub('submissions')}
-                className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${
+                className={`flex-1 py-1.5 text-xs font-semibold rounded-md transition-all ${
                   activeTabSub === 'submissions'
-                    ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-2xs'
-                    : 'text-slate-500 dark:text-slate-400'
+                    ? 'bg-white dark:bg-[#121212] text-black dark:text-white shadow-xs'
+                    : 'text-[#8E8E8E]'
                 }`}
               >
                 {currentUser.role === 'CR' ? 'Submission Status' : 'My Status'}
               </button>
               <button
                 onClick={() => setActiveTabSub('discussion')}
-                className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${
+                className={`flex-1 py-1.5 text-xs font-semibold rounded-md transition-all ${
                   activeTabSub === 'discussion'
-                    ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-2xs'
-                    : 'text-slate-500 dark:text-slate-400'
+                    ? 'bg-white dark:bg-[#121212] text-black dark:text-white shadow-xs'
+                    : 'text-[#8E8E8E]'
                 }`}
               >
                 Discussion ({discussions.filter(d => d.assignmentId === selectedAsg.id).length})
@@ -354,43 +354,43 @@ export const RightPanel: React.FC = () => {
                 <div className="space-y-4">
                   {/* Submitted List */}
                   <div>
-                    <div className="flex items-center justify-between text-xs font-bold text-slate-900 dark:text-white mb-2">
+                    <div className="flex items-center justify-between text-xs font-semibold text-black dark:text-white mb-2">
                       <span className="flex items-center gap-1.5">
                         <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
                         Submitted ({submittedList.length})
                       </span>
-                      <span className="text-[10px] text-slate-400">
+                      <span className="text-[10px] text-[#8E8E8E]">
                         Max: {selectedAsg.maxScore || 20} pts
                       </span>
                     </div>
 
                     <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
                       {submittedList.length === 0 ? (
-                        <p className="text-[11px] text-slate-400 py-2">
+                        <p className="text-[11px] text-[#8E8E8E] py-2">
                           No submissions logged yet.
                         </p>
                       ) : (
                         submittedList.map(sub => (
                           <div
                             key={sub.id}
-                            className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 text-xs space-y-2"
+                            className="p-2.5 rounded-lg bg-[#FAFAFA] dark:bg-[#181818] border border-[#DBDBDB] dark:border-[#262626] text-xs space-y-2"
                           >
                             <div className="flex items-center justify-between">
                               <div className="min-w-0">
-                                <p className="font-bold text-slate-900 dark:text-white truncate">
+                                <p className="font-semibold text-black dark:text-white truncate">
                                   {sub.studentName}
                                 </p>
-                                <p className="text-[10px] text-slate-400 font-mono">
+                                <p className="text-[10px] text-[#8E8E8E] font-mono">
                                   {sub.submittedAt ? new Date(sub.submittedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Logged'}
                                 </p>
                               </div>
-                              <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-50 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300">
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
                                 {sub.grade ? `${sub.grade.score}/${sub.grade.maxScore}` : 'Needs Grade'}
                               </span>
                             </div>
 
                             {/* Quick Grade Input Form */}
-                            <div className="pt-2 border-t border-slate-200 dark:border-slate-800 flex items-center gap-1.5">
+                            <div className="pt-2 border-t border-[#DBDBDB] dark:border-[#262626] flex items-center gap-1.5">
                               <input
                                 type="number"
                                 placeholder="Score"
@@ -401,7 +401,7 @@ export const RightPanel: React.FC = () => {
                                     gradeSubmission(sub.id, val, selectedAsg.maxScore || 20, sub.grade?.feedback || 'Good work');
                                   }
                                 }}
-                                className="w-16 px-2 py-1 text-xs rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white"
+                                className="w-16 px-2 py-1 text-xs rounded bg-white dark:bg-[#121212] border border-[#DBDBDB] dark:border-[#262626] text-black dark:text-white"
                               />
                               <input
                                 type="text"
@@ -412,7 +412,7 @@ export const RightPanel: React.FC = () => {
                                     gradeSubmission(sub.id, sub.grade?.score || 18, selectedAsg.maxScore || 20, e.target.value.trim());
                                   }
                                 }}
-                                className="flex-1 px-2 py-1 text-xs rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white"
+                                className="flex-1 px-2 py-1 text-xs rounded bg-white dark:bg-[#121212] border border-[#DBDBDB] dark:border-[#262626] text-black dark:text-white"
                               />
                             </div>
                           </div>
@@ -423,7 +423,7 @@ export const RightPanel: React.FC = () => {
 
                   {/* Pending List */}
                   <div>
-                    <div className="flex items-center justify-between text-xs font-bold text-slate-900 dark:text-white mb-2">
+                    <div className="flex items-center justify-between text-xs font-semibold text-black dark:text-white mb-2">
                       <span className="flex items-center gap-1.5">
                         <span className="w-2 h-2 rounded-full bg-amber-500" />
                         Pending ({pendingStudents.length})
@@ -432,7 +432,7 @@ export const RightPanel: React.FC = () => {
 
                     <div className="space-y-1.5 max-h-40 overflow-y-auto pr-1">
                       {pendingStudents.length === 0 ? (
-                        <p className="text-[11px] text-emerald-600 dark:text-emerald-400 py-2 font-bold">
+                        <p className="text-[11px] text-emerald-600 dark:text-emerald-400 py-2 font-medium">
                           All students have submitted!
                         </p>
                       ) : (
@@ -441,17 +441,17 @@ export const RightPanel: React.FC = () => {
                           return (
                             <div
                               key={stu.id}
-                              className="flex items-center justify-between p-2 rounded-lg bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 text-xs"
+                              className="flex items-center justify-between p-2 rounded-md bg-[#FAFAFA] dark:bg-[#181818] border border-[#DBDBDB] dark:border-[#262626] text-xs"
                             >
                               <div className="min-w-0">
-                                <p className="font-semibold text-slate-900 dark:text-white truncate">
+                                <p className="font-medium text-black dark:text-white truncate">
                                   {stu.name}
                                 </p>
-                                <p className="text-[10px] text-slate-400 font-mono">
+                                <p className="text-[10px] text-[#8E8E8E] font-mono">
                                   {stu.rollNo}
                                 </p>
                               </div>
-                              <span className="text-[10px] font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-500/15 px-1.5 py-0.5 rounded">
+                              <span className="text-[10px] font-medium text-amber-600 dark:text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded">
                                 {stuSub?.status === 'viewed' ? 'Viewed' : 'Not opened'}
                               </span>
                             </div>
@@ -465,9 +465,9 @@ export const RightPanel: React.FC = () => {
                   {pendingStudents.length > 0 && (
                     <button
                       onClick={() => remindPendingStudents(selectedAsg.id)}
-                      className="w-full mt-2 py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white font-bold text-xs flex items-center justify-center gap-2 transition-colors shadow-xs"
+                      className="w-full mt-2 py-2 px-3 rounded-lg bg-black hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-200 text-white dark:text-black font-semibold text-xs flex items-center justify-center gap-2 transition-colors shadow-xs"
                     >
-                      <BellRing className="w-3.5 h-3.5 text-teal-400" />
+                      <BellRing className="w-3.5 h-3.5 text-[#0095F6]" />
                       <span>Remind All Pending ({pendingStudents.length})</span>
                     </button>
                   )}
@@ -476,16 +476,16 @@ export const RightPanel: React.FC = () => {
                 /* STUDENT VIEW: MY SUBMISSION STATUS & SUBMIT CTA */
                 <div className="space-y-3">
                   {mySubmission && mySubmission.status === 'submitted' ? (
-                    <div className="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-300 dark:border-emerald-500/30 space-y-2">
-                      <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-300 font-bold text-xs">
+                    <div className="p-3.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 space-y-2">
+                      <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-semibold text-xs">
                         <CheckCircle2 className="w-4 h-4" />
                         <span>Submitted & Verified</span>
                       </div>
-                      <p className="text-xs text-slate-900 dark:text-white font-medium">
+                      <p className="text-xs text-black dark:text-white font-medium">
                         {mySubmission.fileName || 'Submission confirmed.'}
                       </p>
                       {mySubmission.proof && (
-                        <div className="pt-2 border-t border-emerald-200 dark:border-emerald-500/20 text-[10px] font-mono text-slate-600 dark:text-slate-400 space-y-1">
+                        <div className="pt-2 border-t border-emerald-500/20 text-[10px] font-mono text-[#8E8E8E] space-y-1">
                           <div>Time: {new Date(mySubmission.submittedAt || '').toLocaleString()}</div>
                           <div className="truncate">Hash: {mySubmission.proof.submissionHash}</div>
                         </div>
@@ -493,11 +493,11 @@ export const RightPanel: React.FC = () => {
                     </div>
                   ) : (
                     <div className="space-y-3">
-                      <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-500/15 border border-amber-200 dark:border-amber-500/30 text-xs">
-                        <span className="font-bold text-amber-800 dark:text-amber-300 block mb-1">
+                      <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-xs">
+                        <span className="font-semibold text-amber-600 dark:text-amber-400 block mb-1">
                           Action Required
                         </span>
-                        <p className="text-[11px] text-slate-600 dark:text-slate-300">
+                        <p className="text-[11px] text-[#737373] dark:text-[#A8A8A8]">
                           You have not submitted this task yet. Make sure all solutions are attached before the deadline.
                         </p>
                       </div>
@@ -505,7 +505,7 @@ export const RightPanel: React.FC = () => {
                       <button
                         onClick={() => setIsSubmitDrawerOpen(true)}
                         disabled={isOffline}
-                        className="w-full py-2.5 px-4 rounded-xl bg-teal-600 hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-400 disabled:opacity-50 text-white dark:text-slate-950 font-extrabold text-xs flex items-center justify-center gap-2 transition-all shadow-xs"
+                        className="w-full py-2.5 px-4 rounded-lg bg-[#0095F6] hover:bg-[#1877F2] disabled:opacity-50 text-white font-semibold text-xs flex items-center justify-center gap-2 transition-all shadow-xs"
                       >
                         <Upload className="w-4 h-4" />
                         <span>Submit Assignment</span>
@@ -519,7 +519,7 @@ export const RightPanel: React.FC = () => {
               <div className="space-y-3 flex flex-col h-72">
                 <div className="flex-1 overflow-y-auto space-y-2 pr-1">
                   {discussions.filter(d => d.assignmentId === selectedAsg.id).length === 0 ? (
-                    <div className="text-center py-8 text-xs text-slate-400">
+                    <div className="text-center py-8 text-xs text-[#8E8E8E]">
                       No questions asked yet. Post a question for this assignment.
                     </div>
                   ) : (
@@ -528,26 +528,26 @@ export const RightPanel: React.FC = () => {
                       .map(comm => (
                         <div
                           key={comm.id}
-                          className={`p-2.5 rounded-xl border text-xs ${
+                          className={`p-2.5 rounded-lg border text-xs ${
                             comm.authorRole === 'CR'
-                              ? 'bg-teal-50 dark:bg-teal-500/10 border-teal-200 dark:border-teal-500/30'
-                              : 'bg-slate-50 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800'
+                              ? 'bg-[#0095F6]/10 border-[#0095F6]/30 text-black dark:text-white'
+                              : 'bg-[#FAFAFA] dark:bg-[#181818] border-[#DBDBDB] dark:border-[#262626]'
                           }`}
                         >
                           <div className="flex items-center justify-between gap-1 mb-1">
-                            <div className="flex items-center gap-1.5 font-bold text-slate-900 dark:text-white">
+                            <div className="flex items-center gap-1.5 font-semibold text-black dark:text-white">
                               <span>{comm.authorName}</span>
                               {comm.authorRole === 'CR' && (
-                                <span className="px-1 py-0.2 rounded bg-teal-500 text-slate-950 text-[9px] font-extrabold">
+                                <span className="px-1 py-0.2 rounded bg-[#0095F6] text-white text-[9px] font-bold">
                                   CR
                                 </span>
                               )}
                             </div>
-                            <span className="text-[10px] text-slate-400">
+                            <span className="text-[10px] text-[#8E8E8E]">
                               {new Date(comm.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                             </span>
                           </div>
-                          <p className="text-xs text-slate-700 dark:text-slate-200 leading-relaxed">
+                          <p className="text-xs text-[#737373] dark:text-[#A8A8A8] leading-relaxed">
                             {comm.content}
                           </p>
                         </div>
@@ -556,18 +556,18 @@ export const RightPanel: React.FC = () => {
                 </div>
 
                 {/* Comment input */}
-                <form onSubmit={handleSendComment} className="flex items-center gap-1.5 pt-2 border-t border-slate-200 dark:border-slate-800">
+                <form onSubmit={handleSendComment} className="flex items-center gap-1.5 pt-2 border-t border-[#DBDBDB] dark:border-[#262626]">
                   <input
                     type="text"
                     value={commentInput}
                     onChange={(e) => setCommentInput(e.target.value)}
                     placeholder="Ask a question about this assignment..."
-                    className="flex-1 text-xs px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-teal-500"
+                    className="flex-1 text-xs px-3 py-2 rounded-lg border border-[#DBDBDB] dark:border-[#262626] bg-[#FAFAFA] dark:bg-[#181818] text-black dark:text-white focus:outline-none focus:border-[#0095F6]"
                   />
                   <button
                     type="submit"
                     disabled={!commentInput.trim()}
-                    className="p-2 rounded-xl bg-teal-600 dark:bg-teal-500 text-white dark:text-slate-950 hover:bg-teal-700 disabled:opacity-50 transition-colors"
+                    className="p-2 rounded-lg bg-[#0095F6] text-white hover:bg-[#1877F2] disabled:opacity-50 transition-colors"
                   >
                     <Send className="w-3.5 h-3.5" />
                   </button>
@@ -578,14 +578,14 @@ export const RightPanel: React.FC = () => {
         ) : (
           /* VIEW 4: DEFAULT EMPTY STATE */
           <div className="p-6 text-center flex flex-col items-center justify-center my-auto space-y-3">
-            <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-400 shadow-2xs">
-              <Info className="w-6 h-6 text-teal-600 dark:text-teal-400" />
+            <div className="w-12 h-12 rounded-xl bg-[#EFEFEF] dark:bg-[#262626] border border-[#DBDBDB] dark:border-[#363636] flex items-center justify-center text-[#8E8E8E]">
+              <Info className="w-6 h-6 text-[#0095F6]" />
             </div>
             <div>
-              <h4 className="font-bold text-sm text-slate-900 dark:text-white">
+              <h4 className="font-semibold text-sm text-black dark:text-white">
                 Context Inspector
               </h4>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-[220px] leading-relaxed">
+              <p className="text-xs text-[#8E8E8E] mt-1 max-w-[220px] leading-relaxed">
                 Select an assignment, student record, or broadcast to inspect real-time logs and submission threads.
               </p>
             </div>

@@ -194,11 +194,11 @@ export const CommandPalette: React.FC = () => {
 
     // Theme Accents
     {
-      id: 'theme-teal',
+      id: 'theme-blue',
       category: 'Theme Accent',
-      label: 'Set Accent: StudySync Teal',
+      label: 'Set Accent: Instagram Blue',
       icon: Palette,
-      perform: () => setThemeAccent('teal')
+      perform: () => setThemeAccent('blue')
     },
     {
       id: 'theme-cyan',

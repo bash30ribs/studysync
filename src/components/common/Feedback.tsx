@@ -8,9 +8,9 @@ export const Toast: React.FC = () => {
   if (!toast) return null;
 
   const bgStyles = {
-    success: 'bg-[#00B4A6] dark:bg-[#00D2C4] text-white dark:text-[#080D1A] border-[#009E91] dark:border-[#00B4A6] shadow-lg shadow-[#00B4A6]/20',
-    error: 'bg-[#E63946] text-white border-[#D62839] shadow-lg shadow-[#E63946]/20',
-    info: 'bg-[#0F2044] dark:bg-[#15203B] text-white border-[#193166] dark:border-[#25427C] shadow-lg'
+    success: 'bg-emerald-600 text-white border-emerald-700 shadow-lg shadow-emerald-500/20',
+    error: 'bg-[#ED4956] text-white border-red-700 shadow-lg shadow-red-500/20',
+    info: 'bg-black dark:bg-[#121212] text-white border-[#262626] shadow-lg'
   }[toast.type];
 
   const Icon = {
@@ -20,7 +20,12 @@ export const Toast: React.FC = () => {
   }[toast.type];
 
   return (
-    <div className="fixed bottom-5 right-5 z-50 animate-in fade-in slide-in-from-bottom-5 duration-200">
+    <div
+      className="fixed bottom-5 right-5 z-50 animate-in fade-in slide-in-from-bottom-5 duration-200"
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
+    >
       <div className={`flex items-center gap-3 px-4 py-3 rounded-xl border ${bgStyles} min-w-[300px] max-w-md shadow-2xl`}>
         <Icon className="w-5 h-5 flex-shrink-0" />
         <p className="text-xs sm:text-sm font-bold flex-1">{toast.message}</p>
@@ -51,13 +56,13 @@ export const Modal: React.FC<{
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
       <div 
-        className={`bg-white dark:bg-[#0F172A] w-full ${maxWidth} rounded-2xl border border-[#E2E7F0] dark:border-[#1E293B] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-150`}
+        className={`bg-white dark:bg-[#121212] w-full ${maxWidth} rounded-2xl border border-[#DBDBDB] dark:border-[#262626] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-150`}
       >
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#E2E7F0] dark:border-[#1E293B] bg-[#F8FAFC]/60 dark:bg-[#15203B]/40">
-          <h3 className="text-base font-extrabold text-[#0F2044] dark:text-white tracking-tight">{title}</h3>
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#DBDBDB] dark:border-[#262626] bg-[#FAFAFA] dark:bg-[#181818]">
+          <h3 className="text-base font-extrabold text-black dark:text-white tracking-tight">{title}</h3>
           <button 
             onClick={onClose}
-            className="text-[#64748B] hover:text-[#0F2044] dark:text-[#94A3B8] dark:hover:text-white p-1 rounded-lg hover:bg-[#F1F5F9] dark:hover:bg-[#1E293B] transition-colors"
+            className="text-[#8E8E8E] hover:text-black dark:hover:text-white p-1 rounded-lg hover:bg-[#EFEFEF] dark:hover:bg-[#262626] transition-colors"
             aria-label="Close dialog"
           >
             <X className="w-5 h-5" />

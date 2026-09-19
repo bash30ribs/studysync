@@ -32,7 +32,7 @@ import {
   INITIAL_POLLS
 } from '../data/initialData';
 
-export type ThemeAccent = 'teal' | 'indigo' | 'emerald' | 'amber' | 'cyan';
+export type ThemeAccent = 'blue' | 'indigo' | 'emerald' | 'amber' | 'cyan' | 'teal';
 
 export interface ToastItem {
   message: string;
@@ -152,6 +152,19 @@ const saveStorage = <T,>(key: string, value: T): void => {
   }
 };
 
+// Escape a field value for safe CSV embedding
+const escapeCSV = (val: string): string => `"${val.replace(/"/g, '""')}"`;
+
+// Clear only StudySync-owned localStorage keys
+const clearStudySyncStorage = () => {
+  const keysToRemove: string[] = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k && k.startsWith(STORAGE_KEY_PREFIX)) keysToRemove.push(k);
+  }
+  keysToRemove.forEach(k => localStorage.removeItem(k));
+};
+
 const StudySyncContext = createContext<StudySyncContextType | undefined>(undefined);
 
 export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -185,7 +198,7 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [isShortcutsOpen, setIsShortcutsOpen] = useState<boolean>(false);
   const [isQRCodeOpen, setIsQRCodeOpen] = useState<boolean>(false);
   const [activeTrustPage, setActiveTrustPage] = useState<TrustPageType | null>(null);
-  const [themeAccent, setThemeAccentState] = useState<ThemeAccent>(() => loadStorage('theme_accent', 'teal'));
+  const [themeAccent, setThemeAccentState] = useState<ThemeAccent>(() => loadStorage('theme_accent', 'blue'));
   const [toast, setToast] = useState<ToastItem | null>(null);
 
   // Sync to local storage
@@ -234,12 +247,7 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       // If user is actively typing in an input field, do not trigger single-key navigation
       if (isInput) return;
 
-      // ? or Shift+/ -> Shortcuts Modal
-      if (e.key === '?' || (e.shiftKey && e.key === '/')) {
-        e.preventDefault();
-        setIsShortcutsOpen(prev => !prev);
-        return;
-      }
+      // ? or Shift+/ -> handled by App.tsx to avoid duplicate firing
 
       // Single Key Actions
       if (!e.metaKey && !e.ctrlKey && !e.altKey) {
@@ -392,7 +400,8 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     };
 
     setClasses(prev => [...prev, newClass]);
-    setAllUsers([newCr]);
+    // Add the new CR to existing users rather than wiping the whole list
+    setAllUsers(prev => [...prev, newCr]);
     setCurrentUser(newCr);
     setCurrentClass(newClass);
     setAssignments([]);
@@ -470,6 +479,11 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     recurrenceRule?: 'weekly' | 'biweekly';
     maxScore?: number;
   }) => {
+    // Validate deadline is not in the past
+    if (data.deadline && new Date(data.deadline).getTime() < Date.now()) {
+      showToast('Deadline cannot be set in the past. Please pick a future date.', 'error');
+      return;
+    }
     const newId = 'asg-' + Date.now();
     const newAsg: Assignment = {
       id: newId,
@@ -552,8 +566,15 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
     const isoTime = new Date().toISOString();
     const hash = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    // navigator.platform is deprecated — use userAgentData if available
+    const detectedOS = (navigator as any).userAgentData?.platform ||
+      (navigator.userAgent.includes('Win') ? 'Windows' :
+      navigator.userAgent.includes('Mac') ? 'macOS' :
+      navigator.userAgent.includes('Linux') ? 'Linux' :
+      navigator.userAgent.includes('Android') ? 'Android' :
+      navigator.userAgent.includes('iPhone') || navigator.userAgent.includes('iPad') ? 'iOS' : 'Unknown OS');
     const proof: SubmissionProof = {
-      os: navigator.platform || 'Desktop Client',
+      os: detectedOS,
       browser: navigator.userAgent.includes('Chrome') ? 'Chrome' : navigator.userAgent.includes('Safari') ? 'Safari' : 'Browser',
       submissionHash: hash,
       timestamp: isoTime
@@ -944,15 +965,15 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const rows = targetSubs.map(s => {
       const asg = assignments.find(a => a.id === s.assignmentId);
       return [
-        `"${s.studentName}"`,
-        `"${s.studentEmail}"`,
-        `"${asg?.title || ''}"`,
-        `"${asg?.subject || ''}"`,
-        `"${s.status.toUpperCase()}"`,
-        `"${s.grade ? `${s.grade.score}/${s.grade.maxScore}` : 'Not Graded'}"`,
-        `"${s.grade?.feedback || ''}"`,
-        `"${s.submittedAt ? new Date(s.submittedAt).toLocaleString() : 'N/A'}"`,
-        `"${s.proof?.submissionHash || 'N/A'}"`
+        escapeCSV(s.studentName),
+        escapeCSV(s.studentEmail),
+        escapeCSV(asg?.title || ''),
+        escapeCSV(asg?.subject || ''),
+        escapeCSV(s.status.toUpperCase()),
+        escapeCSV(s.grade ? `${s.grade.score}/${s.grade.maxScore}` : 'Not Graded'),
+        escapeCSV(s.grade?.feedback || ''),
+        escapeCSV(s.submittedAt ? new Date(s.submittedAt).toLocaleString() : 'N/A'),
+        escapeCSV(s.proof?.submissionHash || 'N/A')
       ].join(',');
     });
 
@@ -971,12 +992,12 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const exportMembersCSV = () => {
     const headers = ['Name', 'Email', 'Role', 'Roll Number', 'Joined Date', 'Last Active'];
     const rows = allUsers.map(u => [
-      `"${u.name}"`,
-      `"${u.email}"`,
-      `"${u.role}"`,
-      `"${u.rollNo || ''}"`,
-      `"${new Date(u.joinedAt).toLocaleDateString()}"`,
-      `"${u.lastActive}"`
+      escapeCSV(u.name),
+      escapeCSV(u.email),
+      escapeCSV(u.role),
+      escapeCSV(u.rollNo || ''),
+      escapeCSV(new Date(u.joinedAt).toLocaleDateString()),
+      escapeCSV(u.lastActive)
     ].join(','));
 
     const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows].join('\n');
@@ -997,12 +1018,12 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     attendanceSessions.forEach(sess => {
       sess.records.forEach(rec => {
         rows.push([
-          `"${sess.date}"`,
-          `"${sess.subject}"`,
-          `"${sess.topic || ''}"`,
-          `"${rec.rollNo}"`,
-          `"${rec.studentName}"`,
-          `"${rec.status.toUpperCase()}"`
+          escapeCSV(sess.date),
+          escapeCSV(sess.subject),
+          escapeCSV(sess.topic || ''),
+          escapeCSV(rec.rollNo),
+          escapeCSV(rec.studentName),
+          escapeCSV(rec.status.toUpperCase())
         ].join(','));
       });
     });
@@ -1020,15 +1041,19 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   };
 
   const leaveClass = () => {
-    setAllUsers(prev => prev.filter(u => u.id !== currentUser.id));
-    setSubmissions(prev => prev.filter(s => s.studentId !== currentUser.id));
-    const nextUser = allUsers.find(u => u.id !== currentUser.id) || INITIAL_USERS[0];
+    const leavingId = currentUser.id;
+    // Use functional updates to avoid stale closure bugs
+    setAllUsers(prev => prev.filter(u => u.id !== leavingId));
+    setSubmissions(prev => prev.filter(s => s.studentId !== leavingId));
+    // Find next user from current snapshot before mutation
+    const nextUser = allUsers.find(u => u.id !== leavingId) || INITIAL_USERS[0];
     setCurrentUser(nextUser);
     showToast('You have left the class', 'info');
   };
 
   const resetDemoData = () => {
-    localStorage.clear();
+    // Only clear StudySync-owned keys — do NOT wipe unrelated localStorage entries
+    clearStudySyncStorage();
     setClasses(INITIAL_CLASSES);
     setAllUsers(INITIAL_USERS);
     setCurrentUser(INITIAL_USERS[0]);
@@ -1045,7 +1070,7 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setActiveTab('dashboard');
     setSelectedAssignmentId(INITIAL_ASSIGNMENTS[0].id);
     setSelectedStudentId(INITIAL_USERS[1].id);
-    setThemeAccentState('teal');
+    setThemeAccentState('blue');
     showToast('Demo data reset to default MECH-3A state', 'info');
   };
 

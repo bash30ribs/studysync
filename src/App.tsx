@@ -25,6 +25,7 @@ import { MembersView } from './components/members/MembersView';
 import { BroadcastsView } from './components/broadcasts/BroadcastsView';
 import { MessagesView } from './components/messages/MessagesView';
 import { AnalyticsView } from './components/analytics/AnalyticsView';
+import { StudentAnalyticsView } from './components/analytics/StudentAnalyticsView';
 import { SettingsView } from './components/settings/SettingsView';
 import { LandingPage } from './components/landing/LandingPage';
 
@@ -60,7 +61,7 @@ const MainLayout: React.FC<{ isDarkMode: boolean; setIsDarkMode: React.Dispatch<
       case 'messages':
         return <MessagesView />;
       case 'analytics':
-        return currentUser.role === 'CR' ? <AnalyticsView /> : <StudentDashboard />;
+        return currentUser.role === 'CR' ? <AnalyticsView /> : <StudentAnalyticsView />;
       case 'settings':
         return <SettingsView />;
       default:
@@ -89,7 +90,7 @@ const MainLayout: React.FC<{ isDarkMode: boolean; setIsDarkMode: React.Dispatch<
   }, []);
 
   return (
-    <div className="flex flex-col h-screen w-screen overflow-hidden bg-[#F8FAFC] dark:bg-[#080D1A] text-[#0F172A] dark:text-[#F8FAFC] transition-colors duration-150">
+    <div className="flex flex-col h-screen w-screen overflow-hidden bg-[#FAFAFA] dark:bg-black text-[#262626] dark:text-[#F5F5F5] transition-colors duration-150">
       {/* Top Bar */}
       <Header
         onOpenLanding={() => setShowLanding(true)}
@@ -106,7 +107,7 @@ const MainLayout: React.FC<{ isDarkMode: boolean; setIsDarkMode: React.Dispatch<
         <LeftPanel />
 
         {/* Center Main Fluid Workspace */}
-        <main className="flex-1 overflow-y-auto pb-20 md:pb-6 bg-[#F8FAFC] dark:bg-[#080D1A] transition-colors duration-150">
+        <main className="flex-1 overflow-y-auto pb-20 md:pb-6 bg-[#FAFAFA] dark:bg-black transition-colors duration-150">
           {renderCenterContent()}
         </main>
 

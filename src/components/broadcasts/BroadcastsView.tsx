@@ -36,8 +36,8 @@ export const BroadcastsView: React.FC = () => {
     setTimeout(() => {
       setContent(`OFFICIAL NOTICE: Regarding "${aiPrompt.trim()}". Please note that all students of ${currentClass.name} must adhere to this updated schedule. Review related guidelines in the Resource Library and submit any pending tasks prior to deadline.`);
       setIsGeneratingAI(false);
-      showToast('AI draft generated! You can edit before sending.', 'info');
-    }, 600);
+      showToast('Smart draft generated. You can edit before sending.', 'info');
+    }, 500);
   };
 
   const handleSend = (e: React.FormEvent) => {
@@ -62,10 +62,10 @@ export const BroadcastsView: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl lg:text-2xl font-extrabold text-[#0F2044] dark:text-white tracking-tight">
+          <h1 className="text-xl lg:text-2xl font-bold text-black dark:text-white tracking-tight">
             Official Broadcasts
           </h1>
-          <p className="text-xs sm:text-sm text-[#64748B] dark:text-[#94A3B8] mt-0.5">
+          <p className="text-xs sm:text-sm text-neutral-500 dark:text-neutral-400 mt-0.5">
             Immutable CR class-wide announcements delivered to all enrolled student devices.
           </p>
         </div>
@@ -84,7 +84,7 @@ export const BroadcastsView: React.FC = () => {
       {/* Broadcasts Feed */}
       <div className="space-y-4">
         {broadcasts.length === 0 ? (
-          <div className="p-12 text-center text-xs text-slate-500 dark:text-slate-400 ui-card">
+          <div className="p-12 text-center text-xs text-neutral-500 dark:text-neutral-400 ui-card">
             No official broadcasts sent yet.
           </div>
         ) : (
@@ -96,33 +96,33 @@ export const BroadcastsView: React.FC = () => {
                 key={bc.id}
                 className={`p-5 ui-card transition-all ${
                   isUnread
-                    ? 'border-l-4 border-l-teal-500'
+                    ? 'border-l-4 border-l-[#0095F6]'
                     : ''
                 }`}
               >
                 {/* Top meta */}
-                <div className="flex items-center justify-between gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
+                <div className="flex items-center justify-between gap-2 pb-3 border-b border-[#DBDBDB] dark:border-[#262626]">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-7 h-7 rounded-lg bg-teal-500/15 text-teal-700 dark:text-teal-300 flex items-center justify-center font-bold">
+                    <div className="w-8 h-8 rounded-full bg-neutral-100 dark:bg-[#262626] text-[#0095F6] flex items-center justify-center font-bold">
                       <Megaphone className="w-4 h-4" />
                     </div>
                     <div>
-                      <span className="font-bold text-xs text-slate-900 dark:text-white">
+                      <span className="font-semibold text-xs text-black dark:text-white">
                         {bc.authorName}
                       </span>
-                      <span className="ml-2 px-1.5 py-0.2 rounded bg-teal-500 text-white dark:text-slate-950 text-[9px] font-extrabold">
+                      <span className="ml-2 px-1.5 py-0.5 rounded bg-[#0095F6] text-white text-[9px] font-bold">
                         CR
                       </span>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400 font-mono">
+                  <div className="flex items-center gap-3 text-xs text-neutral-500 dark:text-neutral-400 font-mono">
                     <span className="flex items-center gap-1">
                       <Clock className="w-3.5 h-3.5" />
                       {new Date(bc.sentAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                     </span>
                     {currentUser.role === 'CR' && (
-                      <span className="flex items-center gap-1 text-teal-600 dark:text-teal-400 font-bold hidden sm:flex">
+                      <span className="flex items-center gap-1 text-[#0095F6] font-semibold hidden sm:flex">
                         <CheckCheck className="w-3.5 h-3.5" />
                         Delivered to {totalStudents}
                       </span>
@@ -131,14 +131,14 @@ export const BroadcastsView: React.FC = () => {
                 </div>
 
                 {/* Content */}
-                <p className={`mt-3 text-xs sm:text-sm text-slate-800 dark:text-slate-200 leading-relaxed ${isUnread ? 'font-semibold' : ''}`}>
+                <p className={`mt-3 text-xs sm:text-sm text-neutral-800 dark:text-neutral-200 leading-relaxed ${isUnread ? 'font-semibold' : ''}`}>
                   {bc.content}
                 </p>
 
                 {/* Bottom verification badge & WhatsApp Share */}
-                <div className="mt-4 pt-2.5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
-                  <div className="flex items-center gap-1 text-teal-600 dark:text-teal-400 font-medium">
-                    <ShieldCheck className="w-3.5 h-3.5" />
+                <div className="mt-4 pt-3 border-t border-[#DBDBDB] dark:border-[#262626] flex items-center justify-between text-[11px] text-neutral-500 dark:text-neutral-400">
+                  <div className="flex items-center gap-1 text-neutral-600 dark:text-neutral-300 font-medium">
+                    <ShieldCheck className="w-3.5 h-3.5 text-[#0095F6]" />
                     <span>Cryptographically verified CR dispatch</span>
                   </div>
 
@@ -149,8 +149,8 @@ export const BroadcastsView: React.FC = () => {
                   >
                     {copiedBcId === bc.id ? (
                       <>
-                        <Check className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
-                        <span className="text-teal-600 dark:text-teal-400">Copied!</span>
+                        <Check className="w-3.5 h-3.5 text-[#0095F6]" />
+                        <span className="text-[#0095F6] font-semibold">Copied!</span>
                       </>
                     ) : (
                       <>
@@ -166,36 +166,36 @@ export const BroadcastsView: React.FC = () => {
         )}
       </div>
 
-      {/* CR Compose Broadcast Modal with AI Assistant */}
+      {/* CR Compose Broadcast Modal with Smart Assistant */}
       {isComposeOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150">
-          <div className="w-full max-w-xl bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden">
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150">
+          <div className="w-full max-w-xl bg-white dark:bg-[#121212] rounded-2xl border border-[#DBDBDB] dark:border-[#262626] shadow-2xl overflow-hidden">
             <form onSubmit={handleSend}>
-              <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 flex items-center justify-between">
+              <div className="px-6 py-4 border-b border-[#DBDBDB] dark:border-[#262626] bg-[#FAFAFA] dark:bg-[#121212] flex items-center justify-between">
                 <div>
-                  <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
+                  <h3 className="text-sm sm:text-base font-bold text-black dark:text-white">
                     Compose Official Broadcast
                   </h3>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                  <p className="text-[11px] text-neutral-500 dark:text-neutral-400">
                     Broadcasts alert all {totalStudents} enrolled student devices instantly
                   </p>
                 </div>
               </div>
 
               <div className="p-6 space-y-4">
-                {/* AI Broadcast Drafter */}
-                <div className="p-3.5 rounded-xl bg-teal-500/10 border border-teal-500/25 space-y-2">
-                  <div className="flex items-center gap-1.5 text-xs font-bold text-teal-700 dark:text-teal-300">
-                    <Sparkles className="w-3.5 h-3.5" />
-                    <span>AI Broadcast Drafter</span>
+                {/* Assistant Drafter */}
+                <div className="p-3.5 rounded-xl bg-neutral-100 dark:bg-[#1C1C1C] border border-[#DBDBDB] dark:border-[#262626] space-y-2">
+                  <div className="flex items-center gap-1.5 text-xs font-semibold text-black dark:text-white">
+                    <Sparkles className="w-3.5 h-3.5 text-[#0095F6]" />
+                    <span>Quick Notice Generator</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <input
                       type="text"
                       value={aiPrompt}
                       onChange={(e) => setAiPrompt(e.target.value)}
-                      placeholder="Type a brief prompt (e.g. Lab exam postponed to next Monday)..."
-                      className="flex-1 px-3 py-1.5 text-xs rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
+                      placeholder="e.g. Lab exam postponed to next Monday..."
+                      className="flex-1 px-3 py-1.5 text-xs rounded-lg bg-white dark:bg-[#000000] border border-[#DBDBDB] dark:border-[#262626] text-black dark:text-white focus:outline-none focus:border-[#0095F6]"
                     />
                     <button
                       type="button"
@@ -203,13 +203,13 @@ export const BroadcastsView: React.FC = () => {
                       onClick={handleGenerateAI}
                       className="btn-primary text-xs py-1.5 px-3"
                     >
-                      {isGeneratingAI ? 'Drafting...' : 'Draft with AI'}
+                      {isGeneratingAI ? 'Generating...' : 'Auto-Draft'}
                     </button>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">
+                  <label className="block text-[11px] font-semibold text-neutral-600 dark:text-neutral-300 mb-1">
                     Announcement Text *
                   </label>
                   <textarea
@@ -218,12 +218,12 @@ export const BroadcastsView: React.FC = () => {
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
                     placeholder="Write official announcement details..."
-                    className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
+                    className="w-full px-3 py-2 rounded-xl bg-white dark:bg-[#000000] border border-[#DBDBDB] dark:border-[#262626] text-xs text-black dark:text-white placeholder-neutral-400 focus:outline-none focus:border-[#0095F6]"
                   />
                 </div>
               </div>
 
-              <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 flex items-center justify-end gap-2.5">
+              <div className="px-6 py-4 border-t border-[#DBDBDB] dark:border-[#262626] bg-[#FAFAFA] dark:bg-[#121212] flex items-center justify-end gap-2.5">
                 <button
                   type="button"
                   onClick={() => setIsComposeOpen(false)}

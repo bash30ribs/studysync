@@ -138,14 +138,14 @@ export const AttendanceView: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-xl sm:text-2xl font-bold text-[#0F2044] dark:text-white tracking-tight">
+            <h1 className="text-xl sm:text-2xl font-bold text-black dark:text-white tracking-tight">
               Attendance Management
             </h1>
-            <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#E6F8F6] dark:bg-[#00D2C4]/15 text-[#00897B] dark:text-[#00D2C4] border border-[#00B4A6]/20">
+            <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#0095F6]/10 text-[#0095F6] border border-[#0095F6]/30">
               75% Minimum Threshold
             </span>
           </div>
-          <p className="text-xs text-[#64748B] dark:text-[#94A3B8] mt-1">
+          <p className="text-xs text-[#8E8E8E] mt-1">
             Official attendance log for {currentClass.name}. Automatically alerts students when below regulatory attendance limits.
           </p>
         </div>
@@ -173,13 +173,13 @@ export const AttendanceView: React.FC = () => {
 
       {/* Student Defaulter Warning Banner */}
       {currentUser.role === 'Student' && currentStudentStats.isDefaulter && (
-        <div className="p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 flex items-start gap-3.5">
-          <AlertTriangle className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
+        <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-start gap-3.5">
+          <AlertTriangle className="w-5 h-5 text-rose-500 shrink-0 mt-0.5" />
           <div className="flex-1">
-            <h4 className="text-xs font-bold text-rose-600 dark:text-rose-400">
+            <h4 className="text-xs font-semibold text-rose-600 dark:text-rose-400">
               ⚠️ Attendance Below Mandatory 75% Threshold ({currentStudentStats.percentage}%)
             </h4>
-            <p className="text-[11px] text-rose-900 dark:text-rose-200 mt-0.5 leading-relaxed">
+            <p className="text-[11px] text-[#737373] dark:text-[#A8A8A8] mt-0.5 leading-relaxed">
               Your overall attendance is currently at <strong>{currentStudentStats.percentage}%</strong> ({currentStudentStats.attendedCount} of {currentStudentStats.totalSessions} sessions). Attend upcoming lectures to prevent exam hall-ticket debarment.
             </p>
           </div>
@@ -187,22 +187,22 @@ export const AttendanceView: React.FC = () => {
       )}
 
       {/* Stat Cards Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
         <div className="p-4 ui-card">
-          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
+          <div className="flex items-center justify-between text-[#8E8E8E]">
             <span className="text-xs font-medium">
               {currentUser.role === 'CR' ? 'Class Average Attendance' : 'Your Attendance'}
             </span>
-            <UserCheck className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+            <UserCheck className="w-4 h-4 text-[#0095F6]" />
           </div>
           <div className="flex items-baseline gap-2 mt-2">
-            <span className="text-2xl font-bold text-slate-900 dark:text-white">
+            <span className="text-2xl font-bold text-black dark:text-white">
               {currentUser.role === 'CR' ? `${classAvgPercentage}%` : `${currentStudentStats.percentage}%`}
             </span>
             <span className={`text-[11px] font-semibold ${
               (currentUser.role === 'CR' ? classAvgPercentage : currentStudentStats.percentage) >= 75
-                ? 'text-teal-600 dark:text-teal-400'
-                : 'text-rose-600 dark:text-rose-400'
+                ? 'text-[#0095F6]'
+                : 'text-rose-500'
             }`}>
               {(currentUser.role === 'CR' ? classAvgPercentage : currentStudentStats.percentage) >= 75 ? 'Compliant' : 'Below 75%'}
             </span>
@@ -210,32 +210,32 @@ export const AttendanceView: React.FC = () => {
         </div>
 
         <div className="p-4 ui-card">
-          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
+          <div className="flex items-center justify-between text-[#8E8E8E]">
             <span className="text-xs font-medium">Total Sessions Logged</span>
-            <BookOpen className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+            <BookOpen className="w-4 h-4 text-[#0095F6]" />
           </div>
           <div className="flex items-baseline gap-2 mt-2">
-            <span className="text-2xl font-bold text-slate-900 dark:text-white">
+            <span className="text-2xl font-bold text-black dark:text-white">
               {attendanceSessions.length}
             </span>
-            <span className="text-[11px] text-slate-500 dark:text-slate-400">
+            <span className="text-[11px] text-[#8E8E8E]">
               Across {currentClass.subjects.length} subjects
             </span>
           </div>
         </div>
 
         <div className="p-4 ui-card">
-          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
+          <div className="flex items-center justify-between text-[#8E8E8E]">
             <span className="text-xs font-medium">
               {currentUser.role === 'CR' ? 'Students on Defaulter Watch' : 'Sessions Attended'}
             </span>
-            <ShieldAlert className={`w-4 h-4 ${defaultersCount > 0 ? 'text-rose-600' : 'text-teal-600'}`} />
+            <ShieldAlert className={`w-4 h-4 ${defaultersCount > 0 ? 'text-rose-500' : 'text-[#0095F6]'}`} />
           </div>
           <div className="flex items-baseline gap-2 mt-2">
-            <span className="text-2xl font-bold text-slate-900 dark:text-white">
+            <span className="text-2xl font-bold text-black dark:text-white">
               {currentUser.role === 'CR' ? defaultersCount : `${currentStudentStats.attendedCount} / ${currentStudentStats.totalSessions}`}
             </span>
-            <span className="text-[11px] text-slate-500 dark:text-slate-400">
+            <span className="text-[11px] text-[#8E8E8E]">
               {currentUser.role === 'CR' ? `Out of ${students.length} students` : 'Lectures present'}
             </span>
           </div>
@@ -247,10 +247,10 @@ export const AttendanceView: React.FC = () => {
         <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
           <button
             onClick={() => setActiveSubjectFilter('ALL')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors ${
               activeSubjectFilter === 'ALL'
-                ? 'bg-slate-900 dark:bg-teal-500 text-white dark:text-slate-950 font-bold shadow-xs'
-                : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800'
+                ? 'bg-black dark:bg-white text-white dark:text-black shadow-xs'
+                : 'bg-white dark:bg-[#121212] text-[#8E8E8E] border border-[#DBDBDB] dark:border-[#262626]'
             }`}
           >
             All Subjects
@@ -259,10 +259,10 @@ export const AttendanceView: React.FC = () => {
             <button
               key={sub}
               onClick={() => setActiveSubjectFilter(sub)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors ${
                 activeSubjectFilter === sub
-                  ? 'bg-slate-900 dark:bg-teal-500 text-white dark:text-slate-950 font-bold shadow-xs'
-                  : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800'
+                  ? 'bg-black dark:bg-white text-white dark:text-black shadow-xs'
+                  : 'bg-white dark:bg-[#121212] text-[#8E8E8E] border border-[#DBDBDB] dark:border-[#262626]'
               }`}
             >
               {sub}
@@ -271,31 +271,31 @@ export const AttendanceView: React.FC = () => {
         </div>
 
         <div className="relative w-full sm:w-64">
-          <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[#94A3B8]" />
+          <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[#8E8E8E]" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search sessions or topics..."
-            className="w-full pl-9 pr-3 py-1.5 rounded-lg bg-white dark:bg-[#15203B] border border-[#E2E8F0] dark:border-[#1E293B] text-xs text-[#0F2044] dark:text-white placeholder-[#94A3B8] focus:outline-none focus:ring-1 focus:ring-[#00B4A6]"
+            className="w-full pl-9 pr-3 py-1.5 rounded-lg bg-white dark:bg-[#121212] border border-[#DBDBDB] dark:border-[#262626] text-xs text-black dark:text-white placeholder-[#8E8E8E] focus:outline-none focus:border-[#0095F6]"
           />
         </div>
       </div>
 
       {/* Attendance History List */}
-      <div className="bg-white dark:bg-[#0F172A] rounded-2xl border border-[#E2E8F0] dark:border-[#1E293B] shadow-xs overflow-hidden">
-        <div className="px-5 py-3.5 border-b border-[#E2E8F0] dark:border-[#1E293B] flex items-center justify-between bg-[#F8FAFC]/60 dark:bg-[#15203B]/40">
-          <span className="text-xs font-bold text-[#0F2044] dark:text-white uppercase tracking-wider">
+      <div className="bg-white dark:bg-[#121212] rounded-xl border border-[#DBDBDB] dark:border-[#262626] shadow-xs overflow-hidden">
+        <div className="px-5 py-3.5 border-b border-[#DBDBDB] dark:border-[#262626] flex items-center justify-between bg-[#FAFAFA] dark:bg-[#181818]">
+          <span className="text-xs font-semibold text-black dark:text-white uppercase tracking-wider">
             Logged Attendance Sessions ({filteredSessions.length})
           </span>
-          <span className="text-[11px] text-[#64748B] dark:text-[#94A3B8]">
+          <span className="text-[11px] text-[#8E8E8E]">
             Click row to view session breakdown
           </span>
         </div>
 
-        <div className="divide-y divide-[#E2E8F0] dark:divide-[#1E293B]">
+        <div className="divide-y divide-[#EFEFEF] dark:divide-[#262626]">
           {filteredSessions.length === 0 ? (
-            <div className="py-12 text-center text-xs text-[#64748B] dark:text-[#94A3B8]">
+            <div className="py-12 text-center text-xs text-[#8E8E8E]">
               No attendance sessions recorded yet. CR can click "Take Attendance" to log a lecture.
             </div>
           ) : (
@@ -305,22 +305,22 @@ export const AttendanceView: React.FC = () => {
               const myRecord = sess.records.find(r => r.studentId === currentUser.id);
 
               return (
-                <div key={sess.id} className="p-4 hover:bg-[#F8FAFC] dark:hover:bg-[#15203B]/60 transition-colors">
+                <div key={sess.id} className="p-4 hover:bg-[#FAFAFA] dark:hover:bg-[#181818] transition-colors">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-[#E6F8F6] dark:bg-[#00D2C4]/10 text-[#00897B] dark:text-[#00D2C4] flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
+                      <div className="w-10 h-10 rounded-lg bg-[#EFEFEF] dark:bg-[#262626] text-black dark:text-white flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
                         {sessionRate}%
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="text-xs sm:text-sm font-bold text-[#0F2044] dark:text-white">
+                          <span className="text-xs sm:text-sm font-semibold text-black dark:text-white">
                             {sess.subject}
                           </span>
-                          <span className="text-[10px] font-mono font-medium px-2 py-0.5 rounded bg-[#F1F5F9] dark:bg-[#1E293B] text-[#64748B] dark:text-[#94A3B8]">
+                          <span className="text-[10px] font-mono font-medium px-2 py-0.5 rounded bg-[#EFEFEF] dark:bg-[#262626] text-[#8E8E8E]">
                             {sess.date}
                           </span>
                         </div>
-                        <p className="text-xs text-[#64748B] dark:text-[#94A3B8] mt-0.5">
+                        <p className="text-xs text-[#737373] dark:text-[#A8A8A8] mt-0.5">
                           {sess.topic} • Conducted by {sess.conductedBy}
                         </p>
                       </div>
@@ -328,12 +328,12 @@ export const AttendanceView: React.FC = () => {
 
                     <div className="flex items-center gap-3">
                       {currentUser.role === 'Student' && myRecord && (
-                        <span className={`px-2.5 py-1 rounded-md text-xs font-bold capitalize flex items-center gap-1 ${
+                        <span className={`px-2.5 py-1 rounded-md text-xs font-semibold capitalize flex items-center gap-1 ${
                           myRecord.status === 'present' 
-                            ? 'bg-[#E6F8F6] text-[#00897B] dark:bg-[#00D2C4]/20 dark:text-[#00D2C4]'
+                            ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
                             : myRecord.status === 'absent'
-                            ? 'bg-[#FEF2F2] text-[#DC2626] dark:bg-[#EF4444]/20 dark:text-[#F87171]'
-                            : 'bg-[#FEF6EC] text-[#D97706] dark:bg-[#F59E0B]/20 dark:text-[#FBBF24]'
+                            ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400'
+                            : 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
                         }`}>
                           {myRecord.status === 'present' && <CheckCircle2 className="w-3.5 h-3.5" />}
                           {myRecord.status === 'absent' && <XCircle className="w-3.5 h-3.5" />}
@@ -344,13 +344,13 @@ export const AttendanceView: React.FC = () => {
 
                       {currentUser.role === 'CR' && (
                         <div className="flex items-center gap-2">
-                          <span className="text-xs text-[#64748B] dark:text-[#94A3B8]">
+                          <span className="text-xs text-[#8E8E8E]">
                             {presentCount} / {sess.records.length} Present
                           </span>
                           <button
                             onClick={() => deleteAttendanceSession(sess.id)}
-                            className="p-1.5 rounded-lg text-[#64748B] hover:text-[#DC2626] dark:text-[#94A3B8] hover:bg-[#FEF2F2] dark:hover:bg-[#EF4444]/10 transition-colors"
-                            title="Delete session (Undoable)"
+                            className="p-1.5 rounded-md text-[#8E8E8E] hover:text-rose-500 hover:bg-rose-500/10 transition-colors"
+                            title="Delete session"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
@@ -367,15 +367,15 @@ export const AttendanceView: React.FC = () => {
 
       {/* CR Take Attendance Modal */}
       {isTakeAttendanceModalOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150">
-          <div className="w-full max-w-2xl bg-white dark:bg-[#0F172A] rounded-2xl border border-[#E2E8F0] dark:border-[#1E293B] shadow-2xl overflow-hidden">
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150">
+          <div className="w-full max-w-2xl bg-white dark:bg-[#121212] rounded-xl border border-[#DBDBDB] dark:border-[#262626] shadow-2xl overflow-hidden">
             <form onSubmit={handleSubmitAttendance}>
-              <div className="px-6 py-4 border-b border-[#E2E8F0] dark:border-[#1E293B] flex items-center justify-between bg-[#F8FAFC] dark:bg-[#15203B]/60">
+              <div className="px-6 py-4 border-b border-[#DBDBDB] dark:border-[#262626] flex items-center justify-between bg-[#FAFAFA] dark:bg-[#181818]">
                 <div>
-                  <h3 className="text-sm sm:text-base font-bold text-[#0F2044] dark:text-white">
+                  <h3 className="text-sm sm:text-base font-semibold text-black dark:text-white">
                     Take Lecture Attendance
                   </h3>
-                  <p className="text-[11px] text-[#64748B] dark:text-[#94A3B8]">
+                  <p className="text-[11px] text-[#8E8E8E]">
                     Tap any student status pill to toggle Present / Absent / Late
                   </p>
                 </div>
@@ -383,14 +383,14 @@ export const AttendanceView: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => handleMarkAll('present')}
-                    className="px-2.5 py-1 text-[11px] font-bold rounded-md bg-[#E6F8F6] dark:bg-[#00D2C4]/15 text-[#00897B] dark:text-[#00D2C4] border border-[#00B4A6]/20"
+                    className="px-2.5 py-1 text-[11px] font-semibold rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30"
                   >
                     All Present
                   </button>
                   <button
                     type="button"
                     onClick={() => handleMarkAll('absent')}
-                    className="px-2.5 py-1 text-[11px] font-bold rounded-md bg-[#FEF2F2] dark:bg-[#EF4444]/15 text-[#DC2626] dark:text-[#F87171] border border-[#EF4444]/20"
+                    className="px-2.5 py-1 text-[11px] font-semibold rounded-md bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/30"
                   >
                     All Absent
                   </button>
@@ -400,13 +400,13 @@ export const AttendanceView: React.FC = () => {
               <div className="p-6 space-y-4 max-h-[65vh] overflow-y-auto">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-[11px] font-bold text-[#475569] dark:text-[#94A3B8] mb-1">
+                    <label className="block text-[11px] font-semibold text-[#8E8E8E] mb-1">
                       Subject *
                     </label>
                     <select
                       value={selectedSubject}
                       onChange={(e) => setSelectedSubject(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl bg-[#F8FAFC] dark:bg-[#15203B] border border-[#E2E8F0] dark:border-[#1E293B] text-xs text-[#0F2044] dark:text-white focus:outline-none focus:ring-1 focus:ring-[#00B4A6]"
+                      className="w-full px-3 py-2 rounded-lg bg-[#FAFAFA] dark:bg-[#181818] border border-[#DBDBDB] dark:border-[#262626] text-xs text-black dark:text-white focus:outline-none focus:border-[#0095F6]"
                     >
                       {currentClass.subjects.map(s => (
                         <option key={s} value={s}>{s}</option>
@@ -415,20 +415,20 @@ export const AttendanceView: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-bold text-[#475569] dark:text-[#94A3B8] mb-1">
+                    <label className="block text-[11px] font-semibold text-[#8E8E8E] mb-1">
                       Date *
                     </label>
                     <input
                       type="date"
                       value={sessionDate}
                       onChange={(e) => setSessionDate(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl bg-[#F8FAFC] dark:bg-[#15203B] border border-[#E2E8F0] dark:border-[#1E293B] text-xs text-[#0F2044] dark:text-white focus:outline-none focus:ring-1 focus:ring-[#00B4A6]"
+                      className="w-full px-3 py-2 rounded-lg bg-[#FAFAFA] dark:bg-[#181818] border border-[#DBDBDB] dark:border-[#262626] text-xs text-black dark:text-white focus:outline-none focus:border-[#0095F6]"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-[#475569] dark:text-[#94A3B8] mb-1">
+                  <label className="block text-[11px] font-semibold text-[#8E8E8E] mb-1">
                     Lecture Topic (Optional)
                   </label>
                   <input
@@ -436,27 +436,27 @@ export const AttendanceView: React.FC = () => {
                     value={sessionTopic}
                     onChange={(e) => setSessionTopic(e.target.value)}
                     placeholder="e.g. Unit 3: Heat Exchangers Numerical Problems"
-                    className="w-full px-3 py-2 rounded-xl bg-[#F8FAFC] dark:bg-[#15203B] border border-[#E2E8F0] dark:border-[#1E293B] text-xs text-[#0F2044] dark:text-white placeholder-[#94A3B8] focus:outline-none focus:ring-1 focus:ring-[#00B4A6]"
+                    className="w-full px-3 py-2 rounded-lg bg-[#FAFAFA] dark:bg-[#181818] border border-[#DBDBDB] dark:border-[#262626] text-xs text-black dark:text-white placeholder-[#8E8E8E] focus:outline-none focus:border-[#0095F6]"
                   />
                 </div>
 
                 {/* Roster list */}
                 <div className="pt-2">
-                  <div className="text-xs font-bold text-[#0F2044] dark:text-white mb-2 flex items-center justify-between">
+                  <div className="text-xs font-semibold text-black dark:text-white mb-2 flex items-center justify-between">
                     <span>Cohort Roster ({modalRecords.length} Students)</span>
-                    <span className="text-[11px] text-[#00897B] dark:text-[#00D2C4] font-semibold">
+                    <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold">
                       {modalRecords.filter(r => r.status === 'present').length} Present • {modalRecords.filter(r => r.status === 'absent').length} Absent
                     </span>
                   </div>
 
-                  <div className="divide-y divide-[#E2E8F0] dark:divide-[#1E293B] border border-[#E2E8F0] dark:border-[#1E293B] rounded-xl overflow-hidden">
+                  <div className="divide-y divide-[#EFEFEF] dark:divide-[#262626] border border-[#DBDBDB] dark:border-[#262626] rounded-xl overflow-hidden">
                     {modalRecords.map(rec => (
-                      <div key={rec.studentId} className="px-3.5 py-2.5 flex items-center justify-between bg-white dark:bg-[#0B132B]">
+                      <div key={rec.studentId} className="px-3.5 py-2.5 flex items-center justify-between bg-white dark:bg-[#121212]">
                         <div>
-                          <span className="text-xs font-bold text-[#0F2044] dark:text-white block">
+                          <span className="text-xs font-semibold text-black dark:text-white block">
                             {rec.studentName}
                           </span>
-                          <span className="text-[10px] text-[#64748B] dark:text-[#94A3B8] font-mono">
+                          <span className="text-[10px] text-[#8E8E8E] font-mono">
                             {rec.rollNo}
                           </span>
                         </div>
@@ -464,12 +464,12 @@ export const AttendanceView: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => handleToggleStatus(rec.studentId, rec.status)}
-                          className={`px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${
+                          className={`px-3 py-1 rounded-md text-xs font-semibold uppercase tracking-wider transition-all ${
                             rec.status === 'present'
-                              ? 'bg-[#E6F8F6] text-[#00897B] dark:bg-[#00D2C4]/20 dark:text-[#00D2C4] border border-[#00B4A6]/30'
+                              ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30'
                               : rec.status === 'absent'
-                              ? 'bg-[#FEF2F2] text-[#DC2626] dark:bg-[#EF4444]/20 dark:text-[#F87171] border border-[#EF4444]/30'
-                              : 'bg-[#FEF6EC] text-[#D97706] dark:bg-[#F59E0B]/20 dark:text-[#FBBF24] border border-[#F59E0B]/30'
+                              ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/30'
+                              : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30'
                           }`}
                         >
                           {rec.status}
@@ -480,7 +480,7 @@ export const AttendanceView: React.FC = () => {
                 </div>
               </div>
 
-              <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 flex items-center justify-end gap-2.5">
+              <div className="px-6 py-4 border-t border-[#DBDBDB] dark:border-[#262626] bg-[#FAFAFA] dark:bg-[#181818] flex items-center justify-end gap-2.5">
                 <button
                   type="button"
                   onClick={() => setIsTakeAttendanceModalOpen(false)}

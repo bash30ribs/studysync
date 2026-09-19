@@ -71,23 +71,23 @@ export const CalendarView: React.FC = () => {
       {/* Header Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl lg:text-2xl font-extrabold text-[#0F2044] dark:text-white tracking-tight">
+          <h1 className="text-xl lg:text-2xl font-bold text-black dark:text-white tracking-tight">
             Academic Calendar
           </h1>
-          <p className="text-xs sm:text-sm text-[#64748B] dark:text-[#94A3B8] mt-0.5">
+          <p className="text-xs sm:text-sm text-neutral-500 dark:text-neutral-400 mt-0.5">
             Assignment deadlines, submission schedules, and class timeline.
           </p>
         </div>
 
         {/* View Toggle & Nav */}
         <div className="flex items-center gap-3">
-          <div className="flex rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-0.5 text-xs font-semibold shadow-xs">
+          <div className="flex rounded-lg bg-neutral-100 dark:bg-[#1C1C1C] border border-[#DBDBDB] dark:border-[#262626] p-0.5 text-xs font-semibold">
             <button
               onClick={() => setViewMode('month')}
               className={`px-3 py-1.5 rounded-md transition-all ${
                 viewMode === 'month'
-                  ? 'bg-teal-500 text-white dark:text-slate-950 font-bold shadow-xs'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  ? 'bg-black dark:bg-white text-white dark:text-black font-semibold'
+                  : 'text-neutral-600 dark:text-neutral-400 hover:text-black dark:hover:text-white'
               }`}
             >
               Month View
@@ -96,29 +96,29 @@ export const CalendarView: React.FC = () => {
               onClick={() => setViewMode('week')}
               className={`px-3 py-1.5 rounded-md transition-all ${
                 viewMode === 'week'
-                  ? 'bg-teal-500 text-white dark:text-slate-950 font-bold shadow-xs'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  ? 'bg-black dark:bg-white text-white dark:text-black font-semibold'
+                  : 'text-neutral-600 dark:text-neutral-400 hover:text-black dark:hover:text-white'
               }`}
             >
               Week View
             </button>
           </div>
 
-          <div className="flex items-center gap-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-0.5 shadow-xs">
+          <div className="flex items-center gap-1 bg-white dark:bg-[#121212] border border-[#DBDBDB] dark:border-[#262626] rounded-lg p-0.5">
             <button
               onClick={prevMonth}
               aria-label="Previous Month"
-              className="p-1.5 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white rounded transition-colors"
+              className="p-1.5 text-neutral-500 hover:text-black dark:text-neutral-400 dark:hover:text-white rounded transition-colors"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
-            <span className="text-xs font-bold text-slate-900 dark:text-white px-2 min-w-[120px] text-center">
+            <span className="text-xs font-bold text-black dark:text-white px-2 min-w-[120px] text-center">
               {monthNames[month]} {year}
             </span>
             <button
               onClick={nextMonth}
               aria-label="Next Month"
-              className="p-1.5 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white rounded transition-colors"
+              className="p-1.5 text-neutral-500 hover:text-black dark:text-neutral-400 dark:hover:text-white rounded transition-colors"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
@@ -127,25 +127,25 @@ export const CalendarView: React.FC = () => {
       </div>
 
       {/* Legend */}
-      <div className="flex items-center gap-4 text-xs font-semibold text-slate-500 dark:text-slate-400">
+      <div className="flex items-center gap-4 text-xs font-medium text-neutral-500 dark:text-neutral-400">
         <div className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-teal-500" />
-          <span>Active / On-Time</span>
+          <span className="w-2.5 h-2.5 rounded-full bg-[#0095F6]" />
+          <span>Active / Upcoming</span>
         </div>
         <div className="flex items-center gap-1.5">
           <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
           <span>Due Today</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-rose-500" />
-          <span>Overdue / Past</span>
+          <span className="w-2.5 h-2.5 rounded-full bg-[#ED4956]" />
+          <span>Past Deadline</span>
         </div>
       </div>
 
       {/* Calendar Grid */}
       <div className="ui-card overflow-hidden">
         {/* Day of Week Headers */}
-        <div className="grid grid-cols-7 border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/60 text-center py-2.5 text-[11px] font-bold text-slate-500 dark:text-slate-400">
+        <div className="grid grid-cols-7 border-b border-[#DBDBDB] dark:border-[#262626] bg-[#FAFAFA] dark:bg-[#121212] text-center py-2.5 text-[11px] font-semibold text-neutral-500 dark:text-neutral-400">
           <div>Sun</div>
           <div>Mon</div>
           <div>Tue</div>
@@ -156,10 +156,10 @@ export const CalendarView: React.FC = () => {
         </div>
 
         {/* Days grid */}
-        <div className="grid grid-cols-7 divide-x divide-y divide-slate-200 dark:divide-slate-800">
+        <div className="grid grid-cols-7 divide-x divide-y divide-[#DBDBDB] dark:divide-[#262626]">
           {/* Empty padding days */}
           {paddingArray.map(i => (
-            <div key={`pad-${i}`} className="h-24 sm:h-28 bg-slate-50/30 dark:bg-slate-950/30 p-2" />
+            <div key={`pad-${i}`} className="h-24 sm:h-28 bg-[#FAFAFA]/50 dark:bg-[#000000]/40 p-2" />
           ))}
 
           {/* Active days */}
@@ -174,22 +174,22 @@ export const CalendarView: React.FC = () => {
                 onClick={() => handleSelectDay(day)}
                 className={`h-24 sm:h-28 p-2 cursor-pointer transition-colors flex flex-col justify-between ${
                   selected
-                    ? 'bg-teal-500/10 ring-2 ring-inset ring-teal-500'
-                    : 'hover:bg-slate-50 dark:hover:bg-slate-800/40'
+                    ? 'bg-neutral-100 dark:bg-[#1C1C1C] ring-2 ring-inset ring-[#0095F6]'
+                    : 'hover:bg-neutral-50 dark:hover:bg-[#1C1C1C]'
                 }`}
               >
                 <div className="flex items-center justify-between">
                   <span
-                    className={`text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full ${
+                    className={`text-xs font-semibold w-6 h-6 flex items-center justify-center rounded-full ${
                       today
-                        ? 'bg-teal-500 text-white dark:text-slate-950 font-extrabold shadow-xs'
-                        : 'text-slate-800 dark:text-slate-100'
+                        ? 'bg-[#0095F6] text-white font-bold'
+                        : 'text-black dark:text-white'
                     }`}
                   >
                     {day}
                   </span>
                   {dayAsgs.length > 0 && (
-                    <span className="text-[10px] font-mono text-teal-600 dark:text-teal-400 font-extrabold">
+                    <span className="text-[10px] font-mono text-[#0095F6] font-bold">
                       {dayAsgs.length} due
                     </span>
                   )}
@@ -201,12 +201,12 @@ export const CalendarView: React.FC = () => {
                     return (
                       <div
                         key={asg.id}
-                        className={`text-[10px] px-1.5 py-0.5 rounded truncate font-bold ${
+                        className={`text-[10px] px-1.5 py-0.5 rounded truncate font-medium ${
                           isOverdue
-                            ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400'
+                            ? 'bg-red-500/15 text-[#ED4956]'
                             : today
-                            ? 'bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400'
-                            : 'bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300'
+                            ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400'
+                            : 'bg-neutral-100 dark:bg-[#262626] text-black dark:text-white'
                         }`}
                       >
                         {asg.title}
@@ -214,7 +214,7 @@ export const CalendarView: React.FC = () => {
                     );
                   })}
                   {dayAsgs.length > 2 && (
-                    <div className="text-[9px] text-slate-400 pl-1 font-mono">
+                    <div className="text-[9px] text-neutral-400 pl-1 font-mono">
                       +{dayAsgs.length - 2} more
                     </div>
                   )}

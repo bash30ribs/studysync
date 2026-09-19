@@ -2,23 +2,23 @@ import React, { useState } from 'react';
 import { useStudySync } from '../../store';
 import { NavTab } from '../../types';
 import { 
-  LayoutDashboard, 
-  FileText, 
+  Home, 
+  CheckSquare, 
   UserCheck, 
-  FolderOpen, 
+  Folder, 
   BarChart2, 
-  CalendarDays, 
+  Calendar, 
   Users, 
   Megaphone, 
   MessageSquare, 
-  BarChart3, 
+  TrendingUp, 
   Settings, 
   Copy, 
   Check, 
   ChevronDown, 
   QrCode, 
   Keyboard, 
-  ShieldCheck,
+  Shield,
   GraduationCap
 } from 'lucide-react';
 
@@ -61,58 +61,58 @@ export const LeftPanel: React.FC = () => {
     crOnly?: boolean;
     badgeCount?: number;
   }[] = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'assignments', label: 'Assignments', icon: FileText, badgeCount: activeAssignmentsCount },
+    { id: 'dashboard', label: 'Home', icon: Home },
+    { id: 'assignments', label: 'Tasks', icon: CheckSquare, badgeCount: activeAssignmentsCount },
     { id: 'attendance', label: 'Attendance', icon: UserCheck },
-    { id: 'resources', label: 'Resource Library', icon: FolderOpen },
-    { id: 'polls', label: 'Polls & Decisions', icon: BarChart2, badgeCount: activePollsCount },
-    { id: 'calendar', label: 'Calendar', icon: CalendarDays },
-    { id: 'members', label: 'Members', icon: Users, crOnly: true },
+    { id: 'resources', label: 'Resources', icon: Folder },
+    { id: 'polls', label: 'Polls & Consensus', icon: BarChart2, badgeCount: activePollsCount },
+    { id: 'calendar', label: 'Calendar', icon: Calendar },
+    { id: 'members', label: 'Roster', icon: Users, crOnly: true },
     { id: 'broadcasts', label: 'Broadcasts', icon: Megaphone, badgeCount: broadcasts.length > 0 ? broadcasts.length : undefined },
-    { id: 'messages', label: 'Messages', icon: MessageSquare },
-    { id: 'analytics', label: 'Analytics', icon: BarChart3, crOnly: true },
+    { id: 'messages', label: 'Direct Messages', icon: MessageSquare },
+    { id: 'analytics', label: 'Analytics', icon: TrendingUp, crOnly: true },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
   const visibleNav = navItems.filter(item => !item.crOnly || currentUser.role === 'CR');
 
   return (
-    <aside className="w-[240px] md:w-[72px] lg:w-[240px] bg-slate-50/80 dark:bg-[#0B101B] text-slate-700 dark:text-slate-300 flex flex-col justify-between h-full border-r border-slate-200/80 dark:border-slate-800/80 shrink-0 transition-all duration-150 select-none">
+    <aside className="hidden md:flex w-[72px] lg:w-[240px] bg-white dark:bg-black text-[#262626] dark:text-[#F5F5F5] flex-col justify-between h-full border-r border-[#DBDBDB] dark:border-[#262626] shrink-0 transition-all duration-150 select-none">
       {/* Top: Class Switcher Card */}
-      <div className="p-3 lg:p-4 border-b border-slate-200/80 dark:border-slate-800/80 relative">
+      <div className="p-3 lg:p-4 border-b border-[#DBDBDB] dark:border-[#262626] relative">
         {/* Desktop View */}
         <div className="hidden lg:block space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Enrolled Class
+            <span className="text-[10px] font-semibold text-[#737373] dark:text-[#A8A8A8] uppercase tracking-wider">
+              Class Cohort
             </span>
-            <div className="flex items-center gap-1.5 text-[11px] text-teal-700 dark:text-teal-400">
-              <span className={`w-1.5 h-1.5 rounded-full ${isOffline ? 'bg-amber-500' : 'bg-teal-500'}`} />
+            <div className="flex items-center gap-1.5 text-[11px] text-[#737373] dark:text-[#A8A8A8]">
+              <span className={`w-2 h-2 rounded-full ${isOffline ? 'bg-amber-500' : 'bg-[#0095F6]'}`} />
               <span className="font-medium">{isOffline ? 'Offline' : 'Connected'}</span>
             </div>
           </div>
 
           <button
             onClick={() => setIsClassDropdownOpen(prev => !prev)}
-            className="w-full flex items-center justify-between p-2.5 rounded-xl bg-white dark:bg-slate-900/80 hover:bg-slate-100/70 dark:hover:bg-slate-800/60 border border-slate-200/90 dark:border-slate-800 text-left transition-all group shadow-2xs"
+            className="w-full flex items-center justify-between p-2.5 rounded-xl bg-[#EFEFEF] dark:bg-[#121212] hover:bg-[#E5E5E5] dark:hover:bg-[#1E1E1E] text-left transition-all group"
           >
             <div className="min-w-0 pr-2">
-              <h2 className="text-xs font-semibold text-slate-900 dark:text-white tracking-tight truncate flex items-center gap-1.5">
-                <GraduationCap className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 shrink-0" />
+              <h2 className="text-xs font-bold text-black dark:text-white tracking-tight truncate flex items-center gap-1.5">
+                <GraduationCap className="w-3.5 h-3.5 text-[#0095F6] shrink-0" />
                 <span>{currentClass.name}</span>
               </h2>
-              <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400 block mt-0.5">
+              <span className="text-[10px] font-mono text-[#737373] dark:text-[#A8A8A8] block mt-0.5">
                 Code: {currentClass.code}
               </span>
             </div>
-            <ChevronDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-200 transition-colors shrink-0" />
+            <ChevronDown className="w-3.5 h-3.5 text-[#737373] dark:text-[#A8A8A8] group-hover:text-black dark:group-hover:text-white transition-colors shrink-0" />
           </button>
 
           {/* Class Dropdown */}
           {isClassDropdownOpen && (
-            <div className="absolute left-3 right-3 top-20 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-lg z-50 p-1.5 space-y-1 animate-in fade-in zoom-in-95 duration-100">
-              <div className="px-2 py-1 text-[9px] font-semibold text-slate-400 uppercase">
-                Switch Class Cohort
+            <div className="absolute left-3 right-3 top-20 bg-white dark:bg-[#121212] border border-[#DBDBDB] dark:border-[#262626] rounded-xl shadow-xl z-50 p-1.5 space-y-1 animate-in fade-in zoom-in-95 duration-100">
+              <div className="px-2 py-1 text-[9px] font-semibold text-[#737373] dark:text-[#A8A8A8] uppercase">
+                Switch Class
               </div>
               {classes.map(c => (
                 <button
@@ -123,12 +123,12 @@ export const LeftPanel: React.FC = () => {
                   }}
                   className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors ${
                     c.id === currentClass.id
-                      ? 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-semibold'
-                      : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50'
+                      ? 'bg-[#EFEFEF] dark:bg-[#262626] text-black dark:text-white font-bold'
+                      : 'text-[#262626] dark:text-[#E0E0E0] hover:bg-[#F7F7F7] dark:hover:bg-[#1E1E1E]'
                   }`}
                 >
                   <span className="truncate">{c.name}</span>
-                  <span className="font-mono text-[10px] text-slate-400">{c.code}</span>
+                  <span className="font-mono text-[10px] text-[#737373]">{c.code}</span>
                 </button>
               ))}
             </div>
@@ -136,16 +136,16 @@ export const LeftPanel: React.FC = () => {
         </div>
 
         {/* Mini view (Tablet) */}
-        <div className="hidden md:flex lg:hidden flex-col items-center gap-1.5">
-          <div className="w-9 h-9 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center text-teal-600 dark:text-teal-400 font-bold text-xs shadow-xs">
+        <div className="flex lg:hidden flex-col items-center gap-1.5">
+          <div className="w-9 h-9 rounded-xl bg-[#EFEFEF] dark:bg-[#1E1E1E] flex items-center justify-center text-[#0095F6] font-bold text-xs">
             {currentClass.name.substring(0, 2)}
           </div>
           <button
             onClick={handleCopyCode}
             title={`Code: ${currentClass.code}`}
-            className="p-1 text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 transition-colors"
+            className="p-1 text-[#737373] hover:text-black dark:hover:text-white transition-colors"
           >
-            {copied ? <Check className="w-3.5 h-3.5 text-teal-600" /> : <Copy className="w-3.5 h-3.5" />}
+            {copied ? <Check className="w-3.5 h-3.5 text-[#0095F6]" /> : <Copy className="w-3.5 h-3.5" />}
           </button>
         </div>
       </div>
@@ -161,24 +161,20 @@ export const LeftPanel: React.FC = () => {
               key={item.id}
               onClick={() => setActiveTab(item.id)}
               title={item.label}
-              className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs lg:text-sm font-medium transition-all ${
+              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs lg:text-sm transition-all ${
                 isActive
-                  ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-semibold shadow-2xs border border-slate-200/80 dark:border-slate-800/80'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100/60 dark:hover:bg-slate-900/40'
-              } md:justify-center lg:justify-between`}
+                  ? 'font-bold text-black dark:text-white bg-[#EFEFEF] dark:bg-[#1A1A1A]'
+                  : 'font-normal text-[#737373] dark:text-[#A8A8A8] hover:text-black dark:hover:text-white hover:bg-[#F7F7F7] dark:hover:bg-[#121212]'
+              } justify-center lg:justify-between`}
             >
-              <div className="flex items-center gap-2.5">
-                <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-teal-600 dark:text-teal-400' : 'text-slate-400'}`} />
+              <div className="flex items-center gap-3">
+                <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-black dark:text-white stroke-[2.5]' : 'stroke-[1.8]'}`} />
                 <span className="hidden lg:inline tracking-tight">{item.label}</span>
               </div>
 
               {/* Badge count indicator */}
               {item.badgeCount !== undefined && item.badgeCount > 0 && (
-                <span className={`hidden lg:inline-flex px-1.5 py-0.5 rounded-full text-[10px] font-semibold leading-none ${
-                  isActive
-                    ? 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
-                    : 'bg-slate-200/70 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
-                }`}>
+                <span className="hidden lg:inline-flex px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-[#FF3040] text-white">
                   {item.badgeCount}
                 </span>
               )}
@@ -188,19 +184,19 @@ export const LeftPanel: React.FC = () => {
       </nav>
 
       {/* Quick Utilities Row */}
-      <div className="px-3 py-2 border-t border-slate-200/80 dark:border-slate-800/80 hidden lg:flex items-center justify-between text-slate-500 dark:text-slate-400">
+      <div className="px-3 py-2.5 border-t border-[#DBDBDB] dark:border-[#262626] hidden lg:flex items-center justify-between text-[#737373] dark:text-[#A8A8A8]">
         <button
           onClick={() => setIsQRCodeOpen(true)}
-          className="flex items-center gap-1.5 text-[11px] hover:text-slate-900 dark:hover:text-slate-200 transition-colors"
+          className="flex items-center gap-1.5 text-[11px] hover:text-black dark:hover:text-white transition-colors"
           title="Display class join QR code"
         >
-          <QrCode className="w-3.5 h-3.5 text-slate-400 hover:text-teal-600 dark:hover:text-teal-400" />
+          <QrCode className="w-3.5 h-3.5" />
           <span>QR Join</span>
         </button>
 
         <button
           onClick={() => setIsShortcutsOpen(true)}
-          className="flex items-center gap-1 text-[11px] hover:text-slate-900 dark:hover:text-slate-200 transition-colors"
+          className="flex items-center gap-1 text-[11px] hover:text-black dark:hover:text-white transition-colors"
           title="Keyboard shortcuts (? key)"
         >
           <Keyboard className="w-3.5 h-3.5" />
@@ -209,44 +205,44 @@ export const LeftPanel: React.FC = () => {
 
         <button
           onClick={() => setActiveTrustPage('security')}
-          className="text-[11px] hover:text-slate-900 dark:hover:text-slate-200 transition-colors p-1"
+          className="text-[11px] hover:text-black dark:hover:text-white transition-colors p-1"
           title="Security & Governance"
         >
-          <ShieldCheck className="w-3.5 h-3.5 text-slate-400" />
+          <Shield className="w-3.5 h-3.5" />
         </button>
       </div>
 
       {/* Bottom Profile & Role Badge */}
-      <div className="p-3 lg:p-3.5 border-t border-slate-200/80 dark:border-slate-800/80 bg-slate-100/60 dark:bg-slate-950/60">
+      <div className="p-3 lg:p-3.5 border-t border-[#DBDBDB] dark:border-[#262626] bg-[#F7F7F7] dark:bg-[#0A0A0A]">
         {/* Desktop View */}
         <div className="hidden lg:flex items-center justify-between">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-7 h-7 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 flex items-center justify-center font-bold text-xs shrink-0 border border-slate-300/60 dark:border-slate-700/60">
+            <div className="w-7 h-7 rounded-full bg-[#EFEFEF] dark:bg-[#262626] text-black dark:text-white flex items-center justify-center font-bold text-xs shrink-0 border border-[#DBDBDB] dark:border-[#363636]">
               {currentUser.name.charAt(0)}
             </div>
             <div className="min-w-0">
-              <p className="text-xs font-semibold text-slate-900 dark:text-white truncate leading-tight">
+              <p className="text-xs font-bold text-black dark:text-white truncate leading-tight">
                 {currentUser.name}
               </p>
-              <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate font-mono">
+              <p className="text-[10px] text-[#737373] dark:text-[#A8A8A8] truncate font-mono">
                 {currentUser.rollNo || currentUser.email}
               </p>
             </div>
           </div>
 
           <span
-            className="px-2 py-0.5 rounded-full text-[10px] font-semibold tracking-wide shrink-0 bg-slate-200/80 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-300/70 dark:border-slate-700"
+            className="px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide shrink-0 bg-[#EFEFEF] dark:bg-[#262626] text-[#262626] dark:text-[#E0E0E0]"
           >
             {currentUser.role}
           </span>
         </div>
 
         {/* Tablet Mini View */}
-        <div className="hidden md:flex lg:hidden flex-col items-center gap-1">
-          <div className="w-7 h-7 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center font-bold text-xs border border-slate-300/60 dark:border-slate-700">
+        <div className="flex lg:hidden flex-col items-center gap-1">
+          <div className="w-7 h-7 rounded-full bg-[#EFEFEF] dark:bg-[#262626] text-black dark:text-white flex items-center justify-center font-bold text-xs">
             {currentUser.name.charAt(0)}
           </div>
-          <span className="text-[9px] font-semibold text-slate-500 dark:text-slate-400">
+          <span className="text-[9px] font-bold text-[#737373]">
             {currentUser.role}
           </span>
         </div>
