@@ -151,7 +151,7 @@ export const LeftPanel: React.FC = () => {
       </div>
 
       {/* Navigation Items */}
-      <nav className="flex-1 px-3 py-3 space-y-1 overflow-y-auto">
+      <nav className="flex-1 px-2.5 py-3 space-y-1 overflow-y-auto">
         {visibleNav.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
@@ -161,23 +161,23 @@ export const LeftPanel: React.FC = () => {
               key={item.id}
               onClick={() => setActiveTab(item.id)}
               title={item.label}
-              className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs lg:text-sm font-semibold transition-all ${
+              className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs lg:text-sm font-medium transition-all ${
                 isActive
-                  ? 'bg-teal-500 text-slate-950 shadow-md shadow-teal-500/20 font-bold'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-900/60'
+                  ? 'bg-teal-500/15 text-teal-300 font-bold border border-teal-500/30 shadow-xs'
+                  : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/60'
               } md:justify-center lg:justify-between`}
             >
-              <div className="flex items-center gap-3">
-                <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-slate-950' : 'text-slate-400 group-hover:text-white'}`} />
+              <div className="flex items-center gap-2.5">
+                <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-teal-400' : 'text-slate-400'}`} />
                 <span className="hidden lg:inline tracking-tight">{item.label}</span>
               </div>
 
               {/* Badge count indicator */}
               {item.badgeCount !== undefined && item.badgeCount > 0 && (
-                <span className={`hidden lg:inline-flex px-1.5 py-0.5 rounded-full text-[10px] font-extrabold leading-none ${
+                <span className={`hidden lg:inline-flex px-1.5 py-0.5 rounded-full text-[10px] font-bold leading-none ${
                   isActive
-                    ? 'bg-slate-950 text-teal-400'
-                    : 'bg-slate-850 text-slate-300 border border-slate-700/60'
+                    ? 'bg-teal-500/20 text-teal-300 border border-teal-500/30'
+                    : 'bg-slate-800 text-slate-400 border border-slate-700'
                 }`}>
                   {item.badgeCount}
                 </span>

@@ -120,7 +120,7 @@ export const PollsView: React.FC = () => {
         {currentUser.role === 'CR' && (
           <button
             onClick={() => setIsCreateModalOpen(true)}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#00B4A6] hover:bg-[#009E91] dark:bg-[#00D2C4] dark:hover:bg-[#00B4A6] text-white dark:text-[#09132B] text-xs font-bold transition-all shadow-xs"
+            className="btn-primary"
           >
             <Plus className="w-4 h-4" />
             <span>Create Quick Poll</span>
@@ -131,7 +131,7 @@ export const PollsView: React.FC = () => {
       {/* Polls List */}
       <div className="space-y-4">
         {polls.length === 0 ? (
-          <div className="py-16 text-center text-xs text-[#64748B] dark:text-[#94A3B8] bg-white dark:bg-[#0F172A] rounded-2xl border border-[#E2E8F0] dark:border-[#1E293B]">
+          <div className="py-16 text-center text-xs text-slate-500 dark:text-slate-400 ui-card">
             No active polls right now. CR can create a vote to gather instant class consensus.
           </div>
         ) : (
@@ -143,29 +143,29 @@ export const PollsView: React.FC = () => {
             return (
               <div
                 key={poll.id}
-                className="p-5 rounded-2xl bg-white dark:bg-[#0F172A] border border-[#E2E8F0] dark:border-[#1E293B] shadow-xs space-y-4"
+                className="p-5 ui-card space-y-4"
               >
                 <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                   <div>
                     <div className="flex items-center gap-2">
                       <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
                         poll.isClosed
-                          ? 'bg-[#F1F5F9] dark:bg-[#1E293B] text-[#64748B] dark:text-[#94A3B8]'
-                          : 'bg-[#E6F8F6] dark:bg-[#00D2C4]/15 text-[#00897B] dark:text-[#00D2C4]'
+                          ? 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
+                          : 'bg-teal-500/10 dark:bg-teal-500/20 text-teal-700 dark:text-teal-300'
                       }`}>
                         {poll.isClosed ? 'Poll Closed' : 'Active Vote'}
                       </span>
-                      <span className="text-[11px] text-[#64748B] dark:text-[#94A3B8]">
+                      <span className="text-[11px] text-slate-500 dark:text-slate-400">
                         Created by {poll.createdByName}
                       </span>
                     </div>
 
-                    <h3 className="text-sm sm:text-base font-bold text-[#0F2044] dark:text-white mt-1.5">
+                    <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white mt-1.5">
                       {poll.question}
                     </h3>
 
                     {poll.description && (
-                      <p className="text-xs text-[#64748B] dark:text-[#94A3B8] mt-0.5">
+                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
                         {poll.description}
                       </p>
                     )}
@@ -174,13 +174,13 @@ export const PollsView: React.FC = () => {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => handleShareToWhatsApp(poll)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#E2E8F0] dark:border-[#1E293B] bg-[#F8FAFC] dark:bg-[#15203B] text-xs font-semibold text-[#475569] dark:text-[#94A3B8] hover:text-[#0F2044] dark:hover:text-white transition-colors"
+                      className="btn-secondary text-xs"
                       title="Copy formatted text to paste into WhatsApp group"
                     >
                       {copiedPollId === poll.id ? (
                         <>
-                          <Check className="w-3.5 h-3.5 text-[#00B4A6] dark:text-[#00D2C4]" />
-                          <span className="text-[#00B4A6] dark:text-[#00D2C4]">Copied!</span>
+                          <Check className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+                          <span className="text-teal-600 dark:text-teal-400">Copied!</span>
                         </>
                       ) : (
                         <>
@@ -193,7 +193,7 @@ export const PollsView: React.FC = () => {
                     {currentUser.role === 'CR' && !poll.isClosed && (
                       <button
                         onClick={() => closePoll(poll.id)}
-                        className="px-2.5 py-1.5 rounded-lg border border-[#E2E8F0] dark:border-[#1E293B] text-xs font-semibold text-[#64748B] dark:text-[#94A3B8] hover:text-[#DC2626] transition-colors"
+                        className="btn-ghost text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30"
                       >
                         Close
                       </button>
@@ -213,15 +213,15 @@ export const PollsView: React.FC = () => {
                         key={opt.id}
                         disabled={poll.isClosed}
                         onClick={() => votePoll(poll.id, opt.id)}
-                        className={`w-full relative overflow-hidden text-left p-3 rounded-xl border transition-all ${
+                        className={`w-full relative overflow-hidden text-left p-3.5 rounded-xl border transition-all ${
                           isSelected
-                            ? 'border-[#00B4A6] dark:border-[#00D2C4] bg-[#E6F8F6]/40 dark:bg-[#00D2C4]/10'
-                            : 'border-[#E2E8F0] dark:border-[#1E293B] bg-[#F8FAFC]/50 dark:bg-[#15203B]/30 hover:border-[#CBD5E1]'
+                            ? 'border-teal-500 bg-teal-50/60 dark:bg-teal-950/30 dark:border-teal-500'
+                            : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 hover:border-slate-300 dark:hover:border-slate-700'
                         }`}
                       >
                         {/* Fill percentage bar */}
                         <div
-                          className="absolute inset-y-0 left-0 bg-[#00B4A6]/15 dark:bg-[#00D2C4]/15 progress-bar-fill pointer-events-none"
+                          className="absolute inset-y-0 left-0 bg-teal-500/15 dark:bg-teal-500/20 progress-bar-fill pointer-events-none"
                           style={{ width: `${pct}%` }}
                         />
 
@@ -229,21 +229,21 @@ export const PollsView: React.FC = () => {
                           <div className="flex items-center gap-2.5">
                             <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
                               isSelected
-                                ? 'border-[#00B4A6] dark:border-[#00D2C4] bg-[#00B4A6] dark:bg-[#00D2C4]'
-                                : 'border-[#CBD5E1] dark:border-[#475569]'
+                                ? 'border-teal-500 bg-teal-500'
+                                : 'border-slate-400 dark:border-slate-600'
                             }`}>
-                              {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white dark:bg-[#080D1A]" />}
+                              {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
                             </div>
-                            <span className="text-xs sm:text-sm font-semibold text-[#0F2044] dark:text-white">
+                            <span className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white">
                               {opt.text}
                             </span>
                           </div>
 
                           <div className="flex items-center gap-2">
-                            <span className="text-xs font-bold font-mono text-[#0F2044] dark:text-white">
+                            <span className="text-xs font-bold font-mono text-slate-900 dark:text-white">
                               {pct}%
                             </span>
-                            <span className="text-[11px] text-[#64748B] dark:text-[#94A3B8]">
+                            <span className="text-[11px] text-slate-500 dark:text-slate-400">
                               ({count} {count === 1 ? 'vote' : 'votes'})
                             </span>
                           </div>
@@ -254,9 +254,9 @@ export const PollsView: React.FC = () => {
                 </div>
 
                 {/* Footer status */}
-                <div className="flex items-center justify-between text-[11px] text-[#64748B] dark:text-[#94A3B8] pt-2 border-t border-[#E2E8F0] dark:border-[#1E293B]">
+                <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 pt-2 border-t border-slate-100 dark:border-slate-800">
                   <div className="flex items-center gap-3">
-                    <span className="font-semibold text-[#0F2044] dark:text-white">
+                    <span className="font-semibold text-slate-900 dark:text-white">
                       {totalVotes} of {studentsCount} students voted
                     </span>
                     <span>•</span>
@@ -277,20 +277,20 @@ export const PollsView: React.FC = () => {
       {/* Create Poll Modal */}
       {isCreateModalOpen && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150">
-          <div className="w-full max-w-lg bg-white dark:bg-[#0F172A] rounded-2xl border border-[#E2E8F0] dark:border-[#1E293B] shadow-2xl overflow-hidden">
+          <div className="w-full max-w-lg bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden">
             <form onSubmit={handleCreateSubmit}>
-              <div className="px-6 py-4 border-b border-[#E2E8F0] dark:border-[#1E293B] bg-[#F8FAFC] dark:bg-[#15203B]/60 flex items-center justify-between">
-                <h3 className="text-sm sm:text-base font-bold text-[#0F2044] dark:text-white">
+              <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 flex items-center justify-between">
+                <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
                   Create Class Poll
                 </h3>
-                <span className="text-[11px] text-[#64748B] dark:text-[#94A3B8]">
+                <span className="text-[11px] text-slate-500 dark:text-slate-400">
                   Immediate cohort broadcast
                 </span>
               </div>
 
               <div className="p-6 space-y-4">
                 <div>
-                  <label className="block text-[11px] font-bold text-[#475569] dark:text-[#94A3B8] mb-1">
+                  <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">
                     Poll Question *
                   </label>
                   <input
@@ -299,12 +299,12 @@ export const PollsView: React.FC = () => {
                     value={question}
                     onChange={(e) => setQuestion(e.target.value)}
                     placeholder="e.g. When should we submit Assignment 2?"
-                    className="w-full px-3 py-2 rounded-xl bg-[#F8FAFC] dark:bg-[#15203B] border border-[#E2E8F0] dark:border-[#1E293B] text-xs text-[#0F2044] dark:text-white placeholder-[#94A3B8] focus:outline-none focus:ring-1 focus:ring-[#00B4A6]"
+                    className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-[#475569] dark:text-[#94A3B8] mb-1">
+                  <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">
                     Context / Note (Optional)
                   </label>
                   <input
@@ -312,20 +312,20 @@ export const PollsView: React.FC = () => {
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     placeholder="e.g. Discussed with Prof. Rao in today's tutorial"
-                    className="w-full px-3 py-2 rounded-xl bg-[#F8FAFC] dark:bg-[#15203B] border border-[#E2E8F0] dark:border-[#1E293B] text-xs text-[#0F2044] dark:text-white placeholder-[#94A3B8] focus:outline-none focus:ring-1 focus:ring-[#00B4A6]"
+                    className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
                   />
                 </div>
 
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
-                    <label className="block text-[11px] font-bold text-[#475569] dark:text-[#94A3B8]">
+                    <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-300">
                       Vote Options ({options.length}/5)
                     </label>
                     {options.length < 5 && (
                       <button
                         type="button"
                         onClick={handleAddOption}
-                        className="text-[11px] font-bold text-[#00B4A6] dark:text-[#00D2C4] hover:underline"
+                        className="text-[11px] font-bold text-teal-600 dark:text-teal-400 hover:underline"
                       >
                         + Add Choice
                       </button>
@@ -335,7 +335,7 @@ export const PollsView: React.FC = () => {
                   <div className="space-y-2">
                     {options.map((opt, i) => (
                       <div key={i} className="flex items-center gap-2">
-                        <span className="w-5 text-center text-xs font-mono font-bold text-[#94A3B8]">
+                        <span className="w-5 text-center text-xs font-mono font-bold text-slate-400">
                           {i + 1}.
                         </span>
                         <input
@@ -343,13 +343,13 @@ export const PollsView: React.FC = () => {
                           required
                           value={opt}
                           onChange={(e) => handleOptionChange(i, e.target.value)}
-                          className="flex-1 px-3 py-1.5 rounded-lg bg-[#F8FAFC] dark:bg-[#15203B] border border-[#E2E8F0] dark:border-[#1E293B] text-xs text-[#0F2044] dark:text-white focus:outline-none focus:ring-1 focus:ring-[#00B4A6]"
+                          className="flex-1 px-3 py-1.5 rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
                         />
                         {options.length > 2 && (
                           <button
                             type="button"
                             onClick={() => handleRemoveOption(i)}
-                            className="p-1 text-[#94A3B8] hover:text-[#DC2626]"
+                            className="p-1 text-slate-400 hover:text-rose-500"
                           >
                             ×
                           </button>
@@ -360,13 +360,13 @@ export const PollsView: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-[#475569] dark:text-[#94A3B8] mb-1">
+                  <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">
                     Voting Window
                   </label>
                   <select
                     value={expiresHours}
                     onChange={(e) => setExpiresHours(Number(e.target.value))}
-                    className="w-full px-3 py-2 rounded-xl bg-[#F8FAFC] dark:bg-[#15203B] border border-[#E2E8F0] dark:border-[#1E293B] text-xs text-[#0F2044] dark:text-white focus:outline-none focus:ring-1 focus:ring-[#00B4A6]"
+                    className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
                   >
                     <option value={6}>6 Hours (Urgent Decision)</option>
                     <option value={24}>24 Hours (Standard 1-Day)</option>
@@ -376,17 +376,17 @@ export const PollsView: React.FC = () => {
                 </div>
               </div>
 
-              <div className="px-6 py-4 border-t border-[#E2E8F0] dark:border-[#1E293B] bg-[#F8FAFC] dark:bg-[#15203B]/40 flex items-center justify-end gap-2.5">
+              <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 flex items-center justify-end gap-2.5">
                 <button
                   type="button"
                   onClick={() => setIsCreateModalOpen(false)}
-                  className="px-4 py-2 rounded-xl border border-[#E2E8F0] dark:border-[#1E293B] text-xs font-medium text-[#475569] dark:text-[#94A3B8]"
+                  className="btn-secondary"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-[#00B4A6] hover:bg-[#009E91] dark:bg-[#00D2C4] dark:hover:bg-[#00B4A6] text-white dark:text-[#09132B] text-xs font-bold shadow-xs transition-colors"
+                  className="btn-primary"
                 >
                   Launch Class Poll
                 </button>

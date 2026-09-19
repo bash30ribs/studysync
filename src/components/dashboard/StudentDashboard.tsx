@@ -224,16 +224,16 @@ export const StudentDashboard: React.FC = () => {
               showToast('You have submitted all pending tasks!', 'success');
             }
           }}
-          className="p-3 rounded-xl bg-white dark:bg-[#0E1626] border border-slate-200 dark:border-slate-800 hover:border-teal-500 dark:hover:border-teal-400 text-left transition-all shadow-2xs group flex items-center gap-3"
+          className="p-3.5 rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-slate-800 hover:border-teal-500/50 dark:hover:border-teal-400/50 text-left transition-all shadow-xs group flex items-center gap-3.5 cursor-pointer"
         >
-          <div className="w-9 h-9 rounded-lg bg-teal-50 dark:bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+          <div className="w-9 h-9 rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform border border-teal-500/20">
             <Upload className="w-4 h-4" />
           </div>
           <div className="min-w-0">
             <span className="text-xs font-bold text-slate-900 dark:text-white block truncate">
               Submit Task
             </span>
-            <span className="text-[10px] text-slate-500 dark:text-slate-400">
+            <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
               {pendingCount} remaining
             </span>
           </div>
@@ -241,16 +241,16 @@ export const StudentDashboard: React.FC = () => {
 
         <button
           onClick={() => setActiveTab('polls')}
-          className="p-3 rounded-xl bg-white dark:bg-[#0E1626] border border-slate-200 dark:border-slate-800 hover:border-teal-500 dark:hover:border-teal-400 text-left transition-all shadow-2xs group flex items-center gap-3"
+          className="p-3.5 rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-slate-800 hover:border-teal-500/50 dark:hover:border-teal-400/50 text-left transition-all shadow-xs group flex items-center gap-3.5 cursor-pointer"
         >
-          <div className="w-9 h-9 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+          <div className="w-9 h-9 rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform border border-teal-500/20">
             <Vote className="w-4 h-4" />
           </div>
           <div className="min-w-0">
             <span className="text-xs font-bold text-slate-900 dark:text-white block truncate">
               Class Decisions
             </span>
-            <span className="text-[10px] text-slate-500 dark:text-slate-400">
+            <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
               Vote on dates
             </span>
           </div>
@@ -258,33 +258,33 @@ export const StudentDashboard: React.FC = () => {
 
         <button
           onClick={() => setActiveTab('resources')}
-          className="p-3 rounded-xl bg-white dark:bg-[#0E1626] border border-slate-200 dark:border-slate-800 hover:border-teal-500 dark:hover:border-teal-400 text-left transition-all shadow-2xs group flex items-center gap-3"
+          className="p-3.5 rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-slate-800 hover:border-teal-500/50 dark:hover:border-teal-400/50 text-left transition-all shadow-xs group flex items-center gap-3.5 cursor-pointer"
         >
-          <div className="w-9 h-9 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+          <div className="w-9 h-9 rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform border border-teal-500/20">
             <FileDown className="w-4 h-4" />
           </div>
           <div className="min-w-0">
             <span className="text-xs font-bold text-slate-900 dark:text-white block truncate">
               Notes & PYQs
             </span>
-            <span className="text-[10px] text-slate-500 dark:text-slate-400">
-              {resources.length} files available
+            <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+              {resources.length} available
             </span>
           </div>
         </button>
 
         <button
           onClick={() => setActiveTab('messages')}
-          className="p-3 rounded-xl bg-white dark:bg-[#0E1626] border border-slate-200 dark:border-slate-800 hover:border-teal-500 dark:hover:border-teal-400 text-left transition-all shadow-2xs group flex items-center gap-3"
+          className="p-3.5 rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-slate-800 hover:border-teal-500/50 dark:hover:border-teal-400/50 text-left transition-all shadow-xs group flex items-center gap-3.5 cursor-pointer"
         >
-          <div className="w-9 h-9 rounded-lg bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+          <div className="w-9 h-9 rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform border border-teal-500/20">
             <MessageSquare className="w-4 h-4" />
           </div>
           <div className="min-w-0">
             <span className="text-xs font-bold text-slate-900 dark:text-white block truncate">
               Ask CR / Class
             </span>
-            <span className="text-[10px] text-slate-500 dark:text-slate-400">
+            <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
               Direct chat
             </span>
           </div>

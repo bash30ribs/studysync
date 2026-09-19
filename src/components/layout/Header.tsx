@@ -153,15 +153,15 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       {/* Right Controls */}
-      <div className="flex items-center gap-2 sm:gap-2.5">
+      <div className="flex items-center gap-2">
         {/* Command Palette Trigger */}
         <button
           onClick={() => setIsCommandPaletteOpen(true)}
-          className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 text-xs text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-slate-700 transition-all shadow-2xs"
+          className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900 text-xs text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-slate-700 transition"
         >
           <Search className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
-          <span>Search or Jump to...</span>
-          <kbd className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 font-bold text-slate-600 dark:text-slate-300">
+          <span className="font-medium">Search or jump...</span>
+          <kbd className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-semibold text-slate-500 dark:text-slate-400">
             ⌘K
           </kbd>
         </button>
@@ -170,8 +170,8 @@ export const Header: React.FC<HeaderProps> = ({
         {onOpenSoundscapes && (
           <button
             onClick={onOpenSoundscapes}
-            title="Open Focus Soundscapes (Alt+S)"
-            className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-600 hover:text-indigo-600 dark:text-slate-300 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all shadow-2xs"
+            title="Study Soundscapes (Alt+S)"
+            className="w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center justify-center transition"
           >
             <Headphones className="w-4 h-4" />
           </button>
@@ -181,32 +181,10 @@ export const Header: React.FC<HeaderProps> = ({
         {onOpenAchievements && (
           <button
             onClick={onOpenAchievements}
-            title="View Milestones & Daily Quests"
-            className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-amber-500 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-slate-800 transition-all shadow-2xs"
+            title="Quests & Achievements"
+            className="w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-amber-500 hover:bg-amber-50 dark:hover:bg-slate-800 flex items-center justify-center transition"
           >
             <Trophy className="w-4 h-4" />
-          </button>
-        )}
-
-        {/* Keyboard Shortcuts Helper */}
-        {onOpenShortcuts && (
-          <button
-            onClick={onOpenShortcuts}
-            title="Keyboard Shortcuts Cheat Sheet (?)"
-            className="hidden sm:flex p-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-all shadow-2xs"
-          >
-            <HelpCircle className="w-4 h-4" />
-          </button>
-        )}
-
-        {/* Landing Page Button */}
-        {onOpenLanding && (
-          <button
-            onClick={onOpenLanding}
-            className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
-            <span>Overview</span>
           </button>
         )}
 
@@ -215,7 +193,7 @@ export const Header: React.FC<HeaderProps> = ({
           onClick={() => setIsDarkMode(prev => !prev)}
           aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
           title={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
-          className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-all shadow-2xs"
+          className="w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center justify-center transition"
         >
           {isDarkMode ? (
             <Sun className="w-4 h-4 text-amber-400" />
@@ -224,16 +202,27 @@ export const Header: React.FC<HeaderProps> = ({
           )}
         </button>
 
+        {/* Keyboard Shortcuts Helper */}
+        {onOpenShortcuts && (
+          <button
+            onClick={onOpenShortcuts}
+            title="Keyboard Shortcuts (?)"
+            className="hidden sm:flex w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800 items-center justify-center transition"
+          >
+            <HelpCircle className="w-4 h-4" />
+          </button>
+        )}
+
         {/* Notifications Dropdown */}
         <div className="relative" ref={notifRef}>
           <button
             onClick={() => setIsNotifOpen(prev => !prev)}
             aria-label="Notifications"
-            className="relative p-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-all shadow-2xs"
+            className="relative w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center justify-center transition"
           >
             <Bell className="w-4 h-4" />
             {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 min-w-[17px] h-[17px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center shadow-xs">
+              <span className="absolute -top-1 -right-1 min-w-[16px] h-[16px] px-0.5 rounded-full bg-rose-500 text-white text-[9px] font-bold flex items-center justify-center">
                 {unreadCount}
               </span>
             )}

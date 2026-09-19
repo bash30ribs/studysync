@@ -153,7 +153,7 @@ export const AttendanceView: React.FC = () => {
         <div className="flex items-center gap-2.5">
           <button
             onClick={exportAttendanceCSV}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#E2E8F0] dark:border-[#1E293B] bg-white dark:bg-[#15203B] text-xs font-semibold text-[#475569] dark:text-[#94A3B8] hover:bg-[#F8FAFC] dark:hover:bg-[#1E293B] transition-all shadow-xs"
+            className="btn-secondary"
           >
             <Download className="w-3.5 h-3.5" />
             <span>Export CSV</span>
@@ -162,7 +162,7 @@ export const AttendanceView: React.FC = () => {
           {currentUser.role === 'CR' && (
             <button
               onClick={handleOpenTakeModal}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#00B4A6] hover:bg-[#009E91] dark:bg-[#00D2C4] dark:hover:bg-[#00B4A6] text-white dark:text-[#09132B] text-xs font-bold transition-all shadow-xs"
+              className="btn-primary"
             >
               <Plus className="w-4 h-4" />
               <span>Take Attendance</span>
@@ -173,13 +173,13 @@ export const AttendanceView: React.FC = () => {
 
       {/* Student Defaulter Warning Banner */}
       {currentUser.role === 'Student' && currentStudentStats.isDefaulter && (
-        <div className="p-4 rounded-2xl bg-[#FEF2F2] dark:bg-[#EF4444]/10 border border-[#FCA5A5] dark:border-[#EF4444]/30 flex items-start gap-3.5">
-          <AlertTriangle className="w-5 h-5 text-[#DC2626] dark:text-[#F87171] shrink-0 mt-0.5" />
+        <div className="p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 flex items-start gap-3.5">
+          <AlertTriangle className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
           <div className="flex-1">
-            <h4 className="text-xs font-bold text-[#DC2626] dark:text-[#F87171]">
+            <h4 className="text-xs font-bold text-rose-600 dark:text-rose-400">
               ⚠️ Attendance Below Mandatory 75% Threshold ({currentStudentStats.percentage}%)
             </h4>
-            <p className="text-[11px] text-[#991B1B] dark:text-[#FCA5A5] mt-0.5 leading-relaxed">
+            <p className="text-[11px] text-rose-900 dark:text-rose-200 mt-0.5 leading-relaxed">
               Your overall attendance is currently at <strong>{currentStudentStats.percentage}%</strong> ({currentStudentStats.attendedCount} of {currentStudentStats.totalSessions} sessions). Attend upcoming lectures to prevent exam hall-ticket debarment.
             </p>
           </div>
@@ -188,54 +188,54 @@ export const AttendanceView: React.FC = () => {
 
       {/* Stat Cards Row */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="p-4 rounded-2xl bg-white dark:bg-[#0F172A] border border-[#E2E8F0] dark:border-[#1E293B] shadow-xs">
-          <div className="flex items-center justify-between text-[#64748B] dark:text-[#94A3B8]">
+        <div className="p-4 ui-card">
+          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
             <span className="text-xs font-medium">
               {currentUser.role === 'CR' ? 'Class Average Attendance' : 'Your Attendance'}
             </span>
-            <UserCheck className="w-4 h-4 text-[#00B4A6] dark:text-[#00D2C4]" />
+            <UserCheck className="w-4 h-4 text-teal-600 dark:text-teal-400" />
           </div>
           <div className="flex items-baseline gap-2 mt-2">
-            <span className="text-2xl font-bold text-[#0F2044] dark:text-white">
+            <span className="text-2xl font-bold text-slate-900 dark:text-white">
               {currentUser.role === 'CR' ? `${classAvgPercentage}%` : `${currentStudentStats.percentage}%`}
             </span>
             <span className={`text-[11px] font-semibold ${
               (currentUser.role === 'CR' ? classAvgPercentage : currentStudentStats.percentage) >= 75
-                ? 'text-[#00B4A6] dark:text-[#00D2C4]'
-                : 'text-[#DC2626] dark:text-[#F87171]'
+                ? 'text-teal-600 dark:text-teal-400'
+                : 'text-rose-600 dark:text-rose-400'
             }`}>
               {(currentUser.role === 'CR' ? classAvgPercentage : currentStudentStats.percentage) >= 75 ? 'Compliant' : 'Below 75%'}
             </span>
           </div>
         </div>
 
-        <div className="p-4 rounded-2xl bg-white dark:bg-[#0F172A] border border-[#E2E8F0] dark:border-[#1E293B] shadow-xs">
-          <div className="flex items-center justify-between text-[#64748B] dark:text-[#94A3B8]">
+        <div className="p-4 ui-card">
+          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
             <span className="text-xs font-medium">Total Sessions Logged</span>
-            <BookOpen className="w-4 h-4 text-[#00B4A6] dark:text-[#00D2C4]" />
+            <BookOpen className="w-4 h-4 text-teal-600 dark:text-teal-400" />
           </div>
           <div className="flex items-baseline gap-2 mt-2">
-            <span className="text-2xl font-bold text-[#0F2044] dark:text-white">
+            <span className="text-2xl font-bold text-slate-900 dark:text-white">
               {attendanceSessions.length}
             </span>
-            <span className="text-[11px] text-[#64748B] dark:text-[#94A3B8]">
+            <span className="text-[11px] text-slate-500 dark:text-slate-400">
               Across {currentClass.subjects.length} subjects
             </span>
           </div>
         </div>
 
-        <div className="p-4 rounded-2xl bg-white dark:bg-[#0F172A] border border-[#E2E8F0] dark:border-[#1E293B] shadow-xs">
-          <div className="flex items-center justify-between text-[#64748B] dark:text-[#94A3B8]">
+        <div className="p-4 ui-card">
+          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
             <span className="text-xs font-medium">
               {currentUser.role === 'CR' ? 'Students on Defaulter Watch' : 'Sessions Attended'}
             </span>
-            <ShieldAlert className={`w-4 h-4 ${defaultersCount > 0 ? 'text-[#DC2626]' : 'text-[#00B4A6]'}`} />
+            <ShieldAlert className={`w-4 h-4 ${defaultersCount > 0 ? 'text-rose-600' : 'text-teal-600'}`} />
           </div>
           <div className="flex items-baseline gap-2 mt-2">
-            <span className="text-2xl font-bold text-[#0F2044] dark:text-white">
+            <span className="text-2xl font-bold text-slate-900 dark:text-white">
               {currentUser.role === 'CR' ? defaultersCount : `${currentStudentStats.attendedCount} / ${currentStudentStats.totalSessions}`}
             </span>
-            <span className="text-[11px] text-[#64748B] dark:text-[#94A3B8]">
+            <span className="text-[11px] text-slate-500 dark:text-slate-400">
               {currentUser.role === 'CR' ? `Out of ${students.length} students` : 'Lectures present'}
             </span>
           </div>
@@ -249,8 +249,8 @@ export const AttendanceView: React.FC = () => {
             onClick={() => setActiveSubjectFilter('ALL')}
             className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${
               activeSubjectFilter === 'ALL'
-                ? 'bg-[#0F2044] dark:bg-[#00D2C4] text-white dark:text-[#09132B] font-bold'
-                : 'bg-white dark:bg-[#15203B] text-[#64748B] dark:text-[#94A3B8] border border-[#E2E8F0] dark:border-[#1E293B]'
+                ? 'bg-slate-900 dark:bg-teal-500 text-white dark:text-slate-950 font-bold shadow-xs'
+                : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800'
             }`}
           >
             All Subjects
@@ -261,8 +261,8 @@ export const AttendanceView: React.FC = () => {
               onClick={() => setActiveSubjectFilter(sub)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${
                 activeSubjectFilter === sub
-                  ? 'bg-[#0F2044] dark:bg-[#00D2C4] text-white dark:text-[#09132B] font-bold'
-                  : 'bg-white dark:bg-[#15203B] text-[#64748B] dark:text-[#94A3B8] border border-[#E2E8F0] dark:border-[#1E293B]'
+                  ? 'bg-slate-900 dark:bg-teal-500 text-white dark:text-slate-950 font-bold shadow-xs'
+                  : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800'
               }`}
             >
               {sub}
@@ -480,17 +480,17 @@ export const AttendanceView: React.FC = () => {
                 </div>
               </div>
 
-              <div className="px-6 py-4 border-t border-[#E2E8F0] dark:border-[#1E293B] bg-[#F8FAFC] dark:bg-[#15203B]/40 flex items-center justify-end gap-2.5">
+              <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 flex items-center justify-end gap-2.5">
                 <button
                   type="button"
                   onClick={() => setIsTakeAttendanceModalOpen(false)}
-                  className="px-4 py-2 rounded-xl border border-[#E2E8F0] dark:border-[#1E293B] text-xs font-medium text-[#475569] dark:text-[#94A3B8]"
+                  className="btn-secondary"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-[#00B4A6] hover:bg-[#009E91] dark:bg-[#00D2C4] dark:hover:bg-[#00B4A6] text-white dark:text-[#09132B] text-xs font-bold shadow-xs transition-colors"
+                  className="btn-primary"
                 >
                   Save & Publish Attendance
                 </button>

@@ -93,10 +93,10 @@ export const CRDashboard: React.FC = () => {
           </div>
 
           {/* CR Action Buttons */}
-          <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap shrink-0">
+          <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap shrink-0">
             <button
               onClick={() => printAssignmentReport(assignments, currentClass.name)}
-              className="px-3.5 py-2.5 rounded-xl border border-slate-700 bg-slate-800/90 hover:bg-slate-700 text-xs font-bold text-white flex items-center gap-2 transition-all shadow-xs"
+              className="btn-secondary text-xs border-slate-700 bg-slate-800/90 text-white hover:bg-slate-700"
               title="Generate printable PDF report of current assignments & cohort status"
             >
               <Printer className="w-4 h-4 text-teal-400" />
@@ -105,7 +105,7 @@ export const CRDashboard: React.FC = () => {
 
             <button
               onClick={() => exportSubmissionsCSV()}
-              className="px-3.5 py-2.5 rounded-xl border border-slate-700 bg-slate-800/90 hover:bg-slate-700 text-xs font-bold text-white flex items-center gap-2 transition-all shadow-xs"
+              className="btn-secondary text-xs border-slate-700 bg-slate-800/90 text-white hover:bg-slate-700"
             >
               <Download className="w-4 h-4 text-teal-400" />
               <span>Export CSV</span>
@@ -113,9 +113,9 @@ export const CRDashboard: React.FC = () => {
 
             <button
               onClick={() => setIsNewAssignmentModalOpen(true)}
-              className="px-4 py-2.5 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 text-xs font-black flex items-center gap-2 transition-all shadow-lg shadow-teal-500/25"
+              className="btn-primary text-xs"
             >
-              <Plus className="w-4 h-4 stroke-[3]" />
+              <Plus className="w-4 h-4" />
               <span>New Assignment</span>
             </button>
           </div>
@@ -130,78 +130,78 @@ export const CRDashboard: React.FC = () => {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div 
           onClick={() => setActiveTab('members')}
-          className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#0E1626] border border-slate-200 dark:border-slate-800 shadow-xs hover:border-slate-300 dark:hover:border-slate-700 transition-all cursor-pointer group"
+          className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-slate-800 shadow-xs hover:border-slate-300 dark:hover:border-slate-700 transition-all cursor-pointer group"
         >
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               Enrolled Students
             </span>
-            <div className="w-8 h-8 rounded-xl bg-teal-50 dark:bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center border border-teal-500/20">
               <Users className="w-4 h-4" />
             </div>
           </div>
-          <div className="flex items-baseline gap-1.5 mt-2">
+          <div className="flex items-baseline gap-1.5 mt-2.5">
             <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white font-mono">
               {totalStudents}
             </span>
-            <span className="text-xs text-slate-500 dark:text-slate-400">members</span>
+            <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">members</span>
           </div>
         </div>
 
-        <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#0E1626] border border-slate-200 dark:border-slate-800 shadow-xs hover:border-slate-300 dark:hover:border-slate-700 transition-all">
+        <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-slate-800 shadow-xs hover:border-slate-300 dark:hover:border-slate-700 transition-all">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               Pending Submissions
             </span>
-            <div className="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center border border-amber-500/20">
               <Clock className="w-4 h-4" />
             </div>
           </div>
-          <div className="flex items-baseline gap-1.5 mt-2">
+          <div className="flex items-baseline gap-1.5 mt-2.5">
             <span className="text-2xl sm:text-3xl font-extrabold text-amber-600 dark:text-amber-400 font-mono">
               {pendingSubmissionsCount}
             </span>
-            <span className="text-xs text-slate-500 dark:text-slate-400">awaiting</span>
+            <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">awaiting</span>
           </div>
         </div>
 
         <div 
           onClick={() => setActiveTab('assignments')}
-          className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#0E1626] border border-slate-200 dark:border-slate-800 shadow-xs hover:border-slate-300 dark:hover:border-slate-700 transition-all cursor-pointer"
+          className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-slate-800 shadow-xs hover:border-slate-300 dark:hover:border-slate-700 transition-all cursor-pointer"
         >
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               Active Tasks
             </span>
-            <div className="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center border border-teal-500/20">
               <FileCheck className="w-4 h-4" />
             </div>
           </div>
-          <div className="flex items-baseline gap-1.5 mt-2">
+          <div className="flex items-baseline gap-1.5 mt-2.5">
             <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white font-mono">
               {activeAssignments.length}
             </span>
-            <span className="text-xs text-slate-500 dark:text-slate-400">this week</span>
+            <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">this week</span>
           </div>
         </div>
 
         <div 
           onClick={() => setActiveTab('polls')}
-          className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#0E1626] border border-slate-200 dark:border-slate-800 shadow-xs hover:border-slate-300 dark:hover:border-slate-700 transition-all cursor-pointer"
+          className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-slate-800 shadow-xs hover:border-slate-300 dark:hover:border-slate-700 transition-all cursor-pointer"
         >
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               Active Polls
             </span>
-            <div className="w-8 h-8 rounded-xl bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center border border-teal-500/20">
               <Vote className="w-4 h-4" />
             </div>
           </div>
-          <div className="flex items-baseline gap-1.5 mt-2">
+          <div className="flex items-baseline gap-1.5 mt-2.5">
             <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white font-mono">
               {polls.filter(p => !p.isClosed).length}
             </span>
-            <span className="text-xs text-slate-500 dark:text-slate-400">decisions</span>
+            <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">consensus</span>
           </div>
         </div>
       </div>

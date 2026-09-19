@@ -90,7 +90,7 @@ export const SettingsView: React.FC = () => {
           <div className="flex justify-end">
             <button
               type="submit"
-              className="px-4 py-2 rounded-lg bg-[#00B4A6] dark:bg-[#00D2C4] hover:bg-[#009E91] dark:hover:bg-[#00B4A6] text-white dark:text-[#080D1A] text-xs font-bold transition-all shadow-xs"
+              className="btn-primary"
             >
               Save Profile
             </button>
@@ -100,18 +100,18 @@ export const SettingsView: React.FC = () => {
 
       {/* CR Specific Settings: Handover & Archiving */}
       {currentUser.role === 'CR' && (
-        <div className="p-5 sm:p-6 rounded-2xl bg-white dark:bg-[#0F172A] border border-[#E2E8F0] dark:border-[#1E293B] shadow-xs space-y-5">
-          <h2 className="font-bold text-sm text-[#0F2044] dark:text-white">
+        <div className="p-5 sm:p-6 ui-card space-y-5">
+          <h2 className="font-bold text-sm text-slate-900 dark:text-white">
             Class Administration & CR Handover
           </h2>
 
           {/* CR Handover Tool */}
-          <div className="p-4 rounded-xl bg-[#F8FAFC] dark:bg-[#15203B]/50 border border-[#E2E8F0] dark:border-[#1E293B] space-y-3">
+          <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 space-y-3">
             <div>
-              <span className="text-xs font-bold text-[#0F2044] dark:text-white block">
+              <span className="text-xs font-bold text-slate-900 dark:text-white block">
                 Democratic CR Handover
               </span>
-              <p className="text-xs text-[#64748B] dark:text-[#94A3B8] mt-0.5">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                 Transfer full Class Representative authority to another enrolled student upon new semester election.
               </p>
             </div>
@@ -120,7 +120,7 @@ export const SettingsView: React.FC = () => {
               <select
                 id="cr-handover-select"
                 defaultValue=""
-                className="flex-1 px-3 py-2 text-xs rounded-xl bg-white dark:bg-[#0B132B] border border-[#CBD5E1] dark:border-[#334155] text-[#0F2044] dark:text-white focus:outline-none"
+                className="flex-1 px-3 py-2 text-xs rounded-xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
               >
                 <option value="" disabled>Select student to promote to CR...</option>
                 {useStudySync().allUsers.filter(u => u.role === 'Student').map(s => (
@@ -135,7 +135,7 @@ export const SettingsView: React.FC = () => {
                     useStudySync().transferCR(selectEl.value);
                   }
                 }}
-                className="px-4 py-2 rounded-xl bg-[#0F2044] dark:bg-[#00D2C4] text-white dark:text-[#09132B] text-xs font-bold shrink-0 hover:opacity-90 transition-opacity"
+                className="btn-primary"
               >
                 Transfer CR Role
               </button>
@@ -143,28 +143,28 @@ export const SettingsView: React.FC = () => {
           </div>
 
           {/* Semester Archiving */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-[#E2E8F0] dark:border-[#1E293B]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-slate-100 dark:border-slate-800">
             <div>
-              <span className="text-xs font-bold text-[#0F2044] dark:text-white block">
+              <span className="text-xs font-bold text-slate-900 dark:text-white block">
                 Semester Archiving
               </span>
-              <p className="text-xs text-[#64748B] dark:text-[#94A3B8] mt-0.5">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                 Lock class history in read-only mode for historical grade and submission audits.
               </p>
             </div>
             <button
               onClick={() => useStudySync().archiveCurrentClass()}
-              className="px-3.5 py-2 rounded-xl border border-[#E2E8F0] dark:border-[#1E293B] bg-white dark:bg-[#080D1A] hover:bg-[#F8FAFC] text-xs font-bold text-[#0F2044] dark:text-white transition-colors self-start sm:self-auto"
+              className="btn-secondary self-start sm:self-auto"
             >
               Archive Class
             </button>
           </div>
 
-          <div className="h-px bg-[#E2E8F0] dark:border-[#1E293B]" />
+          <div className="h-px bg-slate-200 dark:bg-slate-800" />
 
           {/* Edit Class Name */}
           <form onSubmit={handleUpdateClassName} className="space-y-2">
-            <label className="block text-xs font-bold text-[#0F2044] dark:text-white">
+            <label className="block text-xs font-bold text-slate-900 dark:text-white">
               Class Designation Name
             </label>
             <div className="flex items-center gap-2 max-w-md">
@@ -172,34 +172,34 @@ export const SettingsView: React.FC = () => {
                 type="text"
                 value={classNameInput}
                 onChange={(e) => setClassNameInput(e.target.value)}
-                className="flex-1 text-xs px-3.5 py-2.5 rounded-xl border border-[#E2E8F0] dark:border-[#1E293B] bg-[#F8FAFC] dark:bg-[#080D1A] text-[#0F2044] dark:text-white focus:outline-none focus:ring-1 focus:ring-[#00B4A6]"
+                className="flex-1 text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
               />
               <button
                 type="submit"
-                className="px-4 py-2.5 rounded-xl bg-[#0F2044] dark:bg-[#15203B] hover:bg-[#193166] text-white text-xs font-bold"
+                className="btn-secondary"
               >
                 Update Name
               </button>
             </div>
           </form>
 
-          <div className="h-px bg-[#E2E8F0] dark:border-[#1E293B]" />
+          <div className="h-px bg-slate-200 dark:bg-slate-800" />
 
           {/* Regenerate Class Code */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <span className="text-xs font-bold text-[#0F2044] dark:text-white block">
-                Class Access Code: <span className="font-mono text-[#00897B] dark:text-[#00D2C4] font-bold text-sm ml-1">{currentClass.code}</span>
+              <span className="text-xs font-bold text-slate-900 dark:text-white block">
+                Class Access Code: <span className="font-mono text-teal-600 dark:text-teal-400 font-bold text-sm ml-1">{currentClass.code}</span>
               </span>
-              <p className="text-xs text-[#64748B] dark:text-[#94A3B8] mt-0.5">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                 Generate a new 6-character access key if security has been compromised.
               </p>
             </div>
             <button
               onClick={() => setIsRegenerateModalOpen(true)}
-              className="px-3.5 py-2 rounded-xl border border-[#E2E8F0] dark:border-[#1E293B] bg-white dark:bg-[#080D1A] hover:bg-[#F8FAFC] dark:hover:bg-[#15203B] text-xs font-bold text-[#0F2044] dark:text-white flex items-center gap-1.5 self-start sm:self-auto transition-all shadow-xs"
+              className="btn-secondary self-start sm:self-auto"
             >
-              <RotateCw className="w-3.5 h-3.5 text-[#00B4A6] dark:text-[#00D2C4]" />
+              <RotateCw className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
               <span>Regenerate Code</span>
             </button>
           </div>
@@ -207,42 +207,42 @@ export const SettingsView: React.FC = () => {
       )}
 
       {/* Trust & Legal Links */}
-      <div className="p-5 sm:p-6 rounded-2xl bg-white dark:bg-[#0F172A] border border-[#E2E8F0] dark:border-[#1E293B] shadow-xs space-y-3">
-        <h2 className="font-bold text-sm text-[#0F2044] dark:text-white">
+      <div className="p-5 sm:p-6 ui-card space-y-3">
+        <h2 className="font-bold text-sm text-slate-900 dark:text-white">
           Trust & Platform Governance
         </h2>
-        <p className="text-xs text-[#64748B] dark:text-[#94A3B8]">
+        <p className="text-xs text-slate-500 dark:text-slate-400">
           Review academic integrity compliance, GDPR-aware data practices, encryption standards, and live system latency.
         </p>
 
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 pt-2">
           <button
             onClick={() => useStudySync().setActiveTrustPage('privacy')}
-            className="p-2.5 rounded-xl bg-[#F8FAFC] dark:bg-[#15203B] border border-[#E2E8F0] dark:border-[#1E293B] text-xs font-semibold text-[#0F2044] dark:text-white hover:border-[#00B4A6] transition-colors"
+            className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-800 dark:text-slate-200 hover:border-teal-500 hover:text-teal-600 dark:hover:text-teal-300 transition-colors"
           >
             Privacy Policy
           </button>
           <button
             onClick={() => useStudySync().setActiveTrustPage('terms')}
-            className="p-2.5 rounded-xl bg-[#F8FAFC] dark:bg-[#15203B] border border-[#E2E8F0] dark:border-[#1E293B] text-xs font-semibold text-[#0F2044] dark:text-white hover:border-[#00B4A6] transition-colors"
+            className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-800 dark:text-slate-200 hover:border-teal-500 hover:text-teal-600 dark:hover:text-teal-300 transition-colors"
           >
             Terms of Service
           </button>
           <button
             onClick={() => useStudySync().setActiveTrustPage('security')}
-            className="p-2.5 rounded-xl bg-[#F8FAFC] dark:bg-[#15203B] border border-[#E2E8F0] dark:border-[#1E293B] text-xs font-semibold text-[#0F2044] dark:text-white hover:border-[#00B4A6] transition-colors"
+            className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-800 dark:text-slate-200 hover:border-teal-500 hover:text-teal-600 dark:hover:text-teal-300 transition-colors"
           >
             Security Architecture
           </button>
           <button
             onClick={() => useStudySync().setActiveTrustPage('status')}
-            className="p-2.5 rounded-xl bg-[#F8FAFC] dark:bg-[#15203B] border border-[#E2E8F0] dark:border-[#1E293B] text-xs font-semibold text-[#0F2044] dark:text-white hover:border-[#00B4A6] transition-colors"
+            className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-800 dark:text-slate-200 hover:border-teal-500 hover:text-teal-600 dark:hover:text-teal-300 transition-colors"
           >
             Status Monitor
           </button>
           <button
             onClick={() => useStudySync().setActiveTrustPage('about')}
-            className="p-2.5 rounded-xl bg-[#F8FAFC] dark:bg-[#15203B] border border-[#E2E8F0] dark:border-[#1E293B] text-xs font-semibold text-[#0F2044] dark:text-white hover:border-[#00B4A6] transition-colors"
+            className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-800 dark:text-slate-200 hover:border-teal-500 hover:text-teal-600 dark:hover:text-teal-300 transition-colors"
           >
             About Story
           </button>
