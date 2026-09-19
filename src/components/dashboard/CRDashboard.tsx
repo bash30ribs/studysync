@@ -72,22 +72,22 @@ export const CRDashboard: React.FC = () => {
   return (
     <div className="p-4 lg:p-7 space-y-6 max-w-7xl mx-auto">
       {/* 1. Executive Hero Header & Actions */}
-      <div className="relative rounded-3xl p-6 sm:p-7 bg-gradient-to-br from-[#0F172A] via-[#0D1829] to-[#041D20] text-white border border-slate-700/80 shadow-xl overflow-hidden handcrafted-card">
-        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+      <div className="ui-card p-6 sm:p-7 space-y-4">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="space-y-2">
-            <div className="flex items-center gap-2.5 flex-wrap">
-              <span className="px-3 py-1 rounded-full text-xs font-extrabold bg-teal-500/20 text-teal-300 border border-teal-500/30 flex items-center gap-1.5 shadow-xs">
-                <span className="w-2 h-2 rounded-full bg-teal-400 animate-live-pulse" />
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="px-2.5 py-1 rounded-md text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-teal-600 dark:text-teal-400" />
                 CR Command Deck
               </span>
-              <span className="text-slate-400 text-xs font-mono bg-slate-800/80 px-2.5 py-1 rounded-lg border border-slate-700">
-                Cohort: {currentClass.name} · Code: <strong className="text-teal-400">{currentClass.code}</strong>
+              <span className="text-slate-500 dark:text-slate-400 text-xs font-mono px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800">
+                Cohort: {currentClass.name} · Code: <strong className="text-teal-600 dark:text-teal-400">{currentClass.code}</strong>
               </span>
             </div>
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
               Class Coordinator Operations
             </h1>
-            <p className="text-xs sm:text-sm text-slate-300 max-w-xl leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-xl leading-relaxed">
               Real-time submission monitoring, 1-tap nudge alerts, attendance audit, and class-wide announcements.
             </p>
           </div>
@@ -96,18 +96,18 @@ export const CRDashboard: React.FC = () => {
           <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap shrink-0">
             <button
               onClick={() => printAssignmentReport(assignments, currentClass.name)}
-              className="btn-secondary text-xs border-slate-700 bg-slate-800/90 text-white hover:bg-slate-700"
+              className="btn-secondary text-xs"
               title="Generate printable PDF report of current assignments & cohort status"
             >
-              <Printer className="w-4 h-4 text-teal-400" />
+              <Printer className="w-4 h-4 text-slate-500 dark:text-slate-400" />
               <span>Print Report</span>
             </button>
 
             <button
               onClick={() => exportSubmissionsCSV()}
-              className="btn-secondary text-xs border-slate-700 bg-slate-800/90 text-white hover:bg-slate-700"
+              className="btn-secondary text-xs"
             >
-              <Download className="w-4 h-4 text-teal-400" />
+              <Download className="w-4 h-4 text-slate-500 dark:text-slate-400" />
               <span>Export CSV</span>
             </button>
 
@@ -120,10 +120,6 @@ export const CRDashboard: React.FC = () => {
             </button>
           </div>
         </div>
-
-        {/* Decorative background glows */}
-        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 rounded-full bg-teal-500/15 blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-1/4 -mb-20 w-60 h-60 rounded-full bg-indigo-500/10 blur-3xl pointer-events-none" />
       </div>
 
       {/* 2. Key Metrics Bento Row */}
