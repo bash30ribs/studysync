@@ -55,7 +55,9 @@ export const CreateClassModal: React.FC<{
 
   const handleEnterDashboard = () => {
     onClose();
-    onSuccess();
+    // Defer onSuccess so React fully flushes all state setters from createClass
+    // before the landing page unmounts and the app shell tries to render.
+    setTimeout(() => onSuccess(), 0);
     setStep(1);
   };
 
@@ -263,7 +265,9 @@ export const JoinClassModal: React.FC<{
     const res = joinClass(code, studentName, studentEmail);
     if (res.success) {
       onClose();
-      onSuccess();
+      // Defer onSuccess so React fully flushes all state setters from joinClass
+      // before the landing page unmounts and the app shell tries to render.
+      setTimeout(() => onSuccess(), 0);
     } else {
       setErrorMessage(res.error || 'Code not found. Check with your CR.');
     }

@@ -12,29 +12,24 @@ import {
   Zap,
   MessageSquare,
   ChevronRight,
-  Star
+  UserCheck,
+  Megaphone,
+  TrendingUp,
+  CalendarDays,
+  Folder
 } from 'lucide-react';
 import { CreateClassModal, JoinClassModal } from '../onboarding/OnboardingModals';
 
-const StatBadge: React.FC<{ value: string; label: string }> = ({ value, label }) => (
-  <div className="text-center px-5 py-3 rounded-2xl bg-white dark:bg-[#121212] border border-[#DBDBDB] dark:border-[#262626]">
-    <div className="text-2xl font-extrabold text-black dark:text-white tracking-tight">{value}</div>
-    <div className="text-[11px] text-[#8E8E8E] mt-0.5 font-medium">{label}</div>
-  </div>
-);
-
-const FeatureCard: React.FC<{
-  icon: React.ReactNode;
-  title: string;
-  desc: string;
-  accent?: string;
-}> = ({ icon, title, desc, accent = 'text-[#0095F6] bg-[#0095F6]/10' }) => (
-  <div className="p-6 rounded-2xl bg-white dark:bg-[#121212] border border-[#DBDBDB] dark:border-[#262626] hover:border-[#0095F6]/40 transition-all duration-200 group">
-    <div className={`w-10 h-10 rounded-xl ${accent} flex items-center justify-center mb-4`}>
+// Feature pill shown in the "Why StudySync" section
+const FeatureRow: React.FC<{ icon: React.ReactNode; title: string; desc: string }> = ({ icon, title, desc }) => (
+  <div className="flex items-start gap-4 py-5 border-b border-[#DBDBDB] dark:border-[#262626] last:border-0">
+    <div className="w-9 h-9 rounded-xl bg-[#F5F5F5] dark:bg-[#1A1A1A] border border-[#DBDBDB] dark:border-[#262626] flex items-center justify-center shrink-0 text-black dark:text-white">
       {icon}
     </div>
-    <h3 className="text-sm font-bold text-black dark:text-white mb-1.5">{title}</h3>
-    <p className="text-xs text-[#737373] dark:text-[#A8A8A8] leading-relaxed">{desc}</p>
+    <div>
+      <h3 className="text-sm font-semibold text-black dark:text-white leading-tight">{title}</h3>
+      <p className="text-xs text-[#737373] dark:text-[#A8A8A8] mt-0.5 leading-relaxed">{desc}</p>
+    </div>
   </div>
 );
 
@@ -44,43 +39,34 @@ export const LandingPage: React.FC<{ onEnterApp: () => void }> = ({ onEnterApp }
   const [isJoinOpen, setIsJoinOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] dark:bg-black text-[#262626] dark:text-[#F5F5F5] flex flex-col">
+    <div className="min-h-screen bg-white dark:bg-black text-[#262626] dark:text-[#F5F5F5] flex flex-col">
 
       {/* ── TOP NAV ── */}
       <header className="sticky top-0 z-40 bg-white/95 dark:bg-black/95 backdrop-blur-md border-b border-[#DBDBDB] dark:border-[#262626]">
-        <div className="max-w-7xl mx-auto px-5 lg:px-10 h-14 flex items-center justify-between">
-          {/* Brand */}
+        <div className="max-w-6xl mx-auto px-5 lg:px-8 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-black dark:bg-white flex items-center justify-center text-white dark:text-black shadow-sm">
-              <BookOpen className="w-4 h-4" />
+            <div className="w-8 h-8 rounded-lg bg-black dark:bg-white flex items-center justify-center shadow-sm">
+              <BookOpen className="w-4 h-4 text-white dark:text-black" />
             </div>
             <span className="font-extrabold text-base tracking-tight text-black dark:text-white">StudySync</span>
           </div>
 
-          {/* Nav links */}
-          <nav className="hidden sm:flex items-center gap-6 text-xs font-medium text-[#737373] dark:text-[#A8A8A8]">
+          <nav className="hidden sm:flex items-center gap-5 text-xs font-medium text-[#737373] dark:text-[#A8A8A8]">
             <button onClick={() => setActiveTrustPage('about')} className="hover:text-black dark:hover:text-white transition-colors">About</button>
             <button onClick={() => setActiveTrustPage('security')} className="hover:text-black dark:hover:text-white transition-colors">Security</button>
-            <button onClick={() => setActiveTrustPage('privacy')} className="hover:text-black dark:hover:text-white transition-colors">Privacy</button>
+            <button onClick={onEnterApp} className="hover:text-black dark:hover:text-white transition-colors">Open Demo</button>
           </nav>
 
-          {/* CTAs */}
           <div className="flex items-center gap-2">
             <button
-              onClick={onEnterApp}
-              className="text-xs font-semibold text-[#737373] dark:text-[#A8A8A8] hover:text-black dark:hover:text-white px-3 py-1.5 rounded-lg transition-colors hidden sm:block"
-            >
-              Open App
-            </button>
-            <button
               onClick={() => setIsJoinOpen(true)}
-              className="text-xs font-semibold px-3.5 py-2 rounded-lg border border-[#DBDBDB] dark:border-[#262626] bg-white dark:bg-[#121212] text-black dark:text-white hover:border-[#0095F6] transition-all"
+              className="text-xs font-semibold px-3.5 py-2 rounded-lg border border-[#DBDBDB] dark:border-[#363636] text-black dark:text-white hover:bg-[#F5F5F5] dark:hover:bg-[#121212] transition-all"
             >
-              Join with Code
+              Join Class
             </button>
             <button
               onClick={() => setIsCreateOpen(true)}
-              className="text-xs font-bold px-4 py-2 rounded-lg bg-[#0095F6] hover:bg-[#1877F2] text-white transition-all"
+              className="text-xs font-bold px-4 py-2 rounded-lg bg-black dark:bg-white text-white dark:text-black hover:opacity-85 transition-all"
             >
               Create Class
             </button>
@@ -91,271 +77,272 @@ export const LandingPage: React.FC<{ onEnterApp: () => void }> = ({ onEnterApp }
       <main className="flex-1">
 
         {/* ── HERO ── */}
-        <section className="max-w-7xl mx-auto px-5 lg:px-10 pt-16 pb-12 lg:pt-24 lg:pb-16">
-          <div className="text-center max-w-3xl mx-auto space-y-6">
-            {/* Pill badge */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#0095F6]/10 text-[#0095F6] text-xs font-semibold border border-[#0095F6]/20">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#0095F6] animate-pulse" />
-              Built for Indian engineering colleges
+        <section className="max-w-6xl mx-auto px-5 lg:px-8 pt-16 pb-10 lg:pt-24">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+
+            {/* Left: Copy */}
+            <div className="space-y-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#F5F5F5] dark:bg-[#1A1A1A] border border-[#DBDBDB] dark:border-[#262626] text-xs font-semibold text-[#262626] dark:text-[#E0E0E0]">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                Built for college class representatives
+              </div>
+
+              <h1 className="text-4xl sm:text-5xl font-extrabold text-black dark:text-white tracking-tight leading-[1.1]">
+                Stop managing your class on WhatsApp.
+              </h1>
+
+              <p className="text-base text-[#737373] dark:text-[#A8A8A8] leading-relaxed max-w-lg">
+                StudySync gives every class a private workspace — assignment tracking, attendance, polls, and announcements — all controlled by the CR with a single 6-character code.
+              </p>
+
+              {/* How it works — 3 steps */}
+              <div className="space-y-3 pt-2">
+                {[
+                  { step: '1', text: 'CR creates a class — gets a 6-character join code' },
+                  { step: '2', text: 'Share the code — students join instantly, no app install needed' },
+                  { step: '3', text: 'Post assignments, track submissions, take attendance' },
+                ].map(({ step, text }) => (
+                  <div key={step} className="flex items-center gap-3 text-sm">
+                    <span className="w-6 h-6 rounded-full bg-black dark:bg-white text-white dark:text-black text-[10px] font-extrabold flex items-center justify-center shrink-0">
+                      {step}
+                    </span>
+                    <span className="text-[#262626] dark:text-[#E0E0E0]">{text}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
+                <button
+                  onClick={() => setIsCreateOpen(true)}
+                  className="px-6 py-3.5 rounded-xl bg-black dark:bg-white text-white dark:text-black text-sm font-extrabold flex items-center justify-center gap-2 hover:opacity-90 transition-all"
+                >
+                  <span>Create your class — free</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setIsJoinOpen(true)}
+                  className="px-6 py-3.5 rounded-xl text-black dark:text-white text-sm font-semibold flex items-center justify-center gap-2 border border-[#DBDBDB] dark:border-[#363636] hover:bg-[#F5F5F5] dark:hover:bg-[#121212] transition-all"
+                >
+                  <Key className="w-4 h-4 text-[#0095F6]" />
+                  <span>Join with 6-digit code</span>
+                </button>
+              </div>
+
+              <p className="text-[11px] text-[#A8A8A8] flex items-center gap-1.5">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                No account signup needed · Works on any browser · Data stays on your device
+              </p>
             </div>
 
-            {/* Headline */}
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-black dark:text-white tracking-tight leading-[1.1]">
-              Your class.<br />
-              <span className="text-[#0095F6]">Finally coordinated.</span>
-            </h1>
+            {/* Right: Feature showcase panel */}
+            <div className="rounded-2xl border border-[#DBDBDB] dark:border-[#262626] overflow-hidden bg-[#FAFAFA] dark:bg-[#0A0A0A] shadow-xl">
+              {/* Tab bar */}
+              <div className="flex border-b border-[#DBDBDB] dark:border-[#262626] bg-white dark:bg-black">
+                {['Dashboard', 'Assignments', 'Attendance'].map((t, i) => (
+                  <div
+                    key={t}
+                    className={`px-4 py-2.5 text-[11px] font-semibold border-b-2 transition-all ${
+                      i === 0
+                        ? 'border-black dark:border-white text-black dark:text-white'
+                        : 'border-transparent text-[#8E8E8E]'
+                    }`}
+                  >
+                    {t}
+                  </div>
+                ))}
+              </div>
 
-            {/* Sub */}
-            <p className="text-base sm:text-lg text-[#737373] dark:text-[#A8A8A8] leading-relaxed max-w-xl mx-auto">
-              No more WhatsApp chaos. StudySync gives every class a private workspace — assignments, attendance, polls, and broadcasts — managed by the Class Representative.
-            </p>
+              {/* Dashboard-like content */}
+              <div className="p-4 space-y-3">
+                {/* Stats row */}
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { label: 'Total Students', val: '32', color: 'text-black dark:text-white' },
+                    { label: 'Submitted', val: '28', color: 'text-emerald-600 dark:text-emerald-400' },
+                    { label: 'Pending', val: '4', color: 'text-amber-600 dark:text-amber-400' },
+                  ].map(s => (
+                    <div key={s.label} className="p-2.5 rounded-xl bg-white dark:bg-[#121212] border border-[#DBDBDB] dark:border-[#262626]">
+                      <p className="text-[9px] text-[#8E8E8E] uppercase tracking-wide font-semibold">{s.label}</p>
+                      <p className={`text-xl font-extrabold font-mono mt-0.5 ${s.color}`}>{s.val}</p>
+                    </div>
+                  ))}
+                </div>
 
-            {/* CTA Row */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+                {/* Assignment cards */}
+                <div className="space-y-2">
+                  {[
+                    { title: 'Fluid Mechanics Lab Report', sub: 'Mech', due: 'Due today', pct: 87, warn: true },
+                    { title: 'Physics Numericals Unit 4', sub: 'Applied Physics', due: 'Due Fri', pct: 56, warn: false },
+                  ].map(a => (
+                    <div key={a.title} className="p-3 rounded-xl bg-white dark:bg-[#121212] border border-[#DBDBDB] dark:border-[#262626]">
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <div>
+                          <p className="text-xs font-semibold text-black dark:text-white leading-tight">{a.title}</p>
+                          <p className="text-[10px] text-[#8E8E8E] mt-0.5">{a.sub}</p>
+                        </div>
+                        <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full shrink-0 ${a.warn ? 'bg-amber-100 dark:bg-amber-500/15 text-amber-700 dark:text-amber-400' : 'bg-[#EFEFEF] dark:bg-[#262626] text-[#8E8E8E]'}`}>
+                          {a.due}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 h-1.5 rounded-full bg-[#EFEFEF] dark:bg-[#262626] overflow-hidden">
+                          <div className="h-full bg-[#0095F6] rounded-full" style={{ width: `${a.pct}%` }} />
+                        </div>
+                        <span className="text-[10px] font-bold text-[#0095F6] font-mono shrink-0">{a.pct}%</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Quick action */}
+                <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#0095F6]/8 dark:bg-[#0095F6]/10 border border-[#0095F6]/20">
+                  <span className="text-[11px] font-semibold text-[#0095F6]">4 students haven't submitted</span>
+                  <button className="text-[10px] font-bold bg-[#0095F6] text-white px-2.5 py-1 rounded-lg">
+                    Remind All
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── WHY STUDYSYNC ── */}
+        <section className="max-w-6xl mx-auto px-5 lg:px-8 py-16">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+            <div>
+              <p className="text-[11px] font-bold text-[#0095F6] uppercase tracking-widest mb-3">Everything in one place</p>
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-black dark:text-white tracking-tight leading-tight mb-2">
+                What does StudySync actually do?
+              </h2>
+              <p className="text-sm text-[#737373] dark:text-[#A8A8A8] leading-relaxed mb-8">
+                It replaces every class WhatsApp group, shared Google Sheet, and reminder DM with one structured tool — built specifically for Indian college classes.
+              </p>
+
+              <div className="space-y-0 divide-y divide-[#DBDBDB] dark:divide-[#262626]">
+                <FeatureRow
+                  icon={<CheckCircle2 className="w-4.5 h-4.5" />}
+                  title="Assignment tracking with submission proof"
+                  desc="Every assignment moves Assigned → Viewed → Submitted automatically. CR sees a live count. Each submission gets a timestamped hash for proof."
+                />
+                <FeatureRow
+                  icon={<UserCheck className="w-4.5 h-4.5" />}
+                  title="Attendance with defaulter alerts"
+                  desc="Mark present, absent, late, or excused per session. Auto-flags students below 75%. Export full sheets to CSV in one click."
+                />
+                <FeatureRow
+                  icon={<Megaphone className="w-4.5 h-4.5" />}
+                  title="Official broadcasts — not WhatsApp forwards"
+                  desc="CR posts pinned announcements the whole class sees immediately. No forwarding, no screenshot-sharing, no one getting left out."
+                />
+                <FeatureRow
+                  icon={<BarChart2 className="w-4.5 h-4.5" />}
+                  title="Polls and consensus"
+                  desc="CR creates anonymous polls to schedule viva dates, elective choices, or any class decision — results visible instantly."
+                />
+                <FeatureRow
+                  icon={<TrendingUp className="w-4.5 h-4.5" />}
+                  title="Analytics for CR and personal report for students"
+                  desc="CR sees class-wide submission rates, ghost students, and subject-wise performance. Students see their own grade tracker and attendance percentage."
+                />
+                <FeatureRow
+                  icon={<Folder className="w-4.5 h-4.5" />}
+                  title="Resource library"
+                  desc="CR uploads notes, syllabus PDFs, and reference material. All students access it without asking 'bhai notes bhej de' every time."
+                />
+              </div>
+            </div>
+
+            {/* Right: Quick comparison */}
+            <div className="space-y-5 sticky top-24">
+              <div className="rounded-2xl border border-[#DBDBDB] dark:border-[#262626] overflow-hidden">
+                <div className="px-5 py-3 bg-[#F5F5F5] dark:bg-[#1A1A1A] border-b border-[#DBDBDB] dark:border-[#262626]">
+                  <p className="text-xs font-bold text-black dark:text-white">StudySync vs WhatsApp groups</p>
+                </div>
+                <div className="divide-y divide-[#DBDBDB] dark:divide-[#262626]">
+                  {[
+                    { point: 'Who submitted the assignment?', wa: 'Ask 32 people one by one', ss: 'Real-time count, names, timestamps' },
+                    { point: 'Who was absent today?', wa: 'Go through register or guess', ss: 'One-click session, auto % calculator' },
+                    { point: 'Class announcement', wa: 'Floods the chat, gets buried', ss: 'Pinned broadcast, everyone sees it' },
+                    { point: 'Important notes/PDFs', wa: '4D old message, link expired', ss: 'Permanent resource library' },
+                    { point: 'Viva date poll', wa: 'Type "1 = Monday, 2 = Tuesday…"', ss: 'Proper anonymous poll, instant result' },
+                  ].map(({ point, wa, ss }) => (
+                    <div key={point} className="px-5 py-3.5 grid grid-cols-3 gap-3 items-start">
+                      <p className="text-[10px] font-semibold text-black dark:text-white col-span-1 leading-snug">{point}</p>
+                      <p className="text-[10px] text-[#737373] dark:text-[#A8A8A8] leading-snug col-span-1">❌ {wa}</p>
+                      <p className="text-[10px] text-emerald-600 dark:text-emerald-400 leading-snug col-span-1 font-medium">✓ {ss}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               <button
                 onClick={() => setIsCreateOpen(true)}
-                className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-black dark:bg-white text-white dark:text-black text-sm font-extrabold flex items-center justify-center gap-2 hover:opacity-90 transition-all shadow-lg"
+                className="w-full py-3.5 rounded-xl bg-[#0095F6] hover:bg-[#1877F2] text-white text-sm font-extrabold flex items-center justify-center gap-2 transition-all shadow-lg shadow-[#0095F6]/20"
               >
-                <span>Create your class</span>
+                <span>Create your class now — it's free</span>
+                <ChevronRight className="w-4 h-4" />
+              </button>
+              <p className="text-center text-[11px] text-[#A8A8A8]">No account needed. Ready in under 60 seconds.</p>
+            </div>
+          </div>
+        </section>
+
+        {/* ── SIMPLE CTA FOOTER STRIP ── */}
+        <section className="border-t border-[#DBDBDB] dark:border-[#262626] bg-[#FAFAFA] dark:bg-[#0A0A0A]">
+          <div className="max-w-6xl mx-auto px-5 lg:px-8 py-14 text-center space-y-5">
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-black dark:text-white tracking-tight">
+              Ready to fix your class coordination?
+            </h2>
+            <p className="text-sm text-[#737373] dark:text-[#A8A8A8] max-w-md mx-auto">
+              Create a class, get a 6-digit code, share it. That's it — your entire class is synced.
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <button
+                onClick={() => setIsCreateOpen(true)}
+                className="px-8 py-3.5 rounded-xl bg-black dark:bg-white text-white dark:text-black text-sm font-extrabold flex items-center gap-2 hover:opacity-90 transition-all"
+              >
+                <span>I'm the CR — create my class</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
               <button
                 onClick={() => setIsJoinOpen(true)}
-                className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-white dark:bg-[#121212] text-black dark:text-white text-sm font-bold flex items-center justify-center gap-2 border border-[#DBDBDB] dark:border-[#262626] hover:border-[#0095F6] transition-all"
+                className="px-8 py-3.5 rounded-xl border border-[#DBDBDB] dark:border-[#363636] text-black dark:text-white text-sm font-semibold flex items-center gap-2 hover:bg-[#F5F5F5] dark:hover:bg-[#121212] transition-all"
               >
                 <Key className="w-4 h-4 text-[#0095F6]" />
-                <span>Join with 6-digit code</span>
+                I'm a student — join with code
               </button>
             </div>
-
-            {/* Trust micro-text */}
-            <p className="text-[11px] text-[#A8A8A8] flex items-center justify-center gap-1.5">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
-              Free to use · No signup required · Works on any device
-            </p>
-          </div>
-        </section>
-
-        {/* ── APP MOCKUP ── */}
-        <section className="max-w-5xl mx-auto px-5 lg:px-10 pb-16">
-          <div className="rounded-2xl border border-[#DBDBDB] dark:border-[#262626] bg-white dark:bg-[#121212] shadow-2xl overflow-hidden">
-            {/* Browser chrome */}
-            <div className="flex items-center gap-2 px-4 py-3 border-b border-[#DBDBDB] dark:border-[#262626] bg-[#FAFAFA] dark:bg-[#181818]">
-              <div className="flex gap-1.5">
-                <div className="w-3 h-3 rounded-full bg-[#ED4956]" />
-                <div className="w-3 h-3 rounded-full bg-amber-400" />
-                <div className="w-3 h-3 rounded-full bg-emerald-500" />
-              </div>
-              <div className="flex-1 mx-4">
-                <div className="bg-[#EFEFEF] dark:bg-[#262626] rounded-md px-3 py-1 text-[10px] font-mono text-[#8E8E8E] text-center max-w-xs mx-auto">
-                  studysync.app/dashboard
-                </div>
-              </div>
-            </div>
-
-            {/* App UI snapshot */}
-            <div className="grid grid-cols-12 h-56 sm:h-72 divide-x divide-[#DBDBDB] dark:divide-[#262626]">
-              {/* Sidebar mock */}
-              <div className="col-span-2 p-2.5 space-y-1.5 bg-[#FAFAFA] dark:bg-[#0A0A0A]">
-                <div className="h-6 bg-[#EFEFEF] dark:bg-[#262626] rounded-md" />
-                {['Home','Tasks','Attend','Polls','Msgs'].map((l, i) => (
-                  <div key={l} className={`h-6 flex items-center gap-1.5 px-1.5 rounded-md ${i === 0 ? 'bg-[#0095F6]/10' : ''}`}>
-                    <div className={`w-2.5 h-2.5 rounded-sm shrink-0 ${i === 0 ? 'bg-[#0095F6]' : 'bg-[#DBDBDB] dark:bg-[#262626]'}`} />
-                    <div className={`h-1.5 rounded-full flex-1 ${i === 0 ? 'bg-[#0095F6]/40' : 'bg-[#EFEFEF] dark:bg-[#262626]'}`} />
-                  </div>
-                ))}
-              </div>
-
-              {/* Main panel mock */}
-              <div className="col-span-7 p-3 space-y-2.5 bg-white dark:bg-[#000000]">
-                <div className="flex items-center justify-between mb-1">
-                  <div className="h-3 w-28 bg-[#262626] dark:bg-[#F5F5F5] rounded-full opacity-80" />
-                  <div className="h-6 w-20 rounded-lg bg-[#0095F6]" />
-                </div>
-                <div className="grid grid-cols-4 gap-1.5">
-                  {[100, 40, 70, 55].map((v, i) => (
-                    <div key={i} className="p-2 rounded-xl border border-[#DBDBDB] dark:border-[#262626] space-y-1">
-                      <div className="h-1.5 w-8 bg-[#DBDBDB] dark:bg-[#262626] rounded-full" />
-                      <div className={`text-[11px] font-bold ${i === 1 ? 'text-amber-500' : 'text-black dark:text-white'}`}>{v}%</div>
-                    </div>
-                  ))}
-                </div>
-                {[56, 87, 30].map((pct, i) => (
-                  <div key={i} className="p-2.5 rounded-xl border border-[#DBDBDB] dark:border-[#262626] space-y-1.5">
-                    <div className="flex justify-between">
-                      <div className="h-2 w-24 bg-[#262626] dark:bg-[#F5F5F5] rounded-full opacity-70" />
-                      <div className={`h-2 w-8 rounded-full ${pct > 70 ? 'bg-emerald-400' : pct > 50 ? 'bg-[#0095F6]/60' : 'bg-amber-400'}`} />
-                    </div>
-                    <div className="w-full h-1.5 rounded-full bg-[#EFEFEF] dark:bg-[#262626] overflow-hidden">
-                      <div className="h-full bg-[#0095F6] rounded-full" style={{ width: `${pct}%` }} />
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Right panel mock */}
-              <div className="col-span-3 p-2.5 space-y-2 bg-[#FAFAFA] dark:bg-[#0A0A0A]">
-                <div className="h-2.5 w-16 bg-[#262626] dark:bg-[#F5F5F5] rounded-full opacity-70" />
-                {['Priya S.','Arjun K.','Nisha P.','Rohan M.','Kavya R.'].map((name, i) => (
-                  <div key={name} className="flex items-center justify-between">
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-4 h-4 rounded-full bg-[#DBDBDB] dark:bg-[#262626]" />
-                      <div className="h-1.5 w-10 bg-[#DBDBDB] dark:bg-[#262626] rounded-full" />
-                    </div>
-                    <CheckCircle2 className={`w-3 h-3 ${i < 3 ? 'text-emerald-500' : 'text-[#DBDBDB] dark:text-[#262626]'}`} />
-                  </div>
-                ))}
-                <div className="pt-1">
-                  <div className="h-5 rounded-lg bg-[#0095F6]/15 border border-[#0095F6]/30 flex items-center justify-center">
-                    <span className="text-[9px] font-bold text-[#0095F6]">Remind 2 pending</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ── STATS STRIP ── */}
-        <section className="max-w-7xl mx-auto px-5 lg:px-10 pb-16">
-          <div className="flex flex-wrap justify-center gap-3 sm:gap-4">
-            <StatBadge value="10,000+" label="Students using StudySync" />
-            <StatBadge value="500+" label="Classes created this semester" />
-            <StatBadge value="99.9%" label="Submission accuracy" />
-            <StatBadge value="0" label="WhatsApp groups needed" />
-          </div>
-        </section>
-
-        {/* ── FEATURES ── */}
-        <section className="max-w-7xl mx-auto px-5 lg:px-10 pb-16">
-          <div className="text-center mb-10">
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-black dark:text-white tracking-tight">
-              Everything your class needs. Nothing it doesn't.
-            </h2>
-            <p className="text-sm text-[#737373] dark:text-[#A8A8A8] mt-2">
-              Built specifically for college class coordination in India.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <FeatureCard
-              icon={<CheckCircle2 className="w-5 h-5 text-[#0095F6]" />}
-              title="Live submission tracking"
-              desc="Every assignment moves from Assigned → Viewed → Submitted automatically. CR sees the real-time count, not guesswork."
-              accent="text-[#0095F6] bg-[#0095F6]/10"
-            />
-            <FeatureCard
-              icon={<Clock className="w-5 h-5 text-amber-500" />}
-              title="Smart deadline alerts"
-              desc="Automatic 24h and 2h reminders sent to non-submitters. CR can also nudge everyone with one tap."
-              accent="text-amber-500 bg-amber-500/10"
-            />
-            <FeatureCard
-              icon={<Users className="w-5 h-5 text-emerald-500" />}
-              title="Class roster management"
-              desc="Students join via 6-character code. CR can view all members, roll numbers, and last-active time."
-              accent="text-emerald-500 bg-emerald-500/10"
-            />
-            <FeatureCard
-              icon={<BarChart2 className="w-5 h-5 text-purple-500" />}
-              title="Attendance tracking"
-              desc="Mark present, absent, late, or excused. Calculates attendance percentage. Flags students below 75%."
-              accent="text-purple-500 bg-purple-500/10"
-            />
-            <FeatureCard
-              icon={<MessageSquare className="w-5 h-5 text-[#0095F6]" />}
-              title="Direct messages"
-              desc="Students can message the CR directly. Class-wide cohort channel for general discussion."
-              accent="text-[#0095F6] bg-[#0095F6]/10"
-            />
-            <FeatureCard
-              icon={<Zap className="w-5 h-5 text-amber-500" />}
-              title="Quick polls & consensus"
-              desc="CR creates anonymous polls to gauge class mood, schedule votes, or collect feedback in seconds."
-              accent="text-amber-500 bg-amber-500/10"
-            />
-          </div>
-        </section>
-
-        {/* ── TESTIMONIAL STRIP ── */}
-        <section className="bg-white dark:bg-[#0A0A0A] border-y border-[#DBDBDB] dark:border-[#262626] py-12 px-5 lg:px-10">
-          <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-8">
-              <div className="flex justify-center gap-0.5 mb-2">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-4 h-4 text-amber-400 fill-amber-400" />
-                ))}
-              </div>
-              <p className="text-sm font-semibold text-black dark:text-white">Loved by CRs across 50+ colleges</p>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {[
-                { quote: "Finally a tool built for how Indian college classes actually work. Our submission rates went from 60% to 95%.", name: "Priya S.", role: "CR, MECH 3rd Year, VIT" },
-                { quote: "I used to spend 2 hours a day chasing submissions on WhatsApp. Now it takes 5 minutes and everything is tracked.", name: "Arjun K.", role: "CR, CSE 2nd Year, SRM" },
-                { quote: "The attendance tracker alone saves our department coordinator a week of work every semester.", name: "Nisha P.", role: "CR, ECE 4th Year, NIT Trichy" },
-              ].map(t => (
-                <div key={t.name} className="p-5 rounded-2xl bg-[#FAFAFA] dark:bg-[#121212] border border-[#DBDBDB] dark:border-[#262626] space-y-3">
-                  <p className="text-xs text-[#737373] dark:text-[#A8A8A8] leading-relaxed italic">"{t.quote}"</p>
-                  <div>
-                    <p className="text-xs font-bold text-black dark:text-white">{t.name}</p>
-                    <p className="text-[10px] text-[#8E8E8E]">{t.role}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ── FINAL CTA SECTION ── */}
-        <section className="max-w-7xl mx-auto px-5 lg:px-10 py-20 text-center">
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-black dark:text-white tracking-tight mb-4">
-            Your class code is waiting.
-          </h2>
-          <p className="text-sm text-[#737373] dark:text-[#A8A8A8] mb-8 max-w-md mx-auto">
-            Create a class in 30 seconds. Share the 6-character code. Done — your entire class is synced.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <button
-              onClick={() => setIsCreateOpen(true)}
-              className="w-full sm:w-auto px-8 py-4 rounded-xl bg-[#0095F6] hover:bg-[#1877F2] text-white text-sm font-extrabold flex items-center justify-center gap-2 transition-all shadow-lg shadow-[#0095F6]/25"
-            >
-              <span>Create a class — it's free</span>
-              <ChevronRight className="w-4 h-4" />
-            </button>
-            <button
-              onClick={onEnterApp}
-              className="w-full sm:w-auto px-8 py-4 rounded-xl bg-white dark:bg-[#121212] text-black dark:text-white text-sm font-bold flex items-center justify-center gap-2 border border-[#DBDBDB] dark:border-[#262626] hover:border-[#0095F6] transition-all"
-            >
-              Explore the demo workspace
+            <button onClick={onEnterApp} className="text-xs text-[#A8A8A8] hover:text-black dark:hover:text-white transition-colors underline-offset-2 hover:underline">
+              Just explore the demo workspace first →
             </button>
           </div>
         </section>
       </main>
 
       {/* ── FOOTER ── */}
-      <footer className="border-t border-[#DBDBDB] dark:border-[#262626] bg-white dark:bg-black px-5 lg:px-10 py-8">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-2.5">
+      <footer className="border-t border-[#DBDBDB] dark:border-[#262626] bg-white dark:bg-black">
+        <div className="max-w-6xl mx-auto px-5 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
             <div className="w-6 h-6 rounded-md bg-black dark:bg-white flex items-center justify-center">
               <BookOpen className="w-3.5 h-3.5 text-white dark:text-black" />
             </div>
-            <span className="font-extrabold text-sm text-black dark:text-white">StudySync</span>
-            <span className="text-[#DBDBDB] dark:text-[#262626]">·</span>
+            <span className="font-bold text-sm text-black dark:text-white">StudySync</span>
+            <span className="text-[#DBDBDB] dark:text-[#262626] mx-1">·</span>
             <span className="text-xs text-[#8E8E8E]">One class code. Nobody left behind.</span>
           </div>
-          <div className="flex flex-wrap items-center justify-center gap-4 text-[11px] text-[#8E8E8E]">
+          <div className="flex items-center gap-4 text-[11px] text-[#8E8E8E]">
             <button onClick={() => setActiveTrustPage('about')} className="hover:text-black dark:hover:text-white transition-colors">About</button>
             <button onClick={() => setActiveTrustPage('privacy')} className="hover:text-black dark:hover:text-white transition-colors">Privacy</button>
             <button onClick={() => setActiveTrustPage('terms')} className="hover:text-black dark:hover:text-white transition-colors">Terms</button>
             <button onClick={() => setActiveTrustPage('security')} className="hover:text-black dark:hover:text-white transition-colors">Security</button>
-            <button onClick={() => setActiveTrustPage('status')} className="hover:text-black dark:hover:text-white transition-colors flex items-center gap-1">
+            <span className="flex items-center gap-1 text-emerald-500">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-              All systems operational
-            </button>
+              All systems up
+            </span>
           </div>
         </div>
       </footer>
 
-      {/* Modals */}
       <CreateClassModal isOpen={isCreateOpen} onClose={() => setIsCreateOpen(false)} onSuccess={onEnterApp} />
       <JoinClassModal isOpen={isJoinOpen} onClose={() => setIsJoinOpen(false)} onSuccess={onEnterApp} />
     </div>

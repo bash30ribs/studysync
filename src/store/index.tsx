@@ -409,6 +409,9 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setAttendanceSessions([]);
     setResources([]);
     setPolls([]);
+    setMessages([]);
+    setDiscussions([]);
+    setNotifications([]);
     setBroadcasts([
       {
         id: 'bc-init-' + Date.now(),
@@ -423,7 +426,7 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       }
     ]);
     setActiveTab('dashboard');
-    showToast(`Class created! Class code: ${code}`, 'success');
+    showToast(`Class ${newClass.name} created! Code: ${code}`, 'success');
     return code;
   };
 
