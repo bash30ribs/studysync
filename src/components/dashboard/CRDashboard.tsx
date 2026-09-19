@@ -72,56 +72,58 @@ export const CRDashboard: React.FC = () => {
   return (
     <div className="p-4 lg:p-7 space-y-6 max-w-7xl mx-auto">
       {/* 1. Executive Hero Header & Actions */}
-      <div className="relative rounded-2xl p-5 sm:p-6 bg-gradient-to-r from-slate-900 via-[#0B1528] to-slate-900 text-white border border-slate-800 shadow-lg overflow-hidden">
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2 mb-1.5">
-              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-teal-500/20 text-teal-300 border border-teal-500/30">
-                CR Executive Command Hub
+      <div className="relative rounded-3xl p-6 sm:p-7 bg-gradient-to-br from-[#0F172A] via-[#0D1829] to-[#041D20] text-white border border-slate-700/80 shadow-xl overflow-hidden handcrafted-card">
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <span className="px-3 py-1 rounded-full text-xs font-extrabold bg-teal-500/20 text-teal-300 border border-teal-500/30 flex items-center gap-1.5 shadow-xs">
+                <span className="w-2 h-2 rounded-full bg-teal-400 animate-live-pulse" />
+                CR Command Deck
               </span>
-              <span className="text-slate-400 text-xs font-mono">
-                Cohort {currentClass.name} · Code {currentClass.code}
+              <span className="text-slate-400 text-xs font-mono bg-slate-800/80 px-2.5 py-1 rounded-lg border border-slate-700">
+                Cohort: {currentClass.name} · Code: <strong className="text-teal-400">{currentClass.code}</strong>
               </span>
             </div>
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-white tracking-tight">
-              Class Coordinator Dashboard
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight">
+              Class Coordinator Operations
             </h1>
-            <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-xl leading-relaxed">
-              Real-time submission monitoring, 1-tap reminders, attendance audit, and class-wide announcements.
+            <p className="text-xs sm:text-sm text-slate-300 max-w-xl leading-relaxed">
+              Real-time submission monitoring, 1-tap nudge alerts, attendance audit, and class-wide announcements.
             </p>
           </div>
 
           {/* CR Action Buttons */}
-          <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap">
+          <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap shrink-0">
             <button
               onClick={() => printAssignmentReport(assignments, currentClass.name)}
-              className="px-3.5 py-2 rounded-xl border border-slate-700 bg-slate-800/80 hover:bg-slate-700 text-xs font-semibold text-white flex items-center gap-1.5 transition-all shadow-xs"
+              className="px-3.5 py-2.5 rounded-xl border border-slate-700 bg-slate-800/90 hover:bg-slate-700 text-xs font-bold text-white flex items-center gap-2 transition-all shadow-xs"
               title="Generate printable PDF report of current assignments & cohort status"
             >
-              <Printer className="w-3.5 h-3.5 text-teal-400" />
+              <Printer className="w-4 h-4 text-teal-400" />
               <span>Print Report</span>
             </button>
 
             <button
               onClick={() => exportSubmissionsCSV()}
-              className="px-3.5 py-2 rounded-xl border border-slate-700 bg-slate-800/80 hover:bg-slate-700 text-xs font-semibold text-white flex items-center gap-1.5 transition-all shadow-xs"
+              className="px-3.5 py-2.5 rounded-xl border border-slate-700 bg-slate-800/90 hover:bg-slate-700 text-xs font-bold text-white flex items-center gap-2 transition-all shadow-xs"
             >
-              <Download className="w-3.5 h-3.5 text-teal-400" />
+              <Download className="w-4 h-4 text-teal-400" />
               <span>Export CSV</span>
             </button>
 
             <button
               onClick={() => setIsNewAssignmentModalOpen(true)}
-              className="px-4 py-2 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 text-xs font-extrabold flex items-center gap-1.5 transition-all shadow-md shadow-teal-500/20"
+              className="px-4 py-2.5 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 text-xs font-black flex items-center gap-2 transition-all shadow-lg shadow-teal-500/25"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-4 h-4 stroke-[3]" />
               <span>New Assignment</span>
             </button>
           </div>
         </div>
 
-        {/* Subtle decorative background glow */}
-        <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 rounded-full bg-teal-500/10 blur-3xl pointer-events-none" />
+        {/* Decorative background glows */}
+        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 rounded-full bg-teal-500/15 blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-1/4 -mb-20 w-60 h-60 rounded-full bg-indigo-500/10 blur-3xl pointer-events-none" />
       </div>
 
       {/* 2. Key Metrics Bento Row */}

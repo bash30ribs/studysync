@@ -1,5 +1,0 @@
-StudySync Sample Dataset Fixture 08
-===================================
-Formula Cheat Sheet Summary
-Topics: Maxwell Equations, Fourier Transform
-Status: Sample Template

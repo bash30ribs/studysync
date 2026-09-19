@@ -14,7 +14,12 @@ import {
   Send,
   Download,
   FileText,
-  UserCheck
+  UserCheck,
+  Flame,
+  Sparkles,
+  Headphones,
+  Trophy,
+  Zap
 } from 'lucide-react';
 
 export const StudentDashboard: React.FC = () => {
@@ -126,50 +131,60 @@ export const StudentDashboard: React.FC = () => {
 
   return (
     <div className="p-4 lg:p-7 space-y-6 max-w-7xl mx-auto">
-      {/* 1. Personalized Hero Header & KPI Banner */}
-      <div className="relative rounded-2xl p-5 sm:p-6 bg-gradient-to-r from-slate-900 via-[#0E1B38] to-teal-950 text-white border border-slate-800 shadow-lg overflow-hidden">
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2 mb-1.5">
-              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-teal-500/20 text-teal-300 border border-teal-500/30">
-                Student Workspace
+      {/* 1. Personalized Hero Header & Dynamic Momentum Deck */}
+      <div className="relative rounded-3xl p-6 sm:p-7 bg-gradient-to-br from-[#0F172A] via-[#0B1528] to-[#041D20] text-white border border-slate-700/80 shadow-xl overflow-hidden handcrafted-card">
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <span className="px-3 py-1 rounded-full text-xs font-extrabold bg-teal-500/20 text-teal-300 border border-teal-500/30 flex items-center gap-1.5 shadow-xs">
+                <Sparkles className="w-3.5 h-3.5 text-teal-400" />
+                Active Cohort: {currentClass.name}
               </span>
-              <span className="text-slate-400 text-xs font-mono">
-                Cohort {currentClass.name} · {currentUser.rollNo}
+              <span className="text-slate-400 text-xs font-mono bg-slate-800/80 px-2.5 py-1 rounded-lg border border-slate-700">
+                Roll #{currentUser.rollNo}
               </span>
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-orange-500/20 text-orange-300 border border-orange-500/30 text-xs font-bold">
+                <Flame className="w-3.5 h-3.5 text-orange-400 animate-pulse" />
+                <span>8-Day Study Streak</span>
+              </div>
             </div>
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-white tracking-tight">
-              Welcome back, {currentUser.name.split(' ')[0]} 👋
+
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight">
+              Good {new Date().getHours() < 12 ? 'Morning' : new Date().getHours() < 18 ? 'Afternoon' : 'Evening'}, {currentUser.name.split(' ')[0]} 🚀
             </h1>
-            <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-xl leading-relaxed">
-              Everything in your class is organized below. No lost files, instant 1-tap submissions, and live updates.
+            <p className="text-xs sm:text-sm text-slate-300 max-w-xl leading-relaxed">
+              You have <strong className="text-amber-400 font-bold">{pendingCount} assignments</strong> pending this week. Flow state is unlocked.
             </p>
           </div>
 
-          {/* Quick Metrics Cards */}
-          <div className="flex items-center gap-2 sm:gap-3 flex-wrap sm:flex-nowrap shrink-0">
+          {/* Handcrafted Quick Metrics Deck */}
+          <div className="grid grid-cols-3 gap-2.5 sm:gap-3 shrink-0">
             {/* Pending Tasks */}
             <div 
               onClick={() => setTaskFilter('pending')}
-              className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/15 backdrop-blur-md border border-white/10 text-center cursor-pointer transition-all"
+              className={`p-3.5 rounded-2xl border transition-all cursor-pointer text-center ${
+                taskFilter === 'pending'
+                  ? 'bg-amber-500/20 border-amber-500/50 ring-2 ring-amber-500/30'
+                  : 'bg-slate-900/70 border-slate-700/60 hover:bg-slate-800/80'
+              }`}
             >
-              <div className="text-xl sm:text-2xl font-extrabold font-mono text-amber-300">
+              <div className="text-2xl sm:text-3xl font-black font-mono text-amber-300">
                 {pendingCount}
               </div>
-              <div className="text-[10px] font-semibold text-slate-300 uppercase tracking-wider">
-                Pending Tasks
+              <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">
+                To Submit
               </div>
             </div>
 
             {/* Attendance % */}
             <div 
               onClick={() => setActiveTab('attendance')}
-              className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/15 backdrop-blur-md border border-white/10 text-center cursor-pointer transition-all"
+              className="p-3.5 rounded-2xl bg-slate-900/70 border border-slate-700/60 hover:bg-slate-800/80 text-center cursor-pointer transition-all"
             >
-              <div className="text-xl sm:text-2xl font-extrabold font-mono text-emerald-300">
+              <div className="text-2xl sm:text-3xl font-black font-mono text-emerald-300">
                 {attendancePct}%
               </div>
-              <div className="text-[10px] font-semibold text-slate-300 uppercase tracking-wider">
+              <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">
                 Attendance
               </div>
             </div>
@@ -177,20 +192,21 @@ export const StudentDashboard: React.FC = () => {
             {/* Active Polls */}
             <div 
               onClick={() => setActiveTab('polls')}
-              className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/15 backdrop-blur-md border border-white/10 text-center cursor-pointer transition-all hidden sm:block"
+              className="p-3.5 rounded-2xl bg-slate-900/70 border border-slate-700/60 hover:bg-slate-800/80 text-center cursor-pointer transition-all"
             >
-              <div className="text-xl sm:text-2xl font-extrabold font-mono text-teal-300">
+              <div className="text-2xl sm:text-3xl font-black font-mono text-teal-300">
                 {polls.filter(p => !p.isClosed).length}
               </div>
-              <div className="text-[10px] font-semibold text-slate-300 uppercase tracking-wider">
-                Active Polls
+              <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">
+                Consensus
               </div>
             </div>
           </div>
         </div>
 
-        {/* Subtle decorative background gradient */}
-        <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 rounded-full bg-teal-500/10 blur-3xl pointer-events-none" />
+        {/* Ambient background glows */}
+        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 rounded-full bg-teal-500/15 blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-1/3 -mb-20 w-60 h-60 rounded-full bg-indigo-500/10 blur-3xl pointer-events-none" />
       </div>
 
       {/* 2. Quick Action Dock */}

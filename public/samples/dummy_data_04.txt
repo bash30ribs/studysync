@@ -1,6 +1,0 @@
-StudySync Sample Dataset Fixture 04
-===================================
-Attendance Audit Roster
-Session: Computer Networks Lab 05
-Expected Students: 64
-Status: Sample Template

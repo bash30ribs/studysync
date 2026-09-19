@@ -1,6 +1,0 @@
-StudySync Sample Dataset Fixture 05
-===================================
-Broadcast Notice Template
-Subject: Rescheduled Tutorial Session
-Target: All Enrolled Students
-Status: Sample Template

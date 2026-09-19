@@ -1,6 +1,0 @@
-StudySync Sample Dataset Fixture 07
-===================================
-Lab Experiment Checklist
-Equipment: Logic Analyzer, FPGA Board
-Safety Protocol: Verified
-Status: Sample Template

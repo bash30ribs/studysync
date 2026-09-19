@@ -1,6 +1,0 @@
-StudySync Sample Dataset Fixture 06
-===================================
-Poll Consensus Survey
-Topic: Preferred Exam Review Session Slot
-Options: Friday 5 PM vs Saturday 10 AM
-Status: Sample Template

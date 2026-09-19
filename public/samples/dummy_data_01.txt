@@ -1,7 +1,0 @@
-StudySync Sample Dataset Fixture 01
-===================================
-Assignment: Database System Normalization
-Course: CS-204
-Due: 2026-09-25
-Max Points: 100
-Status: Sample Template

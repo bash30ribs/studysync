@@ -1,5 +1,0 @@
-StudySync Sample Dataset Fixture 03
-===================================
-Rubric: Code Architecture & Modularity
-Weight: 40% Architecture, 30% Testing, 30% Documentation
-Status: Sample Template
