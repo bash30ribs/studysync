@@ -220,11 +220,11 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
         )}
 
-        {/* Encrypted Direct Messages */}
+        {/* Direct Messages */}
         <button
           onClick={() => setActiveTab('messages')}
-          aria-label="Encrypted Direct Messages"
-          title="Encrypted Direct Messages"
+          aria-label="Direct Messages"
+          title="Direct Messages"
           className={`w-8 h-8 rounded-md border border-[#DBDBDB] dark:border-[#262626] bg-white dark:bg-[#121212] flex items-center justify-center transition ${
             activeTab === 'messages'
               ? 'text-[#0095F6] border-[#0095F6]'
