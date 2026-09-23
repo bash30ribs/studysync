@@ -12,7 +12,6 @@ import { QRCodeModal } from './components/common/QRCodeModal';
 import { TrustPages } from './components/public/TrustPages';
 import { StudySoundscapesModal } from './components/common/StudySoundscapesModal';
 import { AchievementsModal } from './components/common/AchievementsModal';
-import { KeyboardShortcutsModal } from './components/common/KeyboardShortcutsModal';
 
 import { CRDashboard } from './components/dashboard/CRDashboard';
 import { StudentDashboard } from './components/dashboard/StudentDashboard';
@@ -33,7 +32,7 @@ const MainLayout: React.FC<{ isDarkMode: boolean; setIsDarkMode: React.Dispatch<
   isDarkMode,
   setIsDarkMode
 }) => {
-  const { currentUser, activeTab, isRightPanelOpen, setIsRightPanelOpen } = useStudySync();
+  const { currentUser, activeTab, isRightPanelOpen, setIsRightPanelOpen, setIsShortcutsOpen } = useStudySync();
   const [showLanding, setShowLanding] = useState(() => {
     // Show landing on first visit; remember if user has entered the app before
     try { return !sessionStorage.getItem('studysync_entered'); } catch { return true; }
@@ -77,14 +76,13 @@ const MainLayout: React.FC<{ isDarkMode: boolean; setIsDarkMode: React.Dispatch<
 
   const [showSoundscapes, setShowSoundscapes] = useState(false);
   const [showAchievements, setShowAchievements] = useState(false);
-  const [showShortcuts, setShowShortcuts] = useState(false);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
       if (e.key === '?' && !e.metaKey && !e.ctrlKey) {
         e.preventDefault();
-        setShowShortcuts((prev) => !prev);
+        setIsShortcutsOpen(true);
       }
       if (e.altKey && e.key.toLowerCase() === 's') {
         e.preventDefault();
@@ -93,7 +91,7 @@ const MainLayout: React.FC<{ isDarkMode: boolean; setIsDarkMode: React.Dispatch<
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [setIsShortcutsOpen]);
 
   return (
     <div className="flex flex-col h-screen w-screen overflow-hidden bg-[#FAFAFA] dark:bg-black text-[#262626] dark:text-[#F5F5F5] transition-colors duration-150">
@@ -102,7 +100,7 @@ const MainLayout: React.FC<{ isDarkMode: boolean; setIsDarkMode: React.Dispatch<
         onOpenLanding={() => setShowLanding(true)}
         onOpenSoundscapes={() => setShowSoundscapes(true)}
         onOpenAchievements={() => setShowAchievements(true)}
-        onOpenShortcuts={() => setShowShortcuts(true)}
+        onOpenShortcuts={() => setIsShortcutsOpen(true)}
         isDarkMode={isDarkMode}
         setIsDarkMode={setIsDarkMode}
       />
@@ -141,7 +139,6 @@ const MainLayout: React.FC<{ isDarkMode: boolean; setIsDarkMode: React.Dispatch<
       <TrustPages />
       <StudySoundscapesModal isOpen={showSoundscapes} onClose={() => setShowSoundscapes(false)} />
       <AchievementsModal isOpen={showAchievements} onClose={() => setShowAchievements(false)} />
-      <KeyboardShortcutsModal isOpen={showShortcuts} onClose={() => setShowShortcuts(false)} />
       <Toast />
     </div>
   );
