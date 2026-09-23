@@ -23,6 +23,7 @@ import { SubmitDrawer } from '../components/assignments/SubmitDrawer';
 import { CommandPalette } from '../components/common/CommandPalette';
 import { ShortcutsModal } from '../components/common/ShortcutsModal';
 import { QRCodeModal } from '../components/common/QRCodeModal';
+import { Header } from '../components/layout/Header';
 
 describe('Comprehensive Feature Verification', () => {
   beforeEach(() => {
@@ -181,5 +182,32 @@ describe('Comprehensive Feature Verification', () => {
     expect(html).toContain('Log In &amp; Select Persona');
     expect(html).toContain('Enter as CR');
     expect(html).toContain('Enter as Student');
+  });
+
+  it('19. Verifies Header renders dark/light theme toggle button', () => {
+    const html = renderWithStore(
+      <Header isDarkMode={true} setIsDarkMode={() => {}} />
+    );
+    expect(html).toContain('id="theme-toggle"');
+    expect(html).toContain('Switch to light mode');
+  });
+
+  it('20. Verifies empty states for ResourceLibraryView, PollsView, and CalendarView', () => {
+    // Setup empty arrays in mock storage
+    globalThis.localStorage.getItem = (key: string) => {
+      if (key.includes('resources') || key.includes('polls') || key.includes('assignments')) {
+        return '[]';
+      }
+      return null;
+    };
+
+    const resHtml = renderWithStore(<ResourceLibraryView />);
+    expect(resHtml).toContain('No resources yet. Upload the first one. 📁');
+
+    const pollsHtml = renderWithStore(<PollsView />);
+    expect(pollsHtml).toContain('No active polls. Create one. 🗳️');
+
+    const calHtml = renderWithStore(<CalendarView />);
+    expect(calHtml).toContain('No events this month. 📅');
   });
 });

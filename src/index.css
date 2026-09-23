@@ -4,15 +4,15 @@
 
 @layer base {
   :root {
-    --color-surface-bg: #FFFFFF;
-    --color-surface-sidebar: #FAFAFA;
+    --color-surface-bg: #fafafa;
+    --color-surface-sidebar: #fafafa;
     --color-surface-card: #FFFFFF;
     --color-surface-hover: #F5F5F5;
     --color-surface-secondary: #EFEFEF;
     --color-border-subtle: #DBDBDB;
     --color-border-strong: #C7C7C7;
     --color-text-title: #000000;
-    --color-text-body: #262626;
+    --color-text-body: #000000;
     --color-text-muted: #737373;
     --color-text-placeholder: #A8A8A8;
 

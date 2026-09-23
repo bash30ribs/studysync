@@ -66,6 +66,11 @@ export const CalendarView: React.FC = () => {
   const daysArray = Array.from({ length: daysInMonth }, (_, i) => i + 1);
   const paddingArray = Array.from({ length: firstDayOfMonth }, (_, i) => i);
 
+  const currentMonthAssignments = assignments.filter(a => {
+    const d = new Date(a.deadline);
+    return d.getFullYear() === year && d.getMonth() === month;
+  });
+
   return (
     <div className="p-4 lg:p-7 space-y-6 max-w-6xl mx-auto">
       {/* Header Bar */}
@@ -142,8 +147,16 @@ export const CalendarView: React.FC = () => {
         </div>
       </div>
 
-      {/* Calendar Grid */}
-      <div className="ui-card overflow-hidden">
+      {/* Calendar Grid or Empty State */}
+      {currentMonthAssignments.length === 0 ? (
+        <div className="py-16 flex flex-col items-center justify-center text-center p-8 ui-card border border-dashed border-[#DBDBDB] dark:border-[#262626]">
+          <CalendarIcon className="w-8 h-8 text-[#8E8E8E] mb-2 opacity-50" />
+          <p className="text-sm font-medium text-[#737373] dark:text-[#8E8E8E]">
+            No events this month. 📅
+          </p>
+        </div>
+      ) : (
+        <div className="ui-card overflow-hidden">
         {/* Day of Week Headers */}
         <div className="grid grid-cols-7 border-b border-[#DBDBDB] dark:border-[#262626] bg-[#FAFAFA] dark:bg-[#121212] text-center py-2.5 text-[11px] font-semibold text-neutral-500 dark:text-neutral-400">
           <div>Sun</div>
@@ -224,6 +237,7 @@ export const CalendarView: React.FC = () => {
           })}
         </div>
       </div>
+      )}
     </div>
   );
 };

@@ -145,7 +145,7 @@ const MainLayout: React.FC<{ isDarkMode: boolean; setIsDarkMode: React.Dispatch<
   };
 
   return (
-    <div className="flex flex-col h-screen w-screen overflow-hidden bg-[#FAFAFA] dark:bg-black text-[#262626] dark:text-[#F5F5F5] transition-colors duration-150">
+    <div className="flex flex-col h-screen w-screen overflow-hidden bg-[#fafafa] dark:bg-black text-[#000000] dark:text-[#F5F5F5] transition-colors duration-150">
       {/* Top Bar */}
       <Header
         onOpenLanding={() => setShowLanding(true)}
@@ -162,7 +162,7 @@ const MainLayout: React.FC<{ isDarkMode: boolean; setIsDarkMode: React.Dispatch<
         <LeftPanel />
 
         {/* Center Main Fluid Workspace */}
-        <main className="flex-1 overflow-y-auto pb-20 md:pb-6 bg-[#FAFAFA] dark:bg-black transition-colors duration-150">
+        <main className="flex-1 overflow-y-auto pb-20 md:pb-6 bg-[#fafafa] dark:bg-black transition-colors duration-150">
           {renderCenterContent()}
         </main>
 
@@ -198,7 +198,7 @@ const MainLayout: React.FC<{ isDarkMode: boolean; setIsDarkMode: React.Dispatch<
 export function App() {
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
     try {
-      const saved = localStorage.getItem('studysync_theme');
+      const saved = localStorage.getItem('studysync-theme') || localStorage.getItem('studysync_theme');
       if (saved) return saved === 'dark';
       return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
     } catch {
@@ -210,10 +210,16 @@ export function App() {
     const root = document.documentElement;
     if (isDarkMode) {
       root.classList.add('dark');
-      localStorage.setItem('studysync_theme', 'dark');
+      try {
+        localStorage.setItem('studysync-theme', 'dark');
+        localStorage.setItem('studysync_theme', 'dark');
+      } catch {}
     } else {
       root.classList.remove('dark');
-      localStorage.setItem('studysync_theme', 'light');
+      try {
+        localStorage.setItem('studysync-theme', 'light');
+        localStorage.setItem('studysync_theme', 'light');
+      } catch {}
     }
   }, [isDarkMode]);
 

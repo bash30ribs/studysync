@@ -184,13 +184,16 @@ export const ResourceLibraryView: React.FC = () => {
       </div>
 
       {/* Resource Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredResources.length === 0 ? (
-          <div className="col-span-full py-16 text-center text-xs text-neutral-500 dark:text-neutral-400 ui-card">
-            No study materials found matching your filters. Click "Upload Study Material" to share notes with your class.
-          </div>
-        ) : (
-          filteredResources.map(res => (
+      {filteredResources.length === 0 ? (
+        <div className="py-16 flex flex-col items-center justify-center text-center p-8 ui-card border border-dashed border-[#DBDBDB] dark:border-[#262626]">
+          <FolderOpen className="w-8 h-8 text-[#8E8E8E] mb-2 opacity-50" />
+          <p className="text-sm font-medium text-[#737373] dark:text-[#8E8E8E]">
+            No resources yet. Upload the first one. 📁
+          </p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filteredResources.map(res => (
             <div
               key={res.id}
               className="p-4.5 ui-card flex flex-col justify-between hover:border-neutral-400 dark:hover:border-neutral-600 transition-all group"
@@ -254,9 +257,9 @@ export const ResourceLibraryView: React.FC = () => {
                 </div>
               </div>
             </div>
-          ))
-        )}
-      </div>
+          ))}
+        </div>
+      )}
 
       {/* Upload Modal */}
       {isUploadModalOpen && (

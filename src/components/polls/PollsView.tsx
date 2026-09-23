@@ -131,8 +131,11 @@ export const PollsView: React.FC = () => {
       {/* Polls List */}
       <div className="space-y-4">
         {polls.length === 0 ? (
-          <div className="py-16 text-center text-xs text-[#8E8E8E] ui-card">
-            No active polls right now. CR can create a vote to gather instant class consensus.
+          <div className="py-16 flex flex-col items-center justify-center text-center p-8 ui-card border border-dashed border-[#DBDBDB] dark:border-[#262626]">
+            <BarChart2 className="w-8 h-8 text-[#8E8E8E] mb-2 opacity-50" />
+            <p className="text-sm font-medium text-[#737373] dark:text-[#8E8E8E]">
+              No active polls. Create one. 🗳️
+            </p>
           </div>
         ) : (
           polls.map(poll => {

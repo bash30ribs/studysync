@@ -212,10 +212,12 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Dark / Light Mode Toggle */}
         <button
+          id="theme-toggle"
+          data-testid="theme-toggle"
           onClick={() => setIsDarkMode(prev => !prev)}
           aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
           title={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
-          className="w-8 h-8 rounded-md border border-[#DBDBDB] dark:border-[#262626] bg-white dark:bg-[#121212] text-[#737373] dark:text-[#A8A8A8] hover:text-black dark:hover:text-white flex items-center justify-center transition"
+          className="w-8 h-8 rounded-md border border-[#DBDBDB] dark:border-[#262626] bg-white dark:bg-[#121212] text-[#737373] dark:text-[#A8A8A8] hover:text-black dark:hover:text-white hover:border-[#0095F6] flex items-center justify-center transition cursor-pointer"
         >
           {isDarkMode ? (
             <Sun className="w-4 h-4 text-amber-400" />
