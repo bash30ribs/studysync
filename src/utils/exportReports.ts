@@ -1,8 +1,16 @@
 import { Assignment, AttendanceSession, User } from '../types';
 
 /**
- * Converts assignment array to formatted CSV data string
+ * Escapes values for safe CSV inclusion and neutralizes spreadsheet formula injection (=, +, -, @)
  */
+export function escapeCSV(val: string | number | undefined | null): string {
+  if (val === null || val === undefined) return '""';
+  let str = String(val);
+  if (/^[=+\-@]/.test(str)) {
+    str = "'" + str;
+  }
+  return `"${str.replace(/"/g, '""')}"`;
+}
 export function exportAssignmentsToCSV(assignments: Assignment[]): string {
   const headers = ['ID', 'Title', 'Subject', 'Deadline', 'Status', 'Max Score', 'Description'];
   const rows = assignments.map((a) => [
