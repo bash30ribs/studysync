@@ -101,10 +101,13 @@ class _AssignmentsScreenState extends State<AssignmentsScreen> {
                       style: TextStyle(color: secondaryText, fontSize: 13),
                     ),
                   )
-                : ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: filteredList.length,
-                    itemBuilder: (context, index) {
+                : RefreshIndicator(
+                    onRefresh: () => provider.refreshData(),
+                    color: AppTheme.primaryBlue,
+                    child: ListView.builder(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: filteredList.length,
+                      itemBuilder: (context, index) {
                       final asg = filteredList[index];
                       final isOverdue = asg.deadline.isBefore(DateTime.now()) && !asg.isSubmitted;
 
@@ -239,6 +242,7 @@ class _AssignmentsScreenState extends State<AssignmentsScreen> {
                       );
                     },
                   ),
+                ),
           ),
         ],
       ),
