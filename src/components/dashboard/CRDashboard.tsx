@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useStudySync } from '../../store';
+import { getRelativeDeadline } from '../../utils/deadlineUtils';
 import { 
   Plus, 
   Users, 
@@ -35,15 +36,6 @@ export const CRDashboard: React.FC = () => {
   const totalSubmissionsNeeded = activeAssignments.length * totalStudents;
   const totalSubmissionsCompleted = submissions.filter(s => s.status === 'submitted').length;
   const pendingSubmissionsCount = Math.max(0, totalSubmissionsNeeded - totalSubmissionsCompleted);
-
-  const getRelativeDeadline = (deadlineIso: string) => {
-    const diff = new Date(deadlineIso).getTime() - new Date().getTime();
-    if (diff < 0) return { label: 'Overdue', isOverdue: true };
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    if (hours < 24) return { label: `Due in ${Math.max(1, hours)}h`, isOverdue: false, isUrgent: true };
-    const days = Math.floor(hours / 24);
-    return { label: `Due in ${days}d`, isOverdue: false, isUrgent: false };
-  };
 
   const handleSelectAssignment = (id: string) => {
     setSelectedAssignmentId(id);
