@@ -139,16 +139,18 @@ export const LandingPage: React.FC<{ onEnterApp: () => void }> = ({ onEnterApp }
               {/* Tab bar */}
               <div className="flex border-b border-[#DBDBDB] dark:border-[#262626] bg-white dark:bg-black">
                 {['Dashboard', 'Assignments', 'Attendance'].map((t, i) => (
-                  <div
+                  <button
                     key={t}
-                    className={`px-4 py-2.5 text-[11px] font-semibold border-b-2 transition-all ${
+                    onClick={onEnterApp}
+                    title={`Open live ${t}`}
+                    className={`px-4 py-2.5 text-[11px] font-semibold border-b-2 transition-all cursor-pointer ${
                       i === 0
                         ? 'border-black dark:border-white text-black dark:text-white'
-                        : 'border-transparent text-[#8E8E8E]'
+                        : 'border-transparent text-[#8E8E8E] hover:text-black dark:hover:text-white'
                     }`}
                   >
                     {t}
-                  </div>
+                  </button>
                 ))}
               </div>
 
@@ -197,7 +199,7 @@ export const LandingPage: React.FC<{ onEnterApp: () => void }> = ({ onEnterApp }
                 {/* Quick action */}
                 <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#0095F6]/8 dark:bg-[#0095F6]/10 border border-[#0095F6]/20">
                   <span className="text-[11px] font-semibold text-[#0095F6]">4 students haven't submitted</span>
-                  <button className="text-[10px] font-bold bg-[#0095F6] text-white px-2.5 py-1 rounded-lg">
+                  <button onClick={onEnterApp} className="text-[10px] font-bold bg-[#0095F6] hover:bg-[#1877F2] text-white px-2.5 py-1 rounded-lg transition-colors cursor-pointer">
                     Remind All
                   </button>
                 </div>

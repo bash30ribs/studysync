@@ -44,17 +44,23 @@ export const LeftPanel: React.FC = () => {
   const [isClassDropdownOpen, setIsClassDropdownOpen] = useState(false);
   const [showCode, setShowCode] = useState(false);
 
+  // Safe fallback values
+  const userName = currentUser?.name || 'User';
+  const className = currentClass?.name || 'Cohort';
+  const classCode = currentClass?.code || 'CODE';
+
   // Deterministic avatar color from name
   const avatarColors = [
     'bg-[#0095F6]', 'bg-purple-500', 'bg-emerald-500', 'bg-amber-500', 'bg-rose-500', 'bg-indigo-500'
   ];
-  const avatarColor = avatarColors[currentUser.name.charCodeAt(0) % avatarColors.length];
+  const charCode = userName.length > 0 ? userName.charCodeAt(0) : 0;
+  const avatarColor = avatarColors[charCode % avatarColors.length];
 
   const handleCopyCode = (e: React.MouseEvent) => {
     e.stopPropagation();
-    navigator.clipboard.writeText(currentClass.code);
+    navigator.clipboard.writeText(classCode);
     setCopied(true);
-    showToast(`Class code ${currentClass.code} copied!`, 'success');
+    showToast(`Class code ${classCode} copied!`, 'success');
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -106,14 +112,14 @@ export const LeftPanel: React.FC = () => {
             <div className="min-w-0 pr-2">
               <h2 className="text-xs font-bold text-black dark:text-white tracking-tight truncate flex items-center gap-1.5">
                 <GraduationCap className="w-3.5 h-3.5 text-[#0095F6] shrink-0" />
-                <span>{currentClass.name}</span>
+                <span>{className}</span>
               </h2>
               <button
                 onClick={e => { e.stopPropagation(); setShowCode(p => !p); }}
                 className="text-[10px] font-mono text-[#737373] dark:text-[#A8A8A8] mt-0.5 hover:text-[#0095F6] transition-colors tracking-widest"
                 title={showCode ? 'Click to hide' : 'Click to reveal class code'}
               >
-                Code: {showCode ? currentClass.code : '••••••'}
+                Code: {showCode ? classCode : '••••••'}
               </button>
             </div>
             <ChevronDown className="w-3.5 h-3.5 text-[#737373] dark:text-[#A8A8A8] group-hover:text-black dark:group-hover:text-white transition-colors shrink-0" />
@@ -149,11 +155,11 @@ export const LeftPanel: React.FC = () => {
         {/* Mini view (Tablet) */}
         <div className="flex lg:hidden flex-col items-center gap-1.5">
           <div className="w-9 h-9 rounded-xl bg-[#EFEFEF] dark:bg-[#1E1E1E] flex items-center justify-center text-[#0095F6] font-bold text-xs">
-            {currentClass.name.substring(0, 2)}
+            {className.slice(0, 2)}
           </div>
           <button
             onClick={handleCopyCode}
-            title={`Code: ${currentClass.code}`}
+            title={`Code: ${classCode}`}
             className="p-1 text-[#737373] hover:text-black dark:hover:text-white transition-colors"
           >
             {copied ? <Check className="w-3.5 h-3.5 text-[#0095F6]" /> : <Copy className="w-3.5 h-3.5" />}
@@ -232,32 +238,32 @@ export const LeftPanel: React.FC = () => {
         <div className="hidden lg:flex items-center justify-between gap-2">
           <div className="flex items-center gap-2.5 min-w-0">
             <div className={`w-8 h-8 rounded-full ${avatarColor} text-white flex items-center justify-center font-bold text-xs shrink-0`}>
-              {currentUser.name.charAt(0)}
+              {userName.charAt(0)}
             </div>
             <div className="min-w-0">
               <p className="text-xs font-bold text-black dark:text-white truncate leading-tight">
-                {currentUser.name}
+                {userName}
               </p>
               <p className="text-[10px] text-[#737373] dark:text-[#A8A8A8] truncate font-mono">
-                {currentUser.rollNo || currentUser.email}
+                {currentUser?.rollNo || currentUser?.email || 'Student'}
               </p>
             </div>
           </div>
           <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold tracking-wide shrink-0 ${
-            currentUser.role === 'CR'
+            (currentUser?.role || 'Student') === 'CR'
               ? 'bg-[#0095F6]/15 text-[#0095F6]'
               : 'bg-[#EFEFEF] dark:bg-[#262626] text-[#737373] dark:text-[#A8A8A8]'
           }`}>
-            {currentUser.role}
+            {currentUser?.role || 'Student'}
           </span>
         </div>
 
         {/* Tablet Mini View */}
         <div className="flex lg:hidden flex-col items-center gap-1">
           <div className={`w-7 h-7 rounded-full ${avatarColor} text-white flex items-center justify-center font-bold text-xs`}>
-            {currentUser.name.charAt(0)}
+            {userName.charAt(0)}
           </div>
-          <span className="text-[9px] font-bold text-[#737373]">{currentUser.role}</span>
+          <span className="text-[9px] font-bold text-[#737373]">{currentUser?.role || 'Student'}</span>
         </div>
       </div>
     </aside>

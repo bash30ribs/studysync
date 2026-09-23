@@ -29,12 +29,17 @@ export const CRDashboard: React.FC = () => {
     showToast
   } = useStudySync();
 
+  const safeClass = currentClass || { name: 'Cohort', code: 'CODE' };
+  const safeUsers = Array.isArray(allUsers) ? allUsers : [];
+  const safeAssignments = Array.isArray(assignments) ? assignments : [];
+  const safeSubmissions = Array.isArray(submissions) ? submissions : [];
+
   const [broadcastText, setBroadcastText] = useState('');
-  const totalStudents = allUsers.filter(u => u.role === 'Student').length;
+  const totalStudents = safeUsers.filter(u => u.role === 'Student').length;
   
-  const activeAssignments = assignments.filter(a => a.status === 'active');
+  const activeAssignments = safeAssignments.filter(a => a.status === 'active');
   const totalSubmissionsNeeded = activeAssignments.length * totalStudents;
-  const totalSubmissionsCompleted = submissions.filter(s => s.status === 'submitted').length;
+  const totalSubmissionsCompleted = safeSubmissions.filter(s => s.status === 'submitted').length;
   const pendingSubmissionsCount = Math.max(0, totalSubmissionsNeeded - totalSubmissionsCompleted);
 
   const handleSelectAssignment = (id: string) => {
@@ -51,9 +56,9 @@ export const CRDashboard: React.FC = () => {
   };
 
   // Filter assignments that need attention (active or have pending submissions)
-  const actionableAssignments = assignments
+  const actionableAssignments = safeAssignments
     .map(asg => {
-      const asgSubs = submissions.filter(s => s.assignmentId === asg.id && s.status === 'submitted');
+      const asgSubs = safeSubmissions.filter(s => s.assignmentId === asg.id && s.status === 'submitted');
       const pendingCount = Math.max(0, totalStudents - asgSubs.length);
       const relDeadline = getRelativeDeadline(asg.deadline);
       return {
@@ -81,7 +86,7 @@ export const CRDashboard: React.FC = () => {
               Class Overview
             </h1>
             <span className="text-xs font-mono font-medium px-2 py-0.5 rounded bg-[#EFEFEF] dark:bg-[#262626] text-[#737373] dark:text-[#A8A8A8]">
-              {currentClass.name}
+              {safeClass.name || 'Cohort'}
             </span>
           </div>
           <p className="text-xs sm:text-sm text-[#737373] dark:text-[#8E8E8E] mt-1">

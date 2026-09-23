@@ -38,7 +38,7 @@ export const StudentAnalyticsView: React.FC = () => {
       <div>
         <h1 className="text-xl lg:text-2xl font-bold text-black dark:text-white tracking-tight">My Performance Report</h1>
         <p className="text-xs sm:text-sm text-neutral-500 dark:text-neutral-400 mt-0.5">
-          Personal grade tracker for {currentUser.name} · {currentClass.name}
+          Personal grade tracker for {currentUser?.name || 'Student'} · {currentClass?.name || 'Cohort'}
         </p>
       </div>
 

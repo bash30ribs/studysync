@@ -45,18 +45,28 @@ export const StudentDashboard: React.FC = () => {
     isOffline
   } = useStudySync();
 
+  const safeClass = currentClass || { name: 'Cohort', code: 'CODE' };
+  const safeUser = currentUser || { id: 'stu', name: 'Student', role: 'Student', rollNo: '001' };
+  const safeAssignments = Array.isArray(assignments) ? assignments : [];
+  const safeSubmissions = Array.isArray(submissions) ? submissions : [];
+  const safeBroadcasts = Array.isArray(broadcasts) ? broadcasts : [];
+  const safePolls = Array.isArray(polls) ? polls : [];
+  const safeResources = Array.isArray(resources) ? resources : [];
+  const safeAttendance = Array.isArray(attendanceSessions) ? attendanceSessions : [];
+
   const [taskFilter, setTaskFilter] = useState<'all' | 'pending' | 'submitted'>('all');
   const [quickMsg, setQuickMsg] = useState('');
 
-  const latestBroadcast = broadcasts[0];
-  const activePoll = polls.find(p => !p.isClosed) || polls[0];
-  const recentResources = resources.slice(0, 3);
+  const latestBroadcast = safeBroadcasts[0];
+  const activePoll = safePolls.find(p => !p.isClosed) || safePolls[0];
+  const recentResources = safeResources.slice(0, 3);
 
   // Compute student attendance stats
   let totalAttSessions = 0;
   let attendedSessions = 0;
-  attendanceSessions.forEach((session: AttendanceSession) => {
-    const rec = session.records.find(r => r.studentId === currentUser.id);
+  safeAttendance.forEach((session: AttendanceSession) => {
+    if (!session || !Array.isArray(session.records)) return;
+    const rec = session.records.find(r => r.studentId === safeUser.id);
     if (rec) {
       totalAttSessions += 1;
       if (rec.status === 'present' || rec.status === 'late') {
@@ -122,12 +132,12 @@ export const StudentDashboard: React.FC = () => {
     return true;
   });
 
-  const pendingCount = assignments.filter(asg => {
-    const sub = submissions.find(s => s.assignmentId === asg.id && s.studentId === currentUser.id);
+  const pendingCount = safeAssignments.filter(asg => {
+    const sub = safeSubmissions.find(s => s.assignmentId === asg.id && s.studentId === safeUser.id);
     return sub?.status !== 'submitted';
   }).length;
 
-  const submittedCount = assignments.length - pendingCount;
+  const submittedCount = safeAssignments.length - pendingCount;
 
   return (
     <div className="p-4 lg:p-7 space-y-6 max-w-7xl mx-auto">
@@ -138,15 +148,15 @@ export const StudentDashboard: React.FC = () => {
             <div className="flex items-center gap-2 flex-wrap">
               <span className="px-2.5 py-1 rounded-md text-xs font-semibold bg-[#EFEFEF] dark:bg-[#262626] text-black dark:text-white flex items-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5 text-[#0095F6]" />
-                {currentClass.name}
+                {safeClass.name || 'Cohort'}
               </span>
               <span className="text-[#8E8E8E] text-xs font-mono px-2 py-0.5 rounded bg-[#EFEFEF] dark:bg-[#262626]">
-                Roll #{currentUser.rollNo}
+                Roll #{safeUser.rollNo || '001'}
               </span>
             </div>
 
             <h1 className="text-xl sm:text-2xl font-bold text-black dark:text-white tracking-tight">
-              Good {new Date().getHours() < 12 ? 'Morning' : new Date().getHours() < 18 ? 'Afternoon' : 'Evening'}, {currentUser.name.split(' ')[0]}
+              Good {new Date().getHours() < 12 ? 'Morning' : new Date().getHours() < 18 ? 'Afternoon' : 'Evening'}, {(safeUser.name || 'Student').split(' ')[0]}
             </h1>
             <p className="text-xs sm:text-sm text-[#737373] dark:text-[#A8A8A8] max-w-xl leading-relaxed">
               You have <strong className="text-black dark:text-white font-semibold">{pendingCount} assignments</strong> pending this week.

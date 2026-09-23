@@ -321,20 +321,20 @@ export const Header: React.FC<HeaderProps> = ({
             className="flex items-center gap-2 pl-2 pr-2.5 py-1 rounded-md border border-[#DBDBDB] dark:border-[#262626] bg-white dark:bg-[#121212] hover:bg-[#FAFAFA] dark:hover:bg-[#1C1C1C] transition-all text-xs"
           >
             <div className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-[11px] text-white shrink-0 ${
-              currentUser.role === 'CR'
+              (currentUser?.role || 'Student') === 'CR'
                 ? 'bg-[#0095F6]'
                 : 'bg-[#262626] dark:bg-white dark:text-black'
             }`}>
-              {currentUser.name.charAt(0)}
+              {(currentUser?.name || 'U').charAt(0)}
             </div>
             <div className="text-left hidden sm:block">
               <span className="font-semibold text-black dark:text-white block leading-tight">
-                {currentUser.name.split(' ')[0]}
+                {(currentUser?.name || 'User').split(' ')[0]}
               </span>
               <span className={`text-[10px] font-medium leading-none block ${
-                currentUser.role === 'CR' ? 'text-[#0095F6]' : 'text-[#8E8E8E]'
+                (currentUser?.role || 'Student') === 'CR' ? 'text-[#0095F6]' : 'text-[#8E8E8E]'
               }`}>
-                {currentUser.role} Mode
+                {currentUser?.role || 'Student'} Mode
               </span>
             </div>
             <ChevronDown className="w-3.5 h-3.5 text-[#8E8E8E]" />

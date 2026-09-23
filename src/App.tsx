@@ -12,6 +12,7 @@ import { QRCodeModal } from './components/common/QRCodeModal';
 import { TrustPages } from './components/public/TrustPages';
 import { StudySoundscapesModal } from './components/common/StudySoundscapesModal';
 import { AchievementsModal } from './components/common/AchievementsModal';
+import { ErrorBoundary } from './components/common/ErrorBoundary';
 
 import { CRDashboard } from './components/dashboard/CRDashboard';
 import { StudentDashboard } from './components/dashboard/StudentDashboard';
@@ -167,9 +168,11 @@ export function App() {
   }, [isDarkMode]);
 
   return (
-    <StudySyncProvider>
-      <MainLayout isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
-    </StudySyncProvider>
+    <ErrorBoundary>
+      <StudySyncProvider>
+        <MainLayout isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
+      </StudySyncProvider>
+    </ErrorBoundary>
   );
 }
 

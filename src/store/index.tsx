@@ -138,7 +138,24 @@ const STORAGE_KEY_PREFIX = 'studysync_v2_';
 const loadStorage = <T,>(key: string, defaultValue: T): T => {
   try {
     const item = localStorage.getItem(STORAGE_KEY_PREFIX + key);
-    return item ? JSON.parse(item) : defaultValue;
+    if (!item || item === 'undefined' || item === 'null' || item.trim() === '') {
+      return defaultValue;
+    }
+    const parsed = JSON.parse(item);
+    if (parsed === null || parsed === undefined) {
+      return defaultValue;
+    }
+    // If defaultValue is an array, ensure parsed is also an array
+    if (Array.isArray(defaultValue) && !Array.isArray(parsed)) {
+      return defaultValue;
+    }
+    // If defaultValue is an object, ensure parsed is a non-empty object
+    if (defaultValue && typeof defaultValue === 'object' && !Array.isArray(defaultValue)) {
+      if (typeof parsed !== 'object' || Array.isArray(parsed) || Object.keys(parsed).length === 0) {
+        return defaultValue;
+      }
+    }
+    return parsed as T;
   } catch {
     return defaultValue;
   }
@@ -168,12 +185,21 @@ const clearStudySyncStorage = () => {
 const StudySyncContext = createContext<StudySyncContextType | undefined>(undefined);
 
 export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [classes, setClasses] = useState<ClassGroup[]>(() => loadStorage('classes', INITIAL_CLASSES));
-  const [currentClass, setCurrentClass] = useState<ClassGroup>(() => loadStorage('class', INITIAL_CLASS));
-  const [allUsers, setAllUsers] = useState<User[]>(() => loadStorage('users', INITIAL_USERS));
+  const [classes, setClasses] = useState<ClassGroup[]>(() => {
+    const loaded = loadStorage<ClassGroup[]>('classes', INITIAL_CLASSES);
+    return Array.isArray(loaded) && loaded.length > 0 ? loaded : INITIAL_CLASSES;
+  });
+  const [currentClass, setCurrentClass] = useState<ClassGroup>(() => {
+    const loaded = loadStorage<ClassGroup>('class', INITIAL_CLASS);
+    return (loaded && loaded.name && loaded.code) ? loaded : INITIAL_CLASS;
+  });
+  const [allUsers, setAllUsers] = useState<User[]>(() => {
+    const loaded = loadStorage<User[]>('users', INITIAL_USERS);
+    return Array.isArray(loaded) && loaded.length > 0 ? loaded : INITIAL_USERS;
+  });
   const [currentUser, setCurrentUser] = useState<User>(() => {
     const saved = loadStorage<User | null>('current_user', null);
-    return saved || INITIAL_USERS[0];
+    return (saved && saved.name && saved.role) ? saved : INITIAL_USERS[0];
   });
   
   const [assignments, setAssignments] = useState<Assignment[]>(() => loadStorage('assignments', INITIAL_ASSIGNMENTS));
@@ -1080,19 +1106,19 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   return (
     <StudySyncContext.Provider
       value={{
-        currentUser,
-        currentClass,
-        classes,
-        allUsers,
-        assignments,
-        submissions,
-        broadcasts,
-        messages,
-        notifications,
-        discussions,
-        attendanceSessions,
-        resources,
-        polls,
+        currentUser: (currentUser && currentUser.name) ? currentUser : INITIAL_USERS[0],
+        currentClass: (currentClass && currentClass.name) ? currentClass : INITIAL_CLASS,
+        classes: Array.isArray(classes) && classes.length > 0 ? classes : INITIAL_CLASSES,
+        allUsers: Array.isArray(allUsers) && allUsers.length > 0 ? allUsers : INITIAL_USERS,
+        assignments: Array.isArray(assignments) ? assignments : [],
+        submissions: Array.isArray(submissions) ? submissions : [],
+        broadcasts: Array.isArray(broadcasts) ? broadcasts : [],
+        messages: Array.isArray(messages) ? messages : [],
+        notifications: Array.isArray(notifications) ? notifications : [],
+        discussions: Array.isArray(discussions) ? discussions : [],
+        attendanceSessions: Array.isArray(attendanceSessions) ? attendanceSessions : [],
+        resources: Array.isArray(resources) ? resources : [],
+        polls: Array.isArray(polls) ? polls : [],
         activeTab,
         selectedAssignmentId,
         selectedStudentId,
