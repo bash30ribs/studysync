@@ -3,7 +3,8 @@ import { useStudySync } from '../../store';
 import { 
   Search, 
   Download, 
-  Trash2
+  Trash2,
+  Users
 } from 'lucide-react';
 import { Modal } from '../common/Feedback';
 
@@ -93,8 +94,13 @@ export const MembersView: React.FC = () => {
             <tbody className="divide-y divide-[#DBDBDB] dark:divide-[#262626] text-xs">
               {filteredStudents.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-12 text-center text-neutral-500 dark:text-neutral-400">
-                    No students found matching your search.
+                  <td colSpan={6} className="py-16 text-center">
+                    <div className="flex flex-col items-center justify-center space-y-2">
+                      <Users className="w-8 h-8 text-[#3A3A3A] mx-auto mb-1" />
+                      <p className="text-sm font-semibold text-[#3A3A3A]">
+                        No students yet. Share your class code. 👥
+                      </p>
+                    </div>
                   </td>
                 </tr>
               ) : (

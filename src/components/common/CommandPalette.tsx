@@ -268,11 +268,11 @@ export const CommandPalette: React.FC = () => {
     >
       <div 
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-xl bg-white dark:bg-[#0F172A] rounded-2xl border border-[#E2E7F0] dark:border-[#1E293B] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-100"
+        className="w-full max-w-xl bg-white dark:bg-[#0A0A0A] rounded-2xl border border-[#DBDBDB] dark:border-[#1A1A1A] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-100"
       >
         {/* Search Bar Input */}
-        <div className="flex items-center gap-3 px-4 py-3.5 border-b border-[#E2E7F0] dark:border-[#1E293B] bg-[#F8FAFC]/50 dark:bg-[#15203B]/40">
-          <Search className="w-5 h-5 text-[#64748B] dark:text-[#94A3B8] shrink-0" />
+        <div className="flex items-center gap-3 px-4 py-3.5 border-b border-[#DBDBDB] dark:border-[#1A1A1A] bg-[#FAFAFA] dark:bg-[#0E0E0E]">
+          <Search className="w-5 h-5 text-[#8E8E8E] shrink-0" />
           <input
             ref={inputRef}
             type="text"
@@ -283,9 +283,9 @@ export const CommandPalette: React.FC = () => {
             }}
             onKeyDown={handleKeyDown}
             placeholder="Type a command, search modules, switch persona, or change theme..."
-            className="flex-1 bg-transparent text-xs sm:text-sm text-[#0F2044] dark:text-white placeholder-[#94A3B8] focus:outline-none"
+            className="flex-1 bg-transparent text-xs sm:text-sm text-black dark:text-white placeholder-[#8E8E8E] focus:outline-none"
           />
-          <kbd className="hidden sm:inline-flex items-center gap-0.5 px-2 py-0.5 rounded text-[10px] font-mono font-bold text-[#64748B] dark:text-[#94A3B8] bg-[#E2E8F0] dark:bg-[#1E293B] border border-[#CBD5E1] dark:border-[#334155]">
+          <kbd className="hidden sm:inline-flex items-center gap-0.5 px-2 py-0.5 rounded text-[10px] font-mono font-bold text-[#8E8E8E] bg-[#EFEFEF] dark:bg-[#1A1A1A] border border-[#DBDBDB] dark:border-[#262626]">
             ESC
           </kbd>
         </div>
@@ -293,7 +293,7 @@ export const CommandPalette: React.FC = () => {
         {/* List of Actions */}
         <div className="max-h-96 overflow-y-auto p-2 space-y-1">
           {filteredItems.length === 0 ? (
-            <div className="py-10 text-center text-xs text-[#64748B] dark:text-[#94A3B8]">
+            <div className="py-10 text-center text-xs text-[#8E8E8E]">
               No commands found matching "{query}".
             </div>
           ) : (
@@ -309,28 +309,31 @@ export const CommandPalette: React.FC = () => {
                     setIsCommandPaletteOpen(false);
                   }}
                   onMouseEnter={() => setSelectedIndex(idx)}
-                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs transition-colors text-left ${
+                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs transition-colors text-left cursor-pointer ${
                     isSelected
-                      ? 'bg-[#E6F8F6] dark:bg-[#00D2C4]/15 text-[#00897B] dark:text-[#00D2C4] font-bold'
-                      : 'text-[#0F2044] dark:text-white hover:bg-[#F8FAFC] dark:hover:bg-[#15203B]'
+                      ? 'bg-[#0095F6]/10 text-[#0095F6] font-bold'
+                      : 'text-black dark:text-white hover:bg-[#FAFAFA] dark:hover:bg-[#121212]'
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <div className={`p-1.5 rounded-lg ${isSelected ? 'bg-[#00B4A6]/20 dark:bg-[#00D2C4]/20' : 'bg-[#F1F5F9] dark:bg-[#1E293B]'}`}>
-                      <Icon className="w-4 h-4" />
+                    <div className={`p-1.5 rounded-lg ${isSelected ? 'bg-[#0095F6]/20' : 'bg-[#EFEFEF] dark:bg-[#1A1A1A]'}`}>
+                      <Icon className="w-4 h-4 text-[#0095F6]" />
                     </div>
                     <div>
                       <span className="block font-semibold">{item.label}</span>
-                      <span className="text-[10px] text-[#64748B] dark:text-[#94A3B8] font-normal">{item.category}</span>
+                      <span className="text-[10px] text-[#8E8E8E] font-normal">{item.category}</span>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-2">
                     {item.shortcut && (
-                      <kbd className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-black/5 dark:bg-white/10 text-[#64748B] dark:text-[#94A3B8]">
+                      <kbd className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-black/5 dark:bg-white/10 text-[#8E8E8E]">
                         {item.shortcut}
                       </kbd>
                     )}
+                    <span className="text-[10px] font-mono text-[#8E8E8E] bg-black/5 dark:bg-white/5 px-1.5 py-0.5 rounded border border-[#DBDBDB] dark:border-[#262626]">
+                      {item.id === 'act-new-asg' ? '⌘N New' : item.category === 'Actions' ? '↵ Run' : '↵ Open'}
+                    </span>
                     <ArrowRight className="w-3.5 h-3.5 opacity-60" />
                   </div>
                 </button>

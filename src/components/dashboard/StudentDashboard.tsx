@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useStudySync } from '../../store';
 import { AttendanceSession } from '../../types';
+import { calculateStudentStreak } from '../../utils/streakUtils';
 import { 
   Megaphone, 
   Clock, 
@@ -53,6 +54,8 @@ export const StudentDashboard: React.FC = () => {
   const safePolls = Array.isArray(polls) ? polls : [];
   const safeResources = Array.isArray(resources) ? resources : [];
   const safeAttendance = Array.isArray(attendanceSessions) ? attendanceSessions : [];
+
+  const studentStreak = Math.max(1, calculateStudentStreak(safeUser.id, safeAssignments, safeSubmissions));
 
   const [taskFilter, setTaskFilter] = useState<'all' | 'pending' | 'submitted'>('all');
   const [quickMsg, setQuickMsg] = useState('');
@@ -155,9 +158,14 @@ export const StudentDashboard: React.FC = () => {
               </span>
             </div>
 
-            <h1 className="text-xl sm:text-2xl font-bold text-black dark:text-white tracking-tight">
-              Good {new Date().getHours() < 12 ? 'Morning' : new Date().getHours() < 18 ? 'Afternoon' : 'Evening'}, {(safeUser.name || 'Student').split(' ')[0]}
-            </h1>
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <h1 className="text-xl sm:text-2xl font-bold text-black dark:text-white tracking-tight">
+                Good {new Date().getHours() < 12 ? 'Morning' : new Date().getHours() < 18 ? 'Afternoon' : 'Evening'}, {(safeUser.name || 'Student').split(' ')[0]}
+              </h1>
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-500/10 text-amber-500 border border-amber-500/30">
+                🔥 {studentStreak}-day streak
+              </span>
+            </div>
             <p className="text-xs sm:text-sm text-[#737373] dark:text-[#A8A8A8] max-w-xl leading-relaxed">
               You have <strong className="text-black dark:text-white font-semibold">{pendingCount} assignments</strong> pending this week.
             </p>

@@ -58,8 +58,18 @@ export const Header: React.FC<HeaderProps> = ({
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isUserSwitcherOpen, setIsUserSwitcherOpen] = useState(false);
   const [showClassCode, setShowClassCode] = useState(false);
+  const [syncMinutesAgo, setSyncMinutesAgo] = useState(0);
   const notifRef = useRef<HTMLDivElement>(null);
   const userSwitcherRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setSyncMinutesAgo(prev => prev + 1);
+    }, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const syncTimeText = syncMinutesAgo === 0 ? 'just now' : `${syncMinutesAgo}m ago`;
 
   const unreadCount = notifications.filter(n => !n.read && (n.userId === 'ALL' || n.userId === currentUser.id)).length;
 
@@ -152,11 +162,16 @@ export const Header: React.FC<HeaderProps> = ({
             </>
           ) : (
             <>
-              <span className="w-1.5 h-1.5 rounded-full bg-[#0095F6]" />
-              <span className="hidden md:inline">Live</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-[#0095F6] animate-pulse" />
+              <span className="hidden md:inline font-semibold">● Live</span>
             </>
           )}
         </button>
+
+        {/* Subtle Last synced indicator */}
+        <span className="text-[10px] text-[#737373] dark:text-[#8E8E8E] hidden lg:inline select-none">
+          Last synced: {syncTimeText}
+        </span>
       </div>
 
       {/* Right Controls */}

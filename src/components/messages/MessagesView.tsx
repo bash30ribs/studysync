@@ -12,7 +12,8 @@ import {
   Info,
   CheckCheck,
   Smile,
-  Image as ImageIcon
+  Image as ImageIcon,
+  MessageSquare
 } from 'lucide-react';
 
 export const MessagesView: React.FC = () => {
@@ -330,8 +331,11 @@ export const MessagesView: React.FC = () => {
             </div>
 
             {displayedMessages.length === 0 ? (
-              <div className="py-12 text-center text-xs text-neutral-400">
-                No messages yet. Send a note to start this conversation.
+              <div className="py-16 text-center flex flex-col items-center justify-center space-y-2">
+                <MessageSquare className="w-8 h-8 text-[#3A3A3A] mx-auto mb-1" />
+                <p className="text-sm font-semibold text-[#3A3A3A]">
+                  No messages. Start the conversation. 💬
+                </p>
               </div>
             ) : (
               displayedMessages.map(msg => {

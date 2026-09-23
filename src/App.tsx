@@ -61,6 +61,29 @@ const MainLayout: React.FC<{ isDarkMode: boolean; setIsDarkMode: React.Dispatch<
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [setIsShortcutsOpen]);
 
+  // Priority 6: Dynamic Page Titles
+  useEffect(() => {
+    if (showLanding) {
+      document.title = 'StudySync — Precision Class Coordination';
+      return;
+    }
+    const titles: Record<string, string> = {
+      dashboard: 'Dashboard · StudySync',
+      assignments: 'Assignments · StudySync',
+      attendance: 'Attendance · StudySync',
+      resources: 'Resources · StudySync',
+      polls: 'Polls · StudySync',
+      calendar: 'Calendar · StudySync',
+      members: 'Class Roster · StudySync',
+      subjects: 'Subjects · StudySync',
+      broadcasts: 'Broadcasts · StudySync',
+      messages: 'Messages · StudySync',
+      analytics: 'Analytics · StudySync',
+      settings: 'Settings · StudySync'
+    };
+    document.title = titles[activeTab] || 'StudySync — Precision Class Coordination';
+  }, [activeTab, showLanding]);
+
   // Early return for landing page — AFTER all hooks are declared
   if (showLanding) {
     return <LandingPage onEnterApp={() => {
@@ -72,34 +95,53 @@ const MainLayout: React.FC<{ isDarkMode: boolean; setIsDarkMode: React.Dispatch<
   const userRole = currentUser?.role || 'CR';
 
   const renderCenterContent = () => {
+    let content: React.ReactNode;
     switch (activeTab) {
       case 'dashboard':
-        return userRole === 'CR' ? <CRDashboard /> : <StudentDashboard />;
+        content = userRole === 'CR' ? <CRDashboard /> : <StudentDashboard />;
+        break;
       case 'assignments':
-        return <AssignmentsView />;
+        content = <AssignmentsView />;
+        break;
       case 'attendance':
-        return <AttendanceView />;
+        content = <AttendanceView />;
+        break;
       case 'resources':
-        return <ResourceLibraryView />;
+        content = <ResourceLibraryView />;
+        break;
       case 'polls':
-        return <PollsView />;
+        content = <PollsView />;
+        break;
       case 'calendar':
-        return <CalendarView />;
+        content = <CalendarView />;
+        break;
       case 'members':
-        return userRole === 'CR' ? <MembersView /> : <StudentDashboard />;
+        content = userRole === 'CR' ? <MembersView /> : <StudentDashboard />;
+        break;
       case 'subjects':
-        return <SubjectsView />;
+        content = <SubjectsView />;
+        break;
       case 'broadcasts':
-        return <BroadcastsView />;
+        content = <BroadcastsView />;
+        break;
       case 'messages':
-        return <MessagesView />;
+        content = <MessagesView />;
+        break;
       case 'analytics':
-        return userRole === 'CR' ? <AnalyticsView /> : <StudentAnalyticsView />;
+        content = userRole === 'CR' ? <AnalyticsView /> : <StudentAnalyticsView />;
+        break;
       case 'settings':
-        return <SettingsView />;
+        content = <SettingsView />;
+        break;
       default:
-        return userRole === 'CR' ? <CRDashboard /> : <StudentDashboard />;
+        content = userRole === 'CR' ? <CRDashboard /> : <StudentDashboard />;
     }
+
+    return (
+      <div key={activeTab} className="page-enter">
+        {content}
+      </div>
+    );
   };
 
   return (

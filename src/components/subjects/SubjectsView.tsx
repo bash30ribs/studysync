@@ -36,6 +36,7 @@ export const SubjectsView: React.FC = () => {
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
   const [studentSearch, setStudentSearch] = useState('');
   const [studentFilter, setStudentFilter] = useState<'all' | 'at_risk' | 'pending_sub'>('all');
+  const [sentNudgeStudents, setSentNudgeStudents] = useState<Record<string, boolean>>({});
 
   const subjects = currentClass?.subjects || [];
   const subjectConfigs = currentClass?.subjectConfigs || {};
@@ -456,6 +457,7 @@ export const SubjectsView: React.FC = () => {
                             {pendingCount > 0 && (
                               <button
                                 onClick={() => {
+                                  try { navigator.vibrate?.(50); } catch {}
                                   const pendingAsg = activeSubjectData.subjAssignments.find(a => {
                                     const s = submissions.find(sub => sub.assignmentId === a.id && sub.studentId === stu.id);
                                     return s?.status !== 'submitted';
@@ -465,11 +467,20 @@ export const SubjectsView: React.FC = () => {
                                   } else {
                                     showToast(`Nudge sent to ${stu.name}`, 'info');
                                   }
+                                  setSentNudgeStudents(prev => ({ ...prev, [stu.id]: true }));
+                                  setTimeout(() => {
+                                    setSentNudgeStudents(prev => ({ ...prev, [stu.id]: false }));
+                                  }, 2000);
                                 }}
                                 title="Send submission reminder"
-                                className="p-1.5 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20 transition-colors"
+                                className={`px-2 py-1 rounded-lg text-[11px] font-semibold flex items-center gap-1 transition-all cursor-pointer ${
+                                  sentNudgeStudents[stu.id]
+                                    ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/40 shadow-[0_0_8px_#22c55e]'
+                                    : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20'
+                                }`}
                               >
                                 <BellRing className="w-3.5 h-3.5" />
+                                <span>{sentNudgeStudents[stu.id] ? '✓ Sent!' : 'Nudge'}</span>
                               </button>
                             )}
                           </div>

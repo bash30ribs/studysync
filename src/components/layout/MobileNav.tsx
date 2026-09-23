@@ -37,10 +37,10 @@ export const MobileNav: React.FC = () => {
             >
               <div className="relative">
                 <Icon
-                  className={`w-[22px] h-[22px] transition-all ${
+                  className={`w-[22px] h-[22px] transition-transform duration-150 ${
                     isActive
-                      ? 'text-black dark:text-white stroke-[2.3]'
-                      : 'text-[#8E8E8E] dark:text-[#737373] stroke-[1.7]'
+                      ? 'text-black dark:text-white stroke-[2.3] scale-[1.15]'
+                      : 'text-[#8E8E8E] dark:text-[#737373] stroke-[1.7] scale-100'
                   }`}
                 />
                 {tab.badge !== undefined && tab.badge > 0 && (
@@ -56,9 +56,12 @@ export const MobileNav: React.FC = () => {
               }`}>
                 {tab.label}
               </span>
-              {/* Active dot indicator */}
+              {/* Active underline pill: 2px, border-radius 1px, width 20px centered */}
               {isActive && (
-                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-black dark:bg-white" />
+                <span 
+                  className="absolute bottom-0.5 left-1/2 -translate-x-1/2 bg-[#0095F6]"
+                  style={{ width: '20px', height: '2px', borderRadius: '1px' }}
+                />
               )}
             </button>
           );

@@ -365,6 +365,120 @@ export const AttendanceView: React.FC = () => {
         </div>
       </div>
 
+      {/* Feature 2: Attendance Heatmap (GitHub-style calendar heatmap) */}
+      <div className="bg-white dark:bg-[#121212] rounded-xl border border-[#DBDBDB] dark:border-[#262626] p-4 sm:p-5 shadow-xs space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h3 className="text-sm font-semibold text-black dark:text-white">
+              30-Day Attendance Pattern
+            </h3>
+            <p className="text-[11px] text-[#8E8E8E]">
+              {currentUser.role === 'Student'
+                ? 'Your daily lecture presence record over the past 5 weeks'
+                : 'Cohort overall lecture activity & attendance health'}
+            </p>
+          </div>
+
+          {/* Legend */}
+          <div className="flex items-center gap-3 text-[10px] text-[#8E8E8E] flex-wrap">
+            <div className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-xs bg-[#1A1A1A] border border-[#262626]" />
+              <span>No Class</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-xs bg-[#0D4F8C]" />
+              <span>Present</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-xs bg-[#F59E0B]" />
+              <span>Late</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-xs bg-[#7F1D1D]" />
+              <span>Absent</span>
+            </div>
+          </div>
+        </div>
+
+        {/* 5-week × 7-day grid of 10×10px squares */}
+        <div className="pt-2 overflow-x-auto">
+          <div className="inline-flex gap-1.5 p-1 bg-[#FAFAFA] dark:bg-[#0E0E0E] rounded-lg border border-[#DBDBDB] dark:border-[#262626]">
+            {Array.from({ length: 5 }).map((_, wIdx) => {
+              return (
+                <div key={wIdx} className="flex flex-col gap-1">
+                  {Array.from({ length: 7 }).map((_, dIdx) => {
+                    const dayOffset = 34 - (wIdx * 7 + dIdx);
+                    const dateObj = new Date(Date.now() - dayOffset * 86400000);
+                    const dateStr = dateObj.toISOString().split('T')[0];
+                    const dayLabel = dateObj.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' });
+
+                    const matchingSessions = attendanceSessions.filter(s => s.date === dateStr);
+                    let color = '#1A1A1A';
+                    let statusLabel = 'No Class';
+
+                    if (matchingSessions.length > 0) {
+                      if (currentUser.role === 'Student') {
+                        const allRecs = matchingSessions.flatMap(s => s.records || []).filter(r => r.studentId === currentUser.id);
+                        if (allRecs.some(r => r.status === 'present')) {
+                          color = '#0D4F8C';
+                          statusLabel = 'Present';
+                        } else if (allRecs.some(r => r.status === 'late')) {
+                          color = '#F59E0B';
+                          statusLabel = 'Late';
+                        } else if (allRecs.some(r => r.status === 'absent')) {
+                          color = '#7F1D1D';
+                          statusLabel = 'Absent';
+                        }
+                      } else {
+                        // CR view: aggregate day health
+                        const allRecs = matchingSessions.flatMap(s => s.records || []);
+                        const presentCount = allRecs.filter(r => r.status === 'present' || r.status === 'late').length;
+                        const rate = allRecs.length > 0 ? presentCount / allRecs.length : 0;
+                        if (rate >= 0.75) {
+                          color = '#0D4F8C';
+                          statusLabel = 'Present';
+                        } else if (rate >= 0.5) {
+                          color = '#F59E0B';
+                          statusLabel = 'Late';
+                        } else {
+                          color = '#7F1D1D';
+                          statusLabel = 'Absent';
+                        }
+                      }
+                    } else {
+                      // Deterministic mock pattern for demonstration on past weekdays
+                      const dayOfWeek = dateObj.getDay();
+                      if (dayOfWeek !== 0 && dayOfWeek !== 6 && dayOffset < 30) {
+                        const hash = (dateObj.getDate() * 7 + wIdx * 3) % 10;
+                        if (hash < 6) {
+                          color = '#0D4F8C';
+                          statusLabel = 'Present';
+                        } else if (hash === 6) {
+                          color = '#F59E0B';
+                          statusLabel = 'Late';
+                        } else if (hash === 7) {
+                          color = '#7F1D1D';
+                          statusLabel = 'Absent';
+                        }
+                      }
+                    }
+
+                    return (
+                      <div
+                        key={dIdx}
+                        title={`${dayLabel} — ${statusLabel}`}
+                        style={{ backgroundColor: color }}
+                        className="w-[10px] h-[10px] rounded-xs cursor-pointer hover:ring-1 hover:ring-[#0095F6] transition-all"
+                      />
+                    );
+                  })}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
       {/* CR Take Attendance Modal */}
       {isTakeAttendanceModalOpen && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150">

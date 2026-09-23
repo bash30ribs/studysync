@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useStudySync } from '../../store';
 import { 
   Plus, 
@@ -12,7 +12,9 @@ import {
   Loader2,
   Calendar,
   Download,
-  FileCheck2
+  FileCheck2,
+  BellRing,
+  FileText
 } from 'lucide-react';
 import { Modal } from '../common/Feedback';
 import { generateAssignmentsICS, downloadICSFile } from '../../utils/calendarExport';
@@ -31,6 +33,7 @@ export const AssignmentsView: React.FC = () => {
     setIsNewAssignmentModalOpen,
     createAssignment,
     markAssignmentViewed,
+    remindPendingStudents,
     showToast
   } = useStudySync();
 
@@ -52,6 +55,68 @@ export const AssignmentsView: React.FC = () => {
   const [recurrenceRule, setRecurrenceRule] = useState<'weekly' | 'biweekly'>('weekly');
   const [isPublishing, setIsPublishing] = useState(false);
   const [activeSummaryId, setActiveSummaryId] = useState<string | null>(null);
+
+  // Feature 1: AI Nudge Scheduler state
+  const [smartNudgeScheduled, setSmartNudgeScheduled] = useState<Record<string, boolean>>(() => {
+    const initial: Record<string, boolean> = {};
+    try {
+      assignments.forEach(a => {
+        if (localStorage.getItem('ai_nudge_' + a.id) === 'true') {
+          initial[a.id] = true;
+        }
+      });
+    } catch {}
+    return initial;
+  });
+
+  const handleToggleSmartNudge = (asgId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const nextVal = !smartNudgeScheduled[asgId];
+    setSmartNudgeScheduled(prev => ({ ...prev, [asgId]: nextVal }));
+    try {
+      if (nextVal) {
+        localStorage.setItem('ai_nudge_' + asgId, 'true');
+      } else {
+        localStorage.removeItem('ai_nudge_' + asgId);
+      }
+    } catch {}
+    showToast('Nudge auto-scheduled for 24h before deadline if <60% submitted', 'info');
+  };
+
+  // Nudge button micro-interactions
+  const [sentNudges, setSentNudges] = useState<Record<string, boolean>>({});
+
+  const handleDirectNudge = (asgId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    try { navigator.vibrate?.(50); } catch {}
+    remindPendingStudents(asgId);
+    setSentNudges(prev => ({ ...prev, [asgId]: true }));
+    setTimeout(() => {
+      setSentNudges(prev => ({ ...prev, [asgId]: false }));
+    }, 2000);
+  };
+
+  // Mobile swipe-left gesture (Priority 5)
+  const [swipedRowId, setSwipedRowId] = useState<string | null>(null);
+  const rowTouchStartX = useRef<number>(0);
+
+  const handleRowTouchStart = (e: React.TouchEvent) => {
+    rowTouchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleRowTouchMove = (asgId: string, e: React.TouchEvent) => {
+    const currentX = e.touches[0].clientX;
+    const diff = currentX - rowTouchStartX.current;
+    if (diff < -60) {
+      setSwipedRowId(asgId);
+    } else if (diff > 20) {
+      setSwipedRowId(null);
+    }
+  };
+
+  const handleRowTouchEnd = () => {
+    rowTouchStartX.current = 0;
+  };
 
   const totalStudents = allUsers.filter(u => u.role === 'Student').length;
 
@@ -215,18 +280,11 @@ export const AssignmentsView: React.FC = () => {
       {/* Table / List of Assignments */}
       <div className="bg-white dark:bg-[#121212] border border-[#DBDBDB] dark:border-[#262626] rounded-xl shadow-xs overflow-hidden">
         {filteredAssignments.length === 0 ? (
-          <div className="py-16 text-center flex flex-col items-center justify-center p-6 space-y-3">
-            <div className="w-14 h-14 rounded-2xl bg-[#0095F6]/10 text-[#0095F6] flex items-center justify-center">
-              <FileCheck2 className="w-7 h-7" />
-            </div>
-            <div>
-              <h3 className="text-sm font-semibold text-black dark:text-white">
-                Nothing due — enjoy it while it lasts.
-              </h3>
-              <p className="text-xs text-[#8E8E8E] max-w-sm mt-1">
-                No course assignments are currently due or matching your active search filters.
-              </p>
-            </div>
+          <div className="py-16 text-center flex flex-col items-center justify-center p-6 space-y-2">
+            <FileText className="w-8 h-8 text-[#3A3A3A] mx-auto mb-1" />
+            <p className="text-sm font-semibold text-[#3A3A3A]">
+              No assignments yet. Create one above. ✏️
+            </p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -238,7 +296,7 @@ export const AssignmentsView: React.FC = () => {
                   <th className="py-3 px-4">Deadline</th>
                   <th className="py-3 px-4">Status</th>
                   <th className="py-3 px-4 sm:px-6 text-right">
-                    {currentUser.role === 'CR' ? 'Submissions' : 'My Status'}
+                    {currentUser.role === 'CR' ? 'Submissions & Nudge' : 'My Status'}
                   </th>
                 </tr>
               </thead>
@@ -249,11 +307,27 @@ export const AssignmentsView: React.FC = () => {
                   const isOverdue = new Date(asg.deadline).getTime() < new Date().getTime();
                   const mySub = submissions.find(s => s.assignmentId === asg.id && s.studentId === currentUser.id);
 
+                  // Feature 1: AI Nudge Scheduler logic
+                  const timeRemainingHours = (new Date(asg.deadline).getTime() - Date.now()) / (1000 * 60 * 60);
+                  const submissionRate = totalStudents > 0 ? asgSubs.length / totalStudents : 0;
+                  const isAutoEligible = timeRemainingHours > 0 && timeRemainingHours < 24 && submissionRate < 0.6;
+                  const isScheduled = isAutoEligible || smartNudgeScheduled[asg.id];
+                  const pendingCount = Math.max(0, totalStudents - asgSubs.length);
+                  const isNudgeSent = sentNudges[asg.id];
+                  const isSwiped = swipedRowId === asg.id;
+
                   return (
                     <React.Fragment key={asg.id}>
                       <tr
                         onClick={() => handleSelectRow(asg.id)}
-                        className={`cursor-pointer transition-colors ${
+                        onTouchStart={handleRowTouchStart}
+                        onTouchMove={(e) => handleRowTouchMove(asg.id, e)}
+                        onTouchEnd={handleRowTouchEnd}
+                        style={{
+                          transform: isSwiped ? 'translateX(-80px)' : 'none',
+                          transition: 'transform 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
+                        }}
+                        className={`cursor-pointer transition-colors relative ${
                           isSelected
                             ? 'bg-[#0095F6]/10 font-medium'
                             : 'hover:bg-[#FAFAFA] dark:hover:bg-[#181818]'
@@ -272,10 +346,37 @@ export const AssignmentsView: React.FC = () => {
                               </span>
                             )}
                           </div>
-                          <div className="flex items-center gap-2 mt-0.5">
+                          <div className="flex items-center gap-2 mt-1 flex-wrap">
                             <span className="text-[10px] font-semibold text-[#0095F6]">
                               {asg.subject}
                             </span>
+
+                            {/* Feature 1: AI Scheduled badge */}
+                            {isScheduled && (
+                              <span
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  showToast('Nudge auto-scheduled for 24h before deadline if <60% submitted', 'info');
+                                }}
+                                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#0095F6]/15 text-[#0095F6] border border-[#0095F6]/30 cursor-pointer shadow-2xs"
+                                title="Nudge auto-scheduled for 24h before deadline if <60% submitted"
+                              >
+                                AI Scheduled ✦
+                              </span>
+                            )}
+
+                            {/* Feature 1: 🤖 Smart Nudge Button (CR Only) */}
+                            {currentUser.role === 'CR' && (
+                              <button
+                                type="button"
+                                onClick={(e) => handleToggleSmartNudge(asg.id, e)}
+                                className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold border border-[#DBDBDB] dark:border-[#262626] bg-[#FAFAFA] dark:bg-[#1A1A1A] hover:border-[#0095F6] text-black dark:text-white transition-colors cursor-pointer"
+                                title="Nudge auto-scheduled for 24h before deadline if <60% submitted"
+                              >
+                                <span>🤖 Smart Nudge</span>
+                              </button>
+                            )}
+
                             {asg.aiSummary && (
                               <button
                                 type="button"
@@ -283,7 +384,7 @@ export const AssignmentsView: React.FC = () => {
                                   e.stopPropagation();
                                   setActiveSummaryId(activeSummaryId === asg.id ? null : asg.id);
                                 }}
-                                className="inline-flex items-center gap-1 text-[10px] font-medium text-[#8E8E8E] hover:text-[#0095F6] transition-colors"
+                                className="inline-flex items-center gap-1 text-[10px] font-medium text-[#8E8E8E] hover:text-[#0095F6] transition-colors cursor-pointer"
                               >
                                 <Sparkles className="w-3 h-3" />
                                 <span>{activeSummaryId === asg.id ? 'Hide TL;DR' : 'AI Summary'}</span>
@@ -319,12 +420,39 @@ export const AssignmentsView: React.FC = () => {
                           </span>
                         </td>
 
-                        {/* Submissions or My status */}
+                        {/* Submissions or My status + Priority 4 Nudge button */}
                         <td className="py-3.5 px-4 sm:px-6 text-right">
                           {currentUser.role === 'CR' ? (
-                            <span className="font-mono font-semibold text-black dark:text-white">
-                              {asgSubs.length}/{totalStudents}
-                            </span>
+                            <div className="flex items-center justify-end gap-2">
+                              <span className="font-mono font-semibold text-black dark:text-white">
+                                {asgSubs.length}/{totalStudents}
+                              </span>
+                              {pendingCount > 0 && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => handleDirectNudge(asg.id, e)}
+                                  className={`px-2.5 py-1 rounded-md text-[11px] font-semibold flex items-center gap-1 transition-all cursor-pointer ${
+                                    isNudgeSent
+                                      ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/40 shadow-[0_0_8px_#22c55e]'
+                                      : 'border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400'
+                                  }`}
+                                  title="Send nudge to pending students"
+                                >
+                                  <BellRing className="w-3 h-3" />
+                                  <span>{isNudgeSent ? '✓ Sent!' : 'Nudge'}</span>
+                                </button>
+                              )}
+                              {/* Mobile swiped reveal action */}
+                              {isSwiped && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => handleDirectNudge(asg.id, e)}
+                                  className="px-2.5 py-1 rounded-md text-[11px] font-bold bg-[#0095F6] text-white transition-all shadow-xs cursor-pointer ml-1"
+                                >
+                                  Nudge
+                                </button>
+                              )}
+                            </div>
                           ) : (
                             <span
                               className={`font-semibold capitalize ${
