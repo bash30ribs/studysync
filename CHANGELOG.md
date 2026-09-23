@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2.0] - 2026-09-20
+
+### 🚀 Added
+- **Streamlined CR Command Hub**: Redesigned CR Dashboard focusing strictly on high-priority deadlines, live turn-in ratios, and 1-tap broadcasts without widget bloat.
+- **Student Analytics View**: Personal academic command center featuring subject-by-subject attendance audits, defaulter threshold alerts (<75%), and grade trajectory tracking.
+- **SaaS-Grade Product Landing Page**: Honest, high-converting showcase highlighting core problems StudySync solves, real component preview mockup, and StudySync vs WhatsApp comparison table.
+- **Instagram-Inspired Clean UI**: Pure `#000000` dark surfaces, high-contrast `#121212` cards, accessible `#0095F6` primary actions, and smooth tactile micro-interactions.
+
+### 🛡️ Fixed
+- Fixed blank screen race condition when switching cohorts or creating new classes.
+- Fixed React Hook violations in settings and layout modals.
+- Fixed stale cohort state where messages, discussions, and notifications persisted across class switches.
+- Fixed CSV formula injection vulnerability by properly escaping special leading characters (`=`, `+`, `-`, `@`).
+- Fixed deprecated `navigator.platform` usage in keyboard shortcut helper.
+- Fixed class code leak with mask/unmask toggle button in left navigation.
+
+---
+
 ## [1.1.0] - 2026-09-15
 
 ### 🚀 Added
