@@ -10,6 +10,8 @@ class StudySyncProvider with ChangeNotifier {
   final String _userEmail = 'alex.chen@engineering.edu';
   final String _rollNo = 'ME22B042';
   final String _className = 'MECH-3A';
+  bool _isOffline = false;
+  DateTime _lastSyncTime = DateTime.now();
 
   List<Assignment> _assignments = [
     Assignment(
@@ -137,9 +139,23 @@ class StudySyncProvider with ChangeNotifier {
     return (presentCount / _attendanceRecords.length) * 100;
   }
 
+  bool get isOffline => _isOffline;
+  DateTime get lastSyncTime => _lastSyncTime;
+  String get syncStatusText => _isOffline ? 'Offline · Local cache active' : 'Synced just now';
+
   int get pendingAssignmentsCount => _assignments.where((a) => !a.isSubmitted).length;
 
   // Actions
+  void toggleOffline() {
+    _isOffline = !_isOffline;
+    notifyListeners();
+  }
+
+  Future<void> refreshData() async {
+    await Future.delayed(const Duration(milliseconds: 600));
+    _lastSyncTime = DateTime.now();
+    notifyListeners();
+  }
   void toggleTheme() {
     _themeMode = _themeMode == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
     notifyListeners();
