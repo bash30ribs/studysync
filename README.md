@@ -27,10 +27,13 @@
 - **Submission Pace Predictor**: Visual progress analytics comparing current cohort turn-in rate against historical averages.
 
 ### 📢 High-Trust CR Operations
-- **Urgent Broadcasts**: Instantly dispatch pinned announcements with real-time read receipts.
+- **Streamlined Command Hub**: Decluttered, distraction-free CR overview focusing on actionable deadlines, 1-tap broadcasts, and real-time turn-in ratios.
+- **Urgent Broadcasts**: Instantly dispatch pinned announcements with character countdown and real-time delivery.
 - **Consensus Polls**: Rapid single & multi-choice polls for exam prep reschedule requests and class feedback.
 - **Verified Digital Submissions**: Cryptographic submission hashes, device proofs, and timestamps for dispute-free grading.
 - **Attendance Session Tracker**: Fast roster roll-calls with exportable attendance CSV reports.
+- **Personal Student Analytics**: Detailed attendance audit, defaulter threshold tracking, and per-subject breakdown.
+- **Flutter Mobile Companion**: Cross-platform mobile app in `mobile/` with offline cache awareness.
 
 ### 🎧 Deep Focus & Gamification Layer
 - **Procedural Soundscapes**: Web Audio synthesizer with Brown Noise, Rain, Pink Noise, and 10Hz Alpha Binaural beats without heavy audio assets.
