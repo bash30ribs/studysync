@@ -124,8 +124,8 @@ export const StudentDashboard: React.FC = () => {
   };
 
   // Filter tasks
-  const filteredAssignments = assignments.filter(asg => {
-    const sub = submissions.find(s => s.assignmentId === asg.id && s.studentId === currentUser.id);
+  const filteredAssignments = safeAssignments.filter(asg => {
+    const sub = safeSubmissions.find(s => s.assignmentId === asg.id && s.studentId === safeUser.id);
     const isSubmitted = sub?.status === 'submitted';
     if (taskFilter === 'pending') return !isSubmitted;
     if (taskFilter === 'submitted') return isSubmitted;
@@ -201,7 +201,7 @@ export const StudentDashboard: React.FC = () => {
               className="p-3 rounded-lg bg-[#FAFAFA] dark:bg-[#181818] border border-[#DBDBDB] dark:border-[#262626] hover:border-neutral-400 dark:hover:border-neutral-600 text-center cursor-pointer transition-all"
             >
               <div className="text-xl sm:text-2xl font-bold font-mono text-black dark:text-white">
-                {polls.filter(p => !p.isClosed).length}
+                {safePolls.filter(p => !p?.isClosed).length}
               </div>
               <div className="text-[10px] font-semibold text-[#8E8E8E] uppercase tracking-wider mt-0.5">
                 Consensus
@@ -215,8 +215,8 @@ export const StudentDashboard: React.FC = () => {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
         <button
           onClick={() => {
-            const firstPending = assignments.find(a => {
-              const sub = submissions.find(s => s.assignmentId === a.id && s.studentId === currentUser.id);
+            const firstPending = safeAssignments.find(a => {
+              const sub = safeSubmissions.find(s => s.assignmentId === a.id && s.studentId === safeUser.id);
               return sub?.status !== 'submitted';
             });
             if (firstPending) {
@@ -385,7 +385,7 @@ export const StudentDashboard: React.FC = () => {
                 </div>
               ) : (
                 filteredAssignments.map(asg => {
-                  const sub = submissions.find(s => s.assignmentId === asg.id && s.studentId === currentUser.id);
+                  const sub = safeSubmissions.find(s => s.assignmentId === asg.id && s.studentId === safeUser.id);
                   const isSubmitted = sub?.status === 'submitted';
                   const isOverdue = new Date(asg.deadline).getTime() < new Date().getTime() && !isSubmitted;
                   const isSelected = selectedAssignmentId === asg.id;
@@ -491,9 +491,9 @@ export const StudentDashboard: React.FC = () => {
                 {/* Poll Options with 1-click voting */}
                 <div className="space-y-2">
                   {activePoll.options.map(opt => {
-                    const totalVotes = activePoll.options.reduce((sum, o) => sum + o.votes.length, 0);
-                    const pct = totalVotes > 0 ? Math.round((opt.votes.length / totalVotes) * 100) : 0;
-                    const hasVotedThis = opt.votes.includes(currentUser.id);
+                    const totalVotes = activePoll.options.reduce((sum, o) => sum + (o?.votes?.length || 0), 0);
+                    const pct = totalVotes > 0 ? Math.round(((opt?.votes?.length || 0) / totalVotes) * 100) : 0;
+                    const hasVotedThis = Array.isArray(opt?.votes) && opt.votes.includes(safeUser.id);
 
                     return (
                       <div
@@ -624,8 +624,8 @@ export const StudentDashboard: React.FC = () => {
               <span className="text-[10px] font-semibold text-[#8E8E8E] uppercase tracking-wider block">
                 Recent Sessions
               </span>
-              {attendanceSessions.slice(0, 2).map((att: AttendanceSession) => {
-                const rec = att.records.find(r => r.studentId === currentUser.id);
+              {safeAttendance.slice(0, 2).map((att: AttendanceSession) => {
+                const rec = Array.isArray(att?.records) ? att.records.find(r => r.studentId === safeUser.id) : null;
                 return (
                   <div
                     key={att.id}

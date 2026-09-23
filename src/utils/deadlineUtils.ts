@@ -10,7 +10,14 @@ export interface RelativeDeadline {
  * @param nowMs Current timestamp for deterministic testing
  */
 export function getRelativeDeadline(deadlineIso: string, nowMs: number = Date.now()): RelativeDeadline {
-  const diff = new Date(deadlineIso).getTime() - nowMs;
+  if (!deadlineIso) {
+    return { label: 'No Deadline', isOverdue: false, isUrgent: false };
+  }
+  const time = new Date(deadlineIso).getTime();
+  if (isNaN(time)) {
+    return { label: 'Flexible', isOverdue: false, isUrgent: false };
+  }
+  const diff = time - nowMs;
   if (diff < 0) {
     return { label: 'Overdue', isOverdue: true, isUrgent: false };
   }

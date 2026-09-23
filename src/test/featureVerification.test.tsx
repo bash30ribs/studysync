@@ -16,8 +16,9 @@ import { MessagesView } from '../components/messages/MessagesView';
 import { AnalyticsView } from '../components/analytics/AnalyticsView';
 import { StudentAnalyticsView } from '../components/analytics/StudentAnalyticsView';
 import { SettingsView } from '../components/settings/SettingsView';
+import { SubjectsView } from '../components/subjects/SubjectsView';
 import { LandingPage } from '../components/landing/LandingPage';
-import { CreateClassModal, JoinClassModal } from '../components/onboarding/OnboardingModals';
+import { CreateClassModal, JoinClassModal, FastLoginModal } from '../components/onboarding/OnboardingModals';
 import { SubmitDrawer } from '../components/assignments/SubmitDrawer';
 import { CommandPalette } from '../components/common/CommandPalette';
 import { ShortcutsModal } from '../components/common/ShortcutsModal';
@@ -163,5 +164,22 @@ describe('Comprehensive Feature Verification', () => {
     expect(typeof renderWithStore(<CommandPalette />)).toBe('string');
     expect(typeof renderWithStore(<ShortcutsModal />)).toBe('string');
     expect(typeof renderWithStore(<QRCodeModal />)).toBe('string');
+  });
+
+  it('17. Verifies SubjectsView renders subject directory, faculty, and Subject CR inspection buttons', () => {
+    const html = renderWithStore(<SubjectsView />);
+    expect(html).toContain('Subject Directory &amp; Subject CRs');
+    expect(html).toContain('Fluid Mechanics');
+    expect(html).toContain('Subject CR');
+    expect(html).toContain('Look on Students');
+  });
+
+  it('18. Verifies FastLoginModal renders instant CR and Student persona access', () => {
+    const html = renderWithStore(
+      <FastLoginModal isOpen={true} onClose={() => {}} onEnterApp={() => {}} onOpenJoin={() => {}} onOpenCreate={() => {}} />
+    );
+    expect(html).toContain('Log In &amp; Select Persona');
+    expect(html).toContain('Enter as CR');
+    expect(html).toContain('Enter as Student');
   });
 });

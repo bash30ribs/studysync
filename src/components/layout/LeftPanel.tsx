@@ -64,8 +64,9 @@ export const LeftPanel: React.FC = () => {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const activeAssignmentsCount = assignments.filter(a => a.status === 'active').length;
-  const activePollsCount = polls.filter(p => !p.isClosed).length;
+  const activeAssignmentsCount = (assignments || []).filter(a => a?.status === 'active').length;
+  const activePollsCount = (polls || []).filter(p => !p?.isClosed).length;
+  const activeBroadcastsCount = (broadcasts || []).length;
 
   const navItems: { 
     id: NavTab; 
@@ -77,17 +78,19 @@ export const LeftPanel: React.FC = () => {
     { id: 'dashboard', label: 'Home', icon: Home },
     { id: 'assignments', label: 'Tasks', icon: CheckSquare, badgeCount: activeAssignmentsCount },
     { id: 'attendance', label: 'Attendance', icon: UserCheck },
+    { id: 'subjects', label: 'Subjects & CRs', icon: GraduationCap },
     { id: 'resources', label: 'Resources', icon: Folder },
     { id: 'polls', label: 'Polls & Consensus', icon: BarChart2, badgeCount: activePollsCount },
     { id: 'calendar', label: 'Calendar', icon: Calendar },
     { id: 'members', label: 'Roster', icon: Users, crOnly: true },
-    { id: 'broadcasts', label: 'Broadcasts', icon: Megaphone, badgeCount: broadcasts.length > 0 ? broadcasts.length : undefined },
+    { id: 'broadcasts', label: 'Broadcasts', icon: Megaphone, badgeCount: activeBroadcastsCount > 0 ? activeBroadcastsCount : undefined },
     { id: 'messages', label: 'Direct Messages', icon: MessageSquare },
     { id: 'analytics', label: 'Analytics', icon: TrendingUp, crOnly: true },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
-  const visibleNav = navItems.filter(item => !item.crOnly || currentUser.role === 'CR');
+  const userRole = currentUser?.role || 'CR';
+  const visibleNav = navItems.filter(item => !item.crOnly || userRole === 'CR');
 
   return (
     <aside className="hidden md:flex w-[68px] lg:w-[236px] bg-white dark:bg-black text-[#262626] dark:text-[#F5F5F5] flex-col justify-between h-full border-r border-[#DBDBDB] dark:border-[#262626] shrink-0 transition-all duration-150 select-none">

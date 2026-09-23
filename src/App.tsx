@@ -27,6 +27,7 @@ import { MessagesView } from './components/messages/MessagesView';
 import { AnalyticsView } from './components/analytics/AnalyticsView';
 import { StudentAnalyticsView } from './components/analytics/StudentAnalyticsView';
 import { SettingsView } from './components/settings/SettingsView';
+import { SubjectsView } from './components/subjects/SubjectsView';
 import { LandingPage } from './components/landing/LandingPage';
 
 const MainLayout: React.FC<{ isDarkMode: boolean; setIsDarkMode: React.Dispatch<React.SetStateAction<boolean>> }> = ({
@@ -46,10 +47,12 @@ const MainLayout: React.FC<{ isDarkMode: boolean; setIsDarkMode: React.Dispatch<
     }} />;
   }
 
+  const userRole = currentUser?.role || 'CR';
+
   const renderCenterContent = () => {
     switch (activeTab) {
       case 'dashboard':
-        return currentUser.role === 'CR' ? <CRDashboard /> : <StudentDashboard />;
+        return userRole === 'CR' ? <CRDashboard /> : <StudentDashboard />;
       case 'assignments':
         return <AssignmentsView />;
       case 'attendance':
@@ -61,17 +64,19 @@ const MainLayout: React.FC<{ isDarkMode: boolean; setIsDarkMode: React.Dispatch<
       case 'calendar':
         return <CalendarView />;
       case 'members':
-        return currentUser.role === 'CR' ? <MembersView /> : <StudentDashboard />;
+        return userRole === 'CR' ? <MembersView /> : <StudentDashboard />;
+      case 'subjects':
+        return <SubjectsView />;
       case 'broadcasts':
         return <BroadcastsView />;
       case 'messages':
         return <MessagesView />;
       case 'analytics':
-        return currentUser.role === 'CR' ? <AnalyticsView /> : <StudentAnalyticsView />;
+        return userRole === 'CR' ? <AnalyticsView /> : <StudentAnalyticsView />;
       case 'settings':
         return <SettingsView />;
       default:
-        return currentUser.role === 'CR' ? <CRDashboard /> : <StudentDashboard />;
+        return userRole === 'CR' ? <CRDashboard /> : <StudentDashboard />;
     }
   };
 

@@ -26,7 +26,63 @@ export const INITIAL_CLASS: ClassGroup = {
     'Thermodynamics',
     'Material Science',
     'Mathematics III'
-  ]
+  ],
+  subjectConfigs: {
+    'Fluid Mechanics': {
+      name: 'Fluid Mechanics',
+      code: 'ME301',
+      crStudentId: 'user-stu-1',
+      crStudentName: 'Ishan Patel',
+      facultyName: 'Dr. P. K. Rao',
+      room: 'Hall 302',
+      color: '#0EA5E9'
+    },
+    'Applied Physics': {
+      name: 'Applied Physics',
+      code: 'PH301',
+      crStudentId: 'user-stu-2',
+      crStudentName: 'Neha Kulkarni',
+      facultyName: 'Dr. Meenakshi S.',
+      room: 'Physics Lab 1',
+      color: '#8B5CF6'
+    },
+    'Engineering Graphics': {
+      name: 'Engineering Graphics',
+      code: 'ME302',
+      crStudentId: 'user-stu-3',
+      crStudentName: 'Rohan Verma',
+      facultyName: 'Prof. K. N. Murthy',
+      room: 'CAD Suite B',
+      color: '#10B981'
+    },
+    'Thermodynamics': {
+      name: 'Thermodynamics',
+      code: 'ME303',
+      crStudentId: 'user-stu-4',
+      crStudentName: 'Priya Sharma',
+      facultyName: 'Dr. A. Sengupta',
+      room: 'Lecture Hall 2',
+      color: '#F59E0B'
+    },
+    'Material Science': {
+      name: 'Material Science',
+      code: 'ME304',
+      crStudentId: 'user-stu-5',
+      crStudentName: 'Aditya Nair',
+      facultyName: 'Dr. V. Deshmukh',
+      room: 'Metallurgy Hall',
+      color: '#F43F5E'
+    },
+    'Mathematics III': {
+      name: 'Mathematics III',
+      code: 'MA301',
+      crStudentId: 'user-stu-6',
+      crStudentName: 'Tanvi Joshi',
+      facultyName: 'Prof. S. Banerjee',
+      room: 'Seminar Room 4',
+      color: '#0095F6'
+    }
+  }
 };
 
 export const INITIAL_USERS: User[] = [

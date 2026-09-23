@@ -131,6 +131,7 @@ interface StudySyncContextType {
   exportAttendanceCSV: () => void;
   leaveClass: () => void;
   resetDemoData: () => void;
+  assignSubjectCR: (subjectName: string, studentId: string, studentName: string) => void;
 }
 
 const STORAGE_KEY_PREFIX = 'studysync_v2_';
@@ -1103,6 +1104,26 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     showToast('Demo data reset to default MECH-3A state', 'info');
   };
 
+  const assignSubjectCR = (subjectName: string, studentId: string, studentName: string) => {
+    setCurrentClass(prev => {
+      const existingConfigs = prev.subjectConfigs || {};
+      const currentConfig = existingConfigs[subjectName] || { name: subjectName };
+      const updatedConfigs = {
+        ...existingConfigs,
+        [subjectName]: {
+          ...currentConfig,
+          name: subjectName,
+          crStudentId: studentId,
+          crStudentName: studentName
+        }
+      };
+      const updatedClass = { ...prev, subjectConfigs: updatedConfigs };
+      setClasses(cList => cList.map(c => c.id === prev.id ? updatedClass : c));
+      return updatedClass;
+    });
+    showToast(`${studentName} designated as Subject CR for ${subjectName}`, 'success');
+  };
+
   return (
     <StudySyncContext.Provider
       value={{
@@ -1180,7 +1201,8 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         exportMembersCSV,
         exportAttendanceCSV,
         leaveClass,
-        resetDemoData
+        resetDemoData,
+        assignSubjectCR
       }}
     >
       {children}

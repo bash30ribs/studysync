@@ -11,7 +11,8 @@ import {
   Megaphone,
   Send,
   ArrowRight,
-  CheckCircle2
+  CheckCircle2,
+  GraduationCap
 } from 'lucide-react';
 
 export const CRDashboard: React.FC = () => {
@@ -103,11 +104,11 @@ export const CRDashboard: React.FC = () => {
         </button>
       </div>
 
-      {/* 2. Focused Metrics (3 numbers only) */}
-      <div className="grid grid-cols-3 gap-3 sm:gap-4">
+      {/* 2. Focused Metrics */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
         <div 
           onClick={() => setActiveTab('members')}
-          className="p-4 rounded-xl bg-white dark:bg-[#121212] border border-[#DBDBDB] dark:border-[#262626] hover:border-[#8E8E8E] dark:hover:border-[#3E3E3E] transition-all cursor-pointer group"
+          className="p-4 rounded-xl bg-white dark:bg-[#121212] border border-[#DBDBDB] dark:border-[#262626] hover:border-[#8E8E8E] dark:hover:border-[#3E3E3E] transition-all cursor-pointer group shadow-2xs"
         >
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-semibold text-[#8E8E8E] uppercase tracking-wider">
@@ -123,7 +124,25 @@ export const CRDashboard: React.FC = () => {
           </div>
         </div>
 
-        <div className="p-4 rounded-xl bg-white dark:bg-[#121212] border border-[#DBDBDB] dark:border-[#262626]">
+        <div 
+          onClick={() => setActiveTab('subjects')}
+          className="p-4 rounded-xl bg-white dark:bg-[#121212] border border-[#DBDBDB] dark:border-[#262626] hover:border-[#0095F6] dark:hover:border-[#0095F6] transition-all cursor-pointer group shadow-2xs"
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-semibold text-[#0095F6] uppercase tracking-wider">
+              Subjects
+            </span>
+            <GraduationCap className="w-4 h-4 text-[#0095F6] group-hover:scale-110 transition-transform" />
+          </div>
+          <div className="flex items-baseline gap-1.5 mt-2">
+            <span className="text-2xl font-bold text-black dark:text-white font-mono">
+              {(safeClass.subjects || []).length || 6}
+            </span>
+            <span className="text-xs text-[#8E8E8E]">inspect CRs</span>
+          </div>
+        </div>
+
+        <div className="p-4 rounded-xl bg-white dark:bg-[#121212] border border-[#DBDBDB] dark:border-[#262626] shadow-2xs">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-semibold text-[#8E8E8E] uppercase tracking-wider">
               Pending
@@ -140,7 +159,7 @@ export const CRDashboard: React.FC = () => {
 
         <div 
           onClick={() => setActiveTab('assignments')}
-          className="p-4 rounded-xl bg-white dark:bg-[#121212] border border-[#DBDBDB] dark:border-[#262626] hover:border-[#8E8E8E] dark:hover:border-[#3E3E3E] transition-all cursor-pointer group"
+          className="p-4 rounded-xl bg-white dark:bg-[#121212] border border-[#DBDBDB] dark:border-[#262626] hover:border-[#8E8E8E] dark:hover:border-[#3E3E3E] transition-all cursor-pointer group shadow-2xs"
         >
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-semibold text-[#8E8E8E] uppercase tracking-wider">

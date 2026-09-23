@@ -15,6 +15,16 @@ export interface User {
   isEmailVerified?: boolean;
 }
 
+export interface SubjectConfig {
+  name: string;
+  code?: string;
+  crStudentId?: string; // Student ID of the designated Subject CR
+  crStudentName?: string;
+  facultyName?: string;
+  room?: string;
+  color?: string;
+}
+
 export interface ClassGroup {
   id: string;
   name: string;
@@ -23,6 +33,7 @@ export interface ClassGroup {
   crName: string;
   createdAt: string;
   subjects: string[];
+  subjectConfigs?: Record<string, SubjectConfig>;
   semester?: string;
   academicYear?: string;
   isArchived?: boolean;
@@ -215,6 +226,7 @@ export type NavTab =
   | 'polls'
   | 'calendar' 
   | 'members' 
+  | 'subjects'
   | 'broadcasts' 
   | 'messages' 
   | 'analytics' 
