@@ -40,6 +40,28 @@ const MainLayout: React.FC<{ isDarkMode: boolean; setIsDarkMode: React.Dispatch<
     try { return !sessionStorage.getItem('studysync_entered'); } catch { return true; }
   });
 
+  // ALL hooks MUST be declared before any early return — React requires
+  // the same number of hooks to be called on every single render.
+  const [showSoundscapes, setShowSoundscapes] = useState(false);
+  const [showAchievements, setShowAchievements] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (e.key === '?' && !e.metaKey && !e.ctrlKey) {
+        e.preventDefault();
+        setIsShortcutsOpen(true);
+      }
+      if (e.altKey && e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        setShowSoundscapes((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [setIsShortcutsOpen]);
+
+  // Early return for landing page — AFTER all hooks are declared
   if (showLanding) {
     return <LandingPage onEnterApp={() => {
       try { sessionStorage.setItem('studysync_entered', '1'); } catch {}
@@ -79,25 +101,6 @@ const MainLayout: React.FC<{ isDarkMode: boolean; setIsDarkMode: React.Dispatch<
         return userRole === 'CR' ? <CRDashboard /> : <StudentDashboard />;
     }
   };
-
-  const [showSoundscapes, setShowSoundscapes] = useState(false);
-  const [showAchievements, setShowAchievements] = useState(false);
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
-      if (e.key === '?' && !e.metaKey && !e.ctrlKey) {
-        e.preventDefault();
-        setIsShortcutsOpen(true);
-      }
-      if (e.altKey && e.key.toLowerCase() === 's') {
-        e.preventDefault();
-        setShowSoundscapes((prev) => !prev);
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [setIsShortcutsOpen]);
 
   return (
     <div className="flex flex-col h-screen w-screen overflow-hidden bg-[#FAFAFA] dark:bg-black text-[#262626] dark:text-[#F5F5F5] transition-colors duration-150">
