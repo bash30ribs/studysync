@@ -162,7 +162,7 @@ export const LeftPanel: React.FC = () => {
       </div>
 
       {/* Navigation Items */}
-      <nav className="flex-1 px-2 py-3 space-y-0.5 overflow-y-auto">
+      <nav aria-label="Main Navigation" className="flex-1 px-2 py-3 space-y-0.5 overflow-y-auto">
         {visibleNav.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
@@ -172,6 +172,8 @@ export const LeftPanel: React.FC = () => {
               key={item.id}
               onClick={() => setActiveTab(item.id)}
               title={item.label}
+              aria-label={item.label}
+              aria-current={isActive ? 'page' : undefined}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs lg:text-[13px] font-medium transition-all relative ${
                 isActive
                   ? 'text-black dark:text-white bg-[#F5F5F5] dark:bg-[#1A1A1A] font-semibold'
