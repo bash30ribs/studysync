@@ -40,6 +40,14 @@ export interface ClassGroup {
   memberCount?: number;
 }
 
+export interface AssignmentReminderConfig {
+  enabled: boolean;
+  timing: '24h' | '48h' | '12h' | 'custom';
+  customDateTime?: string;
+  target: 'pending' | 'all';
+  customMessage?: string;
+}
+
 export interface Assignment {
   id: string;
   classId: string;
@@ -49,6 +57,7 @@ export interface Assignment {
   fileUrl?: string;
   fileName?: string;
   fileSize?: string;
+  fileData?: string;
   deadline: string; // ISO date string
   postedAt: string;
   createdBy: string;
@@ -59,6 +68,7 @@ export interface Assignment {
   aiSummary?: string;
   difficultyEstimate?: 'Low' | 'Medium' | 'High';
   maxScore?: number;
+  reminderConfig?: AssignmentReminderConfig;
 }
 
 export type SubmissionStatus = 'assigned' | 'viewed' | 'submitted' | 'missed';

@@ -15,7 +15,8 @@ import {
   AttendanceRecord,
   ResourceItem,
   ClassPoll,
-  TrustPageType
+  TrustPageType,
+  AssignmentReminderConfig
 } from '../types';
 import { 
   INITIAL_CLASS,
@@ -71,6 +72,8 @@ interface StudySyncContextType {
   
   // Setters & Nav
   setActiveTab: (tab: NavTab) => void;
+  canGoBack: boolean;
+  goBack: () => void;
   setSelectedAssignmentId: (id: string | null) => void;
   setSelectedStudentId: (id: string | null) => void;
   setSelectedCalendarDate: (date: string | null) => void;
@@ -99,17 +102,21 @@ interface StudySyncContextType {
     deadline: string; 
     fileName?: string; 
     fileSize?: string; 
+    fileUrl?: string;
+    fileData?: string;
     notifyOnCreate: boolean;
     isRecurring?: boolean;
     recurrenceRule?: 'weekly' | 'biweekly';
     maxScore?: number;
+    reminderConfig?: AssignmentReminderConfig;
   }) => void;
   submitAssignment: (assignmentId: string, textResponse?: string, file?: { name: string; size: string }) => void;
   markAssignmentViewed: (assignmentId: string) => void;
   gradeSubmission: (submissionId: string, score: number, maxScore: number, feedback?: string) => void;
   sendBroadcast: (content: string) => void;
   sendMessage: (content: string, recipientId: string | null, file?: { name: string }) => void;
-  remindPendingStudents: (assignmentId: string) => void;
+  remindPendingStudents: (assignmentId: string, customMessage?: string, specificStudentId?: string) => void;
+  setStudentReminder: (assignmentId: string, hoursBefore?: number, note?: string) => void;
   addDiscussionComment: (assignmentId: string, content: string) => void;
   takeAttendance: (data: { subject: string; date: string; topic?: string; conductedBy?: string; records: AttendanceRecord[] }) => void;
   deleteAttendanceSession: (sessionId: string) => void;
@@ -213,7 +220,21 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [resources, setResources] = useState<ResourceItem[]>(() => loadStorage('resources', INITIAL_RESOURCES));
   const [polls, setPolls] = useState<ClassPoll[]>(() => loadStorage('polls', INITIAL_POLLS));
 
-  const [activeTab, setActiveTab] = useState<NavTab>('dashboard');
+  const [activeTab, setActiveTabState] = useState<NavTab>(() => {
+    try {
+      if (typeof window !== 'undefined' && window.location.hash) {
+        const hash = window.location.hash.replace('#', '') as NavTab;
+        const validTabs: NavTab[] = [
+          'dashboard', 'assignments', 'attendance', 'subjects', 'resources',
+          'polls', 'calendar', 'members', 'broadcasts', 'messages', 'analytics', 'settings'
+        ];
+        if (validTabs.includes(hash)) return hash;
+      }
+    } catch {}
+    return 'dashboard';
+  });
+  const [tabHistory, setTabHistory] = useState<NavTab[]>([activeTab]);
+
   const [selectedAssignmentId, setSelectedAssignmentId] = useState<string | null>(assignments[0]?.id || null);
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(allUsers.find(u => u.role === 'Student')?.id || null);
   const [selectedCalendarDate, setSelectedCalendarDate] = useState<string | null>(new Date().toISOString().split('T')[0]);
@@ -227,6 +248,77 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [activeTrustPage, setActiveTrustPage] = useState<TrustPageType | null>(null);
   const [themeAccent, setThemeAccentState] = useState<ThemeAccent>(() => loadStorage('theme_accent', 'blue'));
   const [toast, setToast] = useState<ToastItem | null>(null);
+
+  const setActiveTab = (tab: NavTab) => {
+    setActiveTabState(prev => {
+      if (prev === tab) return prev;
+      setTabHistory(h => [...h, tab]);
+      try {
+        if (typeof window !== 'undefined') {
+          window.history.pushState({ tab }, '', `#${tab}`);
+        }
+      } catch {}
+      return tab;
+    });
+  };
+
+  const goBack = () => {
+    // 1. Close open overlays/drawers first
+    if (isCommandPaletteOpen) { setIsCommandPaletteOpen(false); return; }
+    if (isShortcutsOpen) { setIsShortcutsOpen(false); return; }
+    if (isQRCodeOpen) { setIsQRCodeOpen(false); return; }
+    if (isSubmitDrawerOpen) { setIsSubmitDrawerOpen(false); return; }
+    if (isNewAssignmentModalOpen) { setIsNewAssignmentModalOpen(false); return; }
+    if (activeTrustPage) { setActiveTrustPage(null); return; }
+    if (isRightPanelOpen) { setIsRightPanelOpen(false); return; }
+
+    // 2. Step back in tab history
+    if (tabHistory.length > 1) {
+      const nextHistory = tabHistory.slice(0, -1);
+      const prevTab = nextHistory[nextHistory.length - 1];
+      setTabHistory(nextHistory);
+      setActiveTabState(prevTab);
+      try {
+        if (typeof window !== 'undefined') {
+          window.history.replaceState({ tab: prevTab }, '', `#${prevTab}`);
+        }
+      } catch {}
+    } else if (activeTab !== 'dashboard') {
+      setActiveTab('dashboard');
+    } else {
+      try {
+        if (typeof window !== 'undefined' && window.history.length > 1) {
+          window.history.back();
+        }
+      } catch {}
+    }
+  };
+
+  const canGoBack = tabHistory.length > 1 || activeTab !== 'dashboard' || isRightPanelOpen || isCommandPaletteOpen;
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const validTabs: NavTab[] = [
+      'dashboard', 'assignments', 'attendance', 'subjects', 'resources',
+      'polls', 'calendar', 'members', 'broadcasts', 'messages', 'analytics', 'settings'
+    ];
+
+    const handlePopState = (e: PopStateEvent) => {
+      const targetTab = e.state?.tab || (window.location.hash.replace('#', '') as NavTab);
+      if (validTabs.includes(targetTab)) {
+        setActiveTabState(targetTab);
+        setTabHistory(prev => {
+          if (prev.length > 1 && prev[prev.length - 2] === targetTab) {
+            return prev.slice(0, -1);
+          }
+          return [...prev, targetTab];
+        });
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   // Sync to local storage
   useEffect(() => saveStorage('classes', classes), [classes]);
@@ -504,10 +596,13 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     deadline: string; 
     fileName?: string; 
     fileSize?: string; 
+    fileUrl?: string;
+    fileData?: string;
     notifyOnCreate: boolean;
     isRecurring?: boolean;
     recurrenceRule?: 'weekly' | 'biweekly';
     maxScore?: number;
+    reminderConfig?: AssignmentReminderConfig;
   }) => {
     // Validate deadline is not in the past
     if (data.deadline && new Date(data.deadline).getTime() < Date.now()) {
@@ -524,14 +619,16 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       deadline: data.deadline,
       fileName: data.fileName,
       fileSize: data.fileSize,
-      fileUrl: data.fileName ? '#' : undefined,
+      fileUrl: data.fileUrl || (data.fileName ? '#' : undefined),
+      fileData: data.fileData,
       postedAt: new Date().toISOString(),
       createdBy: currentUser.name,
       status: 'active',
       notifyOnCreate: data.notifyOnCreate,
       isRecurring: data.isRecurring,
       recurrenceRule: data.recurrenceRule,
-      maxScore: data.maxScore || 20
+      maxScore: data.maxScore || 20,
+      reminderConfig: data.reminderConfig
     };
 
     const studentUsers = allUsers.filter(u => u.role === 'Student');
@@ -564,7 +661,28 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       setNotifications(prev => [newNotif, ...prev]);
     }
 
-    showToast(`Assignment "${data.title}" posted to all students`, 'success');
+    if (data.reminderConfig?.enabled) {
+      const targetLabel = data.reminderConfig.target === 'all' ? 'All enrolled students' : 'Pending students';
+      const hoursText = data.reminderConfig.timing === 'custom' 
+        ? (data.reminderConfig.customDateTime ? new Date(data.reminderConfig.customDateTime).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Custom date/time')
+        : `${data.reminderConfig.timing.replace('h', '')} hours before deadline`;
+      
+      const reminderSchedNotif: NotificationItem = {
+        id: 'notif-remind-sched-' + Date.now(),
+        userId: 'ALL',
+        type: 'reminder',
+        title: `Reminder Scheduled: ${data.title}`,
+        content: `Automatic deadline reminder configured (${hoursText} for ${targetLabel.toLowerCase()}).`,
+        refId: newId,
+        refType: 'assignment',
+        read: false,
+        createdAt: new Date().toISOString()
+      };
+      setNotifications(prev => [reminderSchedNotif, ...prev]);
+    }
+
+    const reminderMsg = data.reminderConfig?.enabled ? ' with automated reminder scheduled 🔔' : '';
+    showToast(`Assignment "${data.title}" posted to all students${reminderMsg}`, 'success');
   };
 
   const markAssignmentViewed = (assignmentId: string) => {
@@ -763,30 +881,36 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setMessages(prev => [...prev, newMsg]);
   };
 
-  const remindPendingStudents = (assignmentId: string) => {
+  const remindPendingStudents = (assignmentId: string, customMessage?: string, specificStudentId?: string) => {
     const asg = assignments.find(a => a.id === assignmentId);
     if (!asg) return;
 
     const asgSubs = submissions.filter(s => s.assignmentId === assignmentId);
-    const pendingStudentIds = allUsers
+    let targetStudents = allUsers
       .filter(u => u.role === 'Student')
       .filter(u => {
         const sub = asgSubs.find(s => s.studentId === u.id);
         return !sub || sub.status === 'assigned' || sub.status === 'viewed';
-      })
-      .map(u => u.id);
+      });
 
-    if (pendingStudentIds.length === 0) {
-      showToast('All students have already submitted this assignment!', 'info');
+    if (specificStudentId) {
+      targetStudents = targetStudents.filter(u => u.id === specificStudentId);
+    }
+
+    if (targetStudents.length === 0) {
+      showToast(specificStudentId ? 'This student has already submitted!' : 'All students have already submitted this assignment!', 'info');
       return;
     }
 
-    const newNotifs: NotificationItem[] = pendingStudentIds.map(stuId => ({
-      id: `notif-remind-${assignmentId}-${stuId}-${Date.now()}`,
-      userId: stuId,
+    const defaultMsg = `Reminder from CR: You have not submitted "${asg.title}". Please submit before the deadline (${new Date(asg.deadline).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}).`;
+    const messageContent = customMessage && customMessage.trim() ? customMessage.trim() : defaultMsg;
+
+    const newNotifs: NotificationItem[] = targetStudents.map(stu => ({
+      id: `notif-remind-${assignmentId}-${stu.id}-${Date.now()}`,
+      userId: stu.id,
       type: 'reminder',
-      title: 'Submission Reminder',
-      content: `Reminder from CR: You have not submitted "${asg.title}". Please submit before the deadline.`,
+      title: `Submission Reminder: ${asg.title}`,
+      content: messageContent,
       refId: assignmentId,
       refType: 'assignment',
       read: false,
@@ -794,7 +918,32 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }));
 
     setNotifications(prev => [...newNotifs, ...prev]);
-    showToast(`Reminder sent to ${pendingStudentIds.length} pending student(s)`, 'success');
+    showToast(
+      specificStudentId
+        ? `Reminder sent to ${targetStudents[0]?.name} 🔔`
+        : `Reminder dispatched to ${targetStudents.length} pending student(s) 🔔`,
+      'success'
+    );
+  };
+
+  const setStudentReminder = (assignmentId: string, hoursBefore: number = 24, note?: string) => {
+    const asg = assignments.find(a => a.id === assignmentId);
+    if (!asg) return;
+
+    const remindNotif: NotificationItem = {
+      id: `notif-personal-remind-${assignmentId}-${Date.now()}`,
+      userId: currentUser.id,
+      type: 'reminder',
+      title: `Personal Reminder: ${asg.title}`,
+      content: note?.trim() || `Your assignment "${asg.title}" (${asg.subject}) is due soon! Deadline: ${new Date(asg.deadline).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}.`,
+      refId: assignmentId,
+      refType: 'assignment',
+      read: false,
+      createdAt: new Date().toISOString()
+    };
+
+    setNotifications(prev => [remindNotif, ...prev]);
+    showToast(`Personal reminder set for "${asg.title}"! ⏰`, 'success');
   };
 
   const addDiscussionComment = (assignmentId: string, content: string) => {
@@ -1155,6 +1304,8 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         themeAccent,
         toast,
         setActiveTab,
+        canGoBack,
+        goBack,
         setSelectedAssignmentId,
         setSelectedStudentId,
         setSelectedCalendarDate,
@@ -1181,6 +1332,7 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         sendBroadcast,
         sendMessage,
         remindPendingStudents,
+        setStudentReminder,
         addDiscussionComment,
         takeAttendance,
         deleteAttendanceSession,

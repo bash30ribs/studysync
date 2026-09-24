@@ -16,7 +16,8 @@ import {
   X, 
   CheckCircle2, 
   AlertTriangle,
-  GraduationCap
+  GraduationCap,
+  ArrowLeft
 } from 'lucide-react';
 import { AttendanceSession, Assignment, Submission, User } from '../../types';
 
@@ -37,10 +38,23 @@ export const SubjectsView: React.FC = () => {
   const [studentSearch, setStudentSearch] = useState('');
   const [studentFilter, setStudentFilter] = useState<'all' | 'at_risk' | 'pending_sub'>('all');
   const [sentNudgeStudents, setSentNudgeStudents] = useState<Record<string, boolean>>({});
+  const [sentNudgeSubjects, setSentNudgeSubjects] = useState<Record<string, boolean>>({});
 
   const subjects = currentClass?.subjects || [];
   const subjectConfigs = currentClass?.subjectConfigs || {};
   const studentList = allUsers.filter(u => u.role === 'Student');
+
+  // Handle ESC key to go back from student inspection modal
+  React.useEffect(() => {
+    if (!selectedSubject) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setSelectedSubject(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedSubject]);
 
   // Compute metrics for a given subject
   const getSubjectMetrics = (subjName: string) => {
@@ -75,6 +89,7 @@ export const SubjectsView: React.FC = () => {
       completedSubs += subs.length;
     });
     const submissionRate = totalSubsNeeded > 0 ? Math.round((completedSubs / totalSubsNeeded) * 100) : 100;
+    const pendingSubsCount = Math.max(0, totalSubsNeeded - completedSubs);
 
     const designatedCr = studentList.find(s => s.id === config.crStudentId) || null;
 
@@ -84,6 +99,7 @@ export const SubjectsView: React.FC = () => {
       subjSessions,
       avgAttendance,
       submissionRate,
+      pendingSubsCount,
       designatedCr
     };
   };
@@ -227,14 +243,37 @@ export const SubjectsView: React.FC = () => {
                 </div>
               </div>
 
-              {/* Action Button: Look on Students */}
-              <button
-                onClick={() => setSelectedSubject(subjName)}
-                className="mt-4 w-full py-2.5 px-3 rounded-xl bg-neutral-100 dark:bg-[#1A1A1A] hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black text-black dark:text-white text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-xs"
-              >
-                <span>Look on Students ({studentList.length})</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </button>
+                {/* Action Buttons: Look on Students & Remind Pending */}
+                <div className="space-y-2 mt-4">
+                  {m.pendingSubsCount > 0 && currentUser.role === 'CR' && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        try { navigator.vibrate?.(50); } catch {}
+                        m.subjAssignments.forEach(asg => remindPendingStudents(asg.id));
+                        setSentNudgeSubjects(prev => ({ ...prev, [subjName]: true }));
+                        setTimeout(() => setSentNudgeSubjects(prev => ({ ...prev, [subjName]: false })), 2000);
+                      }}
+                      className={`w-full py-2 px-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                        sentNudgeSubjects[subjName]
+                          ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/40 shadow-[0_0_8px_#22c55e]'
+                          : 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30'
+                      }`}
+                      title={`Remind all pending students in ${subjName}`}
+                    >
+                      <BellRing className="w-3.5 h-3.5" />
+                      <span>{sentNudgeSubjects[subjName] ? '✓ Reminders Dispatched!' : `Remind Pending (${m.pendingSubsCount})`}</span>
+                    </button>
+                  )}
+
+                  <button
+                    onClick={() => setSelectedSubject(subjName)}
+                    className="w-full py-2.5 px-3 rounded-xl bg-neutral-100 dark:bg-[#1A1A1A] hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black text-black dark:text-white text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-xs cursor-pointer"
+                  >
+                    <span>Look on Students ({studentList.length})</span>
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
             </div>
           );
         })}
@@ -248,6 +287,14 @@ export const SubjectsView: React.FC = () => {
             {/* Modal Header */}
             <div className="p-5 border-b border-[#DBDBDB] dark:border-[#262626] flex items-center justify-between bg-neutral-50/50 dark:bg-[#161616]/50">
               <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setSelectedSubject(null)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-100 dark:bg-[#262626] hover:bg-neutral-200 dark:hover:bg-[#363636] text-black dark:text-white text-xs font-semibold transition-all cursor-pointer shadow-xs active:scale-95 shrink-0"
+                  title="Back to Subjects (Esc)"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5 stroke-[2.3]" />
+                  <span>Back to Subjects</span>
+                </button>
                 <div 
                   className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-sm shrink-0"
                   style={{ backgroundColor: activeSubjectData.config.color || '#0095F6' }}
@@ -269,17 +316,39 @@ export const SubjectsView: React.FC = () => {
                 </div>
               </div>
 
-              <button
-                onClick={() => setSelectedSubject(null)}
-                className="p-2 rounded-xl text-neutral-400 hover:text-black dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-[#262626] transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
+              <div className="flex items-center gap-2">
+                {currentUser.role === 'CR' && activeSubjectData.pendingSubsCount > 0 && (
+                  <button
+                    onClick={() => {
+                      try { navigator.vibrate?.(50); } catch {}
+                      activeSubjectData.subjAssignments.forEach(asg => remindPendingStudents(asg.id));
+                      setSentNudgeSubjects(prev => ({ ...prev, [selectedSubject]: true }));
+                      setTimeout(() => setSentNudgeSubjects(prev => ({ ...prev, [selectedSubject]: false })), 2000);
+                    }}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
+                      sentNudgeSubjects[selectedSubject]
+                        ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/40 shadow-[0_0_8px_#22c55e]'
+                        : 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30'
+                    }`}
+                    title="Remind all pending students in this subject"
+                  >
+                    <BellRing className="w-3.5 h-3.5" />
+                    <span>{sentNudgeSubjects[selectedSubject] ? '✓ Dispatched!' : 'Remind All Pending'}</span>
+                  </button>
+                )}
+                <button
+                  onClick={() => setSelectedSubject(null)}
+                  className="p-2 rounded-xl text-neutral-400 hover:text-black dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-[#262626] transition-colors cursor-pointer"
+                  title="Close (Esc)"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
             </div>
 
             {/* Subject CR Designation Bar */}
             <div className="px-5 py-3 bg-neutral-100/70 dark:bg-[#181818] border-b border-[#DBDBDB] dark:border-[#262626] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <Crown className="w-4 h-4 text-amber-500 shrink-0" />
                 <span>Current Subject CR:</span>
                 <strong className="text-black dark:text-white font-semibold">
@@ -290,6 +359,47 @@ export const SubjectsView: React.FC = () => {
                     ({activeSubjectData.designatedCr.rollNo})
                   </span>
                 )}
+                {/* Remind option if the assigned Subject CR has pending assignment */}
+                {activeSubjectData.designatedCr && (() => {
+                  const crId = activeSubjectData.designatedCr.id;
+                  const crPendingAsgs = activeSubjectData.subjAssignments.filter(a => {
+                    const s = submissions.find(sub => sub.assignmentId === a.id && sub.studentId === crId);
+                    return s?.status !== 'submitted';
+                  });
+                  if (crPendingAsgs.length > 0) {
+                    return (
+                      <div className="flex items-center gap-1.5 ml-2">
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/30">
+                          {crPendingAsgs.length} pending task{crPendingAsgs.length > 1 ? 's' : ''}
+                        </span>
+                        {currentUser.role === 'CR' && (
+                          <button
+                            onClick={() => {
+                              try { navigator.vibrate?.(50); } catch {}
+                              crPendingAsgs.forEach(a => remindPendingStudents(a.id, undefined, crId));
+                              setSentNudgeStudents(prev => ({ ...prev, [crId]: true }));
+                              setTimeout(() => setSentNudgeStudents(prev => ({ ...prev, [crId]: false })), 2000);
+                            }}
+                            className={`px-2 py-1 rounded-lg text-[10px] font-semibold flex items-center gap-1 transition-all cursor-pointer ${
+                              sentNudgeStudents[crId]
+                                ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/40 shadow-[0_0_8px_#22c55e]'
+                                : 'bg-amber-500/15 text-amber-600 dark:text-amber-400 hover:bg-amber-500/25 border border-amber-500/30'
+                            }`}
+                            title={`Remind Subject CR ${activeSubjectData.designatedCr?.name}`}
+                          >
+                            <BellRing className="w-3 h-3" />
+                            <span>{sentNudgeStudents[crId] ? '✓ Sent!' : 'Remind CR'}</span>
+                          </button>
+                        )}
+                      </div>
+                    );
+                  }
+                  return (
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 ml-2">
+                      All submitted ✓
+                    </span>
+                  );
+                })()}
               </div>
 
               {currentUser.role === 'CR' && (
@@ -458,29 +568,29 @@ export const SubjectsView: React.FC = () => {
                               <button
                                 onClick={() => {
                                   try { navigator.vibrate?.(50); } catch {}
-                                  const pendingAsg = activeSubjectData.subjAssignments.find(a => {
+                                  const pendingAsgs = activeSubjectData.subjAssignments.filter(a => {
                                     const s = submissions.find(sub => sub.assignmentId === a.id && sub.studentId === stu.id);
                                     return s?.status !== 'submitted';
                                   });
-                                  if (pendingAsg) {
-                                    remindPendingStudents(pendingAsg.id);
+                                  if (pendingAsgs.length > 0) {
+                                    pendingAsgs.forEach(a => remindPendingStudents(a.id, undefined, stu.id));
                                   } else {
-                                    showToast(`Nudge sent to ${stu.name}`, 'info');
+                                    showToast(`Reminder sent to ${stu.name}`, 'info');
                                   }
                                   setSentNudgeStudents(prev => ({ ...prev, [stu.id]: true }));
                                   setTimeout(() => {
                                     setSentNudgeStudents(prev => ({ ...prev, [stu.id]: false }));
                                   }, 2000);
                                 }}
-                                title="Send submission reminder"
-                                className={`px-2 py-1 rounded-lg text-[11px] font-semibold flex items-center gap-1 transition-all cursor-pointer ${
+                                title={`Send submission reminder to ${stu.name} (${pendingCount} pending)`}
+                                className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
                                   sentNudgeStudents[stu.id]
                                     ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/40 shadow-[0_0_8px_#22c55e]'
-                                    : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20'
+                                    : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20 border border-amber-500/30'
                                 }`}
                               >
                                 <BellRing className="w-3.5 h-3.5" />
-                                <span>{sentNudgeStudents[stu.id] ? '✓ Sent!' : 'Nudge'}</span>
+                                <span>{sentNudgeStudents[stu.id] ? '✓ Sent!' : `Remind (${pendingCount})`}</span>
                               </button>
                             )}
                           </div>

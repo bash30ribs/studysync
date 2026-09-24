@@ -34,7 +34,7 @@ const MainLayout: React.FC<{ isDarkMode: boolean; setIsDarkMode: React.Dispatch<
   isDarkMode,
   setIsDarkMode
 }) => {
-  const { currentUser, activeTab, isRightPanelOpen, setIsRightPanelOpen, setIsShortcutsOpen } = useStudySync();
+  const { currentUser, activeTab, isRightPanelOpen, setIsRightPanelOpen, setIsShortcutsOpen, goBack } = useStudySync();
   const [showLanding, setShowLanding] = useState(() => {
     // Show landing on first visit; remember if user has entered the app before
     try { return !sessionStorage.getItem('studysync_entered'); } catch { return true; }
@@ -56,10 +56,14 @@ const MainLayout: React.FC<{ isDarkMode: boolean; setIsDarkMode: React.Dispatch<
         e.preventDefault();
         setShowSoundscapes((prev) => !prev);
       }
+      if ((e.altKey && e.key === 'ArrowLeft') || (e.key === 'Backspace' && !(e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement))) {
+        e.preventDefault();
+        goBack();
+      }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [setIsShortcutsOpen]);
+  }, [setIsShortcutsOpen, goBack]);
 
   // Priority 6: Dynamic Page Titles
   useEffect(() => {

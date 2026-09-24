@@ -12,6 +12,7 @@ export const ShortcutsModal: React.FC = () => {
       title: 'Global Navigation & Command',
       items: [
         { key: '⌘K / Ctrl+K', desc: 'Open Command Palette (Search, Personas, Actions)' },
+        { key: 'Alt + ← / Backspace', desc: 'Go Back to previous view / module' },
         { key: '?', desc: 'Show this Keyboard Shortcuts cheat sheet' },
         { key: 'Esc', desc: 'Close any active drawer, modal, or overlay' }
       ]

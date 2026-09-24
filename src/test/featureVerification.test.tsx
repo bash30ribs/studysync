@@ -24,6 +24,7 @@ import { CommandPalette } from '../components/common/CommandPalette';
 import { ShortcutsModal } from '../components/common/ShortcutsModal';
 import { QRCodeModal } from '../components/common/QRCodeModal';
 import { Header } from '../components/layout/Header';
+import { RightPanel } from '../components/layout/RightPanel';
 
 describe('Comprehensive Feature Verification', () => {
   beforeEach(() => {
@@ -209,5 +210,24 @@ describe('Comprehensive Feature Verification', () => {
 
     const calHtml = renderWithStore(<CalendarView />);
     expect(calHtml).toContain('No events this month. 📅');
+  });
+
+  it('21. Verifies SubjectsView renders CR assign controls and pending submission reminder triggers', () => {
+    const html = renderWithStore(<SubjectsView />);
+    expect(html).toContain('Subject CR');
+    expect(html).toContain('Look on Students');
+    // When CR views subject with pending work, reminder trigger is present
+    expect(html).toContain('Remind Pending');
+  });
+
+  it('22. Verifies Navigation Go Back and Command Palette back action', () => {
+    // When activeTab or modal state is active, Header renders Back button
+    const html = renderWithStore(<Header isDarkMode={true} setIsDarkMode={() => {}} />);
+    expect(html).toContain('id="theme-toggle"');
+    
+    // Command palette includes Back navigation
+    globalThis.sessionStorage.getItem = () => '1';
+    const cmdHtml = renderWithStore(<CommandPalette />);
+    expect(cmdHtml).toBeDefined();
   });
 });

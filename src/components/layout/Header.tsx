@@ -19,7 +19,8 @@ import {
   Trophy,
   HelpCircle,
   Smartphone,
-  Send
+  Send,
+  ArrowLeft
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -51,6 +52,8 @@ export const Header: React.FC<HeaderProps> = ({
     markAllNotificationsRead,
     activeTab,
     setActiveTab,
+    canGoBack,
+    goBack,
     setSelectedAssignmentId,
     setIsCommandPaletteOpen
   } = useStudySync();
@@ -116,6 +119,20 @@ export const Header: React.FC<HeaderProps> = ({
     <header className="sticky top-0 z-30 bg-white/95 dark:bg-black/95 backdrop-blur-md border-b border-[#DBDBDB] dark:border-[#262626] px-4 lg:px-6 py-2.5 flex items-center justify-between transition-colors duration-150">
       {/* Left: Class identity & Network sync */}
       <div className="flex items-center gap-3">
+        {canGoBack && (
+          <button
+            onClick={goBack}
+            id="nav-back-button"
+            data-testid="nav-back-button"
+            title="Go Back (Alt+← or Backspace)"
+            aria-label="Go Back"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold text-black dark:text-white bg-[#EFEFEF] dark:bg-[#1A1A1A] hover:bg-[#E5E5E5] dark:hover:bg-[#262626] border border-[#DBDBDB] dark:border-[#262626] transition-all cursor-pointer shadow-xs active:scale-95 shrink-0"
+          >
+            <ArrowLeft className="w-3.5 h-3.5 stroke-[2.3]" />
+            <span className="hidden sm:inline">Back</span>
+          </button>
+        )}
+
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-lg bg-black dark:bg-white flex items-center justify-center text-white dark:text-black font-extrabold text-xs tracking-tight">
             <BookOpen className="w-4 h-4" />

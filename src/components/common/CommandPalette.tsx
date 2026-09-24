@@ -19,7 +19,9 @@ import {
   Sparkles, 
   Palette,
   ArrowRight,
-  Command
+  Command,
+  ArrowLeft,
+  GraduationCap
 } from 'lucide-react';
 
 interface CommandItem {
@@ -47,7 +49,8 @@ export const CommandPalette: React.FC = () => {
     toggleOffline,
     setThemeAccent,
     themeAccent,
-    currentUser
+    currentUser,
+    goBack
   } = useStudySync();
 
   const [query, setQuery] = useState('');
@@ -66,6 +69,14 @@ export const CommandPalette: React.FC = () => {
 
   const items: CommandItem[] = [
     // Navigation
+    {
+      id: 'nav-back',
+      category: 'Navigation',
+      label: 'Go Back (Previous View)',
+      shortcut: 'Alt+←',
+      icon: ArrowLeft,
+      perform: () => goBack()
+    },
     {
       id: 'nav-dash',
       category: 'Navigation',
@@ -89,6 +100,14 @@ export const CommandPalette: React.FC = () => {
       shortcut: 'A',
       icon: UserCheck,
       perform: () => setActiveTab('attendance')
+    },
+    {
+      id: 'nav-subjects',
+      category: 'Navigation',
+      label: 'Go to Subjects & Subject CRs',
+      shortcut: 'S',
+      icon: GraduationCap,
+      perform: () => setActiveTab('subjects')
     },
     {
       id: 'nav-resources',

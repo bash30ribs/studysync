@@ -42,6 +42,7 @@ export const RightPanel: React.FC = () => {
   const [commentInput, setCommentInput] = useState('');
   const [broadcastInput, setBroadcastInput] = useState('');
   const [countdown, setCountdown] = useState<string>('');
+  const [sentNudgeStudents, setSentNudgeStudents] = useState<Record<string, boolean>>({});
 
   const selectedAsg = assignments.find(a => a.id === selectedAssignmentId);
   const selectedStudent = allUsers.find(u => u.id === selectedStudentId);
@@ -210,17 +211,38 @@ export const RightPanel: React.FC = () => {
                             {asg.subject}
                           </p>
                         </div>
-                        <span
-                          className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                            isSubmitted
-                              ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
-                              : sub?.status === 'viewed'
-                              ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
-                              : 'bg-rose-500/10 text-rose-600 dark:text-rose-400'
-                          }`}
-                        >
-                          {sub?.status || 'assigned'}
-                        </span>
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <span
+                            className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                              isSubmitted
+                                ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                                : sub?.status === 'viewed'
+                                ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
+                                : 'bg-rose-500/10 text-rose-600 dark:text-rose-400'
+                            }`}
+                          >
+                            {sub?.status || 'assigned'}
+                          </span>
+                          {!isSubmitted && currentUser.role === 'CR' && (
+                            <button
+                              onClick={() => {
+                                try { navigator.vibrate?.(50); } catch {}
+                                remindPendingStudents(asg.id, undefined, selectedStudent.id);
+                                const key = `${asg.id}-${selectedStudent.id}`;
+                                setSentNudgeStudents(prev => ({ ...prev, [key]: true }));
+                                setTimeout(() => setSentNudgeStudents(prev => ({ ...prev, [key]: false })), 2000);
+                              }}
+                              className={`px-2 py-0.5 rounded text-[10px] font-semibold flex items-center gap-1 transition-all cursor-pointer ${
+                                sentNudgeStudents[`${asg.id}-${selectedStudent.id}`]
+                                  ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/40'
+                                  : 'border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400'
+                              }`}
+                            >
+                              <BellRing className="w-3 h-3" />
+                              <span>{sentNudgeStudents[`${asg.id}-${selectedStudent.id}`] ? '✓ Sent!' : 'Remind'}</span>
+                            </button>
+                          )}
+                        </div>
                       </div>
 
                       {isSubmitted && sub && (
@@ -451,9 +473,28 @@ export const RightPanel: React.FC = () => {
                                   {stu.rollNo}
                                 </p>
                               </div>
-                              <span className="text-[10px] font-medium text-amber-600 dark:text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded">
-                                {stuSub?.status === 'viewed' ? 'Viewed' : 'Not opened'}
-                              </span>
+                              <div className="flex items-center gap-1.5 shrink-0">
+                                <span className="text-[10px] font-medium text-amber-600 dark:text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded">
+                                  {stuSub?.status === 'viewed' ? 'Viewed' : 'Not opened'}
+                                </span>
+                                <button
+                                  onClick={() => {
+                                    try { navigator.vibrate?.(50); } catch {}
+                                    remindPendingStudents(selectedAsg.id, undefined, stu.id);
+                                    setSentNudgeStudents(prev => ({ ...prev, [stu.id]: true }));
+                                    setTimeout(() => setSentNudgeStudents(prev => ({ ...prev, [stu.id]: false })), 2000);
+                                  }}
+                                  title={`Remind ${stu.name}`}
+                                  className={`px-2 py-0.5 rounded text-[10px] font-semibold flex items-center gap-1 transition-all cursor-pointer ${
+                                    sentNudgeStudents[stu.id]
+                                      ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/40 shadow-[0_0_8px_#22c55e]'
+                                      : 'border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400'
+                                  }`}
+                                >
+                                  <BellRing className="w-3 h-3" />
+                                  <span>{sentNudgeStudents[stu.id] ? '✓ Sent!' : 'Remind'}</span>
+                                </button>
+                              </div>
                             </div>
                           );
                         })
