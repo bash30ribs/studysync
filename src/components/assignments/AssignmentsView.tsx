@@ -4,20 +4,25 @@ import {
   Plus, 
   Search, 
   UploadCloud, 
-  X,
-  Sparkles,
-  Repeat,
-  AlertTriangle,
-  Clock,
-  Loader2,
-  Calendar,
-  Download,
-  FileCheck2,
-  BellRing,
-  FileText
+  X, 
+  Sparkles, 
+  Repeat, 
+  AlertTriangle, 
+  Loader2, 
+  Download, 
+  BellRing, 
+  FileText,
+  CheckSquare,
+  ListTodo,
+  Check,
+  Trash2,
+  PlusCircle,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { Modal } from '../common/Feedback';
 import { generateAssignmentsICS, downloadICSFile } from '../../utils/calendarExport';
+import { SubTask } from '../../types';
 
 export const AssignmentsView: React.FC = () => {
   const { 
@@ -32,6 +37,7 @@ export const AssignmentsView: React.FC = () => {
     isNewAssignmentModalOpen,
     setIsNewAssignmentModalOpen,
     createAssignment,
+    toggleStudentSubTask,
     markAssignmentViewed,
     remindPendingStudents,
     showToast
@@ -40,7 +46,8 @@ export const AssignmentsView: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSubject, setSelectedSubject] = useState<string>('all');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
-  const [sortBy, setSortBy] = useState<'deadline' | 'posted' | 'title'>('deadline');
+  const [sortBy, _setSortBy] = useState<'deadline' | 'posted' | 'title'>('deadline');
+  const [expandedSubtasksId, setExpandedSubtasksId] = useState<string | null>(null);
 
   // Form state for new assignment
   const [newTitle, setNewTitle] = useState('');
@@ -55,6 +62,12 @@ export const AssignmentsView: React.FC = () => {
   const [recurrenceRule, setRecurrenceRule] = useState<'weekly' | 'biweekly'>('weekly');
   const [isPublishing, setIsPublishing] = useState(false);
   const [activeSummaryId, setActiveSummaryId] = useState<string | null>(null);
+
+  // Draft Subtasks in Create Modal
+  const [draftSubtasks, setDraftSubtasks] = useState<SubTask[]>([]);
+  const [subtaskTitleInput, setSubtaskTitleInput] = useState('');
+  const [subtaskMinutesInput, setSubtaskMinutesInput] = useState<number>(30);
+  const [subtaskMandatoryInput, setSubtaskMandatoryInput] = useState<boolean>(true);
 
   // Feature 1: AI Nudge Scheduler state
   const [smartNudgeScheduled, setSmartNudgeScheduled] = useState<Record<string, boolean>>(() => {
@@ -166,7 +179,8 @@ export const AssignmentsView: React.FC = () => {
       fileSize: newFileSize || undefined,
       notifyOnCreate: notifyToggle,
       isRecurring,
-      recurrenceRule: isRecurring ? recurrenceRule : undefined
+      recurrenceRule: isRecurring ? recurrenceRule : undefined,
+      subtasks: draftSubtasks
     });
 
     setIsPublishing(false);
@@ -177,6 +191,24 @@ export const AssignmentsView: React.FC = () => {
     setNewFileName('');
     setNewFileSize('');
     setIsRecurring(false);
+    setDraftSubtasks([]);
+  };
+
+  const handleAddDraftSubtask = () => {
+    if (!subtaskTitleInput.trim()) return;
+    const newSt: SubTask = {
+      id: `st-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      title: subtaskTitleInput.trim(),
+      estimatedMinutes: Number(subtaskMinutesInput) || 30,
+      mandatory: subtaskMandatoryInput
+    };
+    setDraftSubtasks(prev => [...prev, newSt]);
+    setSubtaskTitleInput('');
+    setSubtaskMinutesInput(30);
+  };
+
+  const handleRemoveDraftSubtask = (stId: string) => {
+    setDraftSubtasks(prev => prev.filter(st => st.id !== stId));
   };
 
   const handleSelectRow = (id: string) => {
@@ -351,6 +383,37 @@ export const AssignmentsView: React.FC = () => {
                               {asg.subject}
                             </span>
 
+                            {/* Subtasks Progress Badge / Toggle */}
+                            {asg.subtasks && asg.subtasks.length > 0 && (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setExpandedSubtasksId(expandedSubtasksId === asg.id ? null : asg.id);
+                                }}
+                                className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold transition-all cursor-pointer ${
+                                  mySub && mySub.completedSubTaskIds && mySub.completedSubTaskIds.length === asg.subtasks.length
+                                    ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30'
+                                    : mySub && mySub.completedSubTaskIds && mySub.completedSubTaskIds.length > 0
+                                    ? 'bg-[#0095F6]/15 text-[#0095F6] border border-[#0095F6]/30'
+                                    : 'bg-[#EFEFEF] dark:bg-[#202020] text-[#737373] dark:text-[#A8A8A8] border border-[#DBDBDB] dark:border-[#333]'
+                                }`}
+                                title="Click to view & check subtasks"
+                              >
+                                <CheckSquare className="w-3 h-3 text-[#0095F6]" />
+                                <span>
+                                  {currentUser.role === 'Student'
+                                    ? `Subtasks: ${mySub?.completedSubTaskIds?.length || 0}/${asg.subtasks.length}`
+                                    : `Subtasks (${asg.subtasks.length})`}
+                                </span>
+                                {expandedSubtasksId === asg.id ? (
+                                  <ChevronUp className="w-3 h-3" />
+                                ) : (
+                                  <ChevronDown className="w-3 h-3" />
+                                )}
+                              </button>
+                            )}
+
                             {/* Feature 1: AI Scheduled badge */}
                             {isScheduled && (
                               <span
@@ -468,6 +531,114 @@ export const AssignmentsView: React.FC = () => {
                           )}
                         </td>
                       </tr>
+
+                      {/* Expandable Subtasks Checklist Row */}
+                      {expandedSubtasksId === asg.id && asg.subtasks && asg.subtasks.length > 0 && (
+                        <tr className="bg-[#FAFAFA] dark:bg-[#141414] border-b border-[#DBDBDB] dark:border-[#262626]">
+                          <td colSpan={5} className="p-4 px-6">
+                            <div className="p-4 rounded-2xl bg-white dark:bg-[#0D0D0D] border border-[#DBDBDB] dark:border-[#262626] space-y-3 shadow-xs">
+                              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#EAEAEA] dark:border-[#222222] pb-3">
+                                <div className="flex items-center gap-2">
+                                  <div className="w-7 h-7 rounded-lg bg-[#0095F6]/15 text-[#0095F6] flex items-center justify-center">
+                                    <ListTodo className="w-4 h-4" />
+                                  </div>
+                                  <div>
+                                    <h4 className="text-xs font-bold text-black dark:text-white">
+                                      Task Subtasks & Milestones ({asg.subtasks.length} steps)
+                                    </h4>
+                                    <p className="text-[11px] text-[#737373] dark:text-[#A8A8A8]">
+                                      {currentUser.role === 'Student'
+                                        ? 'Click checkboxes to track your progress step-by-step.'
+                                        : 'Step breakdown visible to cohort students.'}
+                                    </p>
+                                  </div>
+                                </div>
+
+                                {currentUser.role === 'Student' && (
+                                  <div className="flex items-center gap-2.5 bg-[#FAFAFA] dark:bg-[#161616] px-3 py-1.5 rounded-xl border border-[#EAEAEA] dark:border-[#262626]">
+                                    <span className="text-[11px] font-mono font-bold text-black dark:text-white">
+                                      {mySub?.completedSubTaskIds?.length || 0} / {asg.subtasks.length} completed
+                                    </span>
+                                    <div className="w-24 h-2 rounded-full bg-[#E5E5E5] dark:bg-[#252525] overflow-hidden">
+                                      <div 
+                                        className="h-full bg-gradient-to-r from-[#0095F6] to-emerald-500 transition-all duration-300 rounded-full"
+                                        style={{ 
+                                          width: `${Math.round(((mySub?.completedSubTaskIds?.length || 0) / asg.subtasks.length) * 100)}%` 
+                                        }}
+                                      />
+                                    </div>
+                                    <span className="text-[11px] font-mono text-emerald-600 dark:text-emerald-400 font-bold">
+                                      {Math.round(((mySub?.completedSubTaskIds?.length || 0) / asg.subtasks.length) * 100)}%
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+
+                              <div className="grid grid-cols-1 gap-2 pt-1">
+                                {asg.subtasks.map((st, idx) => {
+                                  const isDone = mySub?.completedSubTaskIds?.includes(st.id);
+                                  return (
+                                    <div
+                                      key={st.id}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (currentUser.role === 'Student') {
+                                          try { navigator.vibrate?.(40); } catch {}
+                                          toggleStudentSubTask(asg.id, st.id);
+                                          showToast(isDone ? `Marked "${st.title}" incomplete` : `Completed "${st.title}"! ✓`, 'info');
+                                        }
+                                      }}
+                                      className={`p-3 rounded-xl border flex items-center justify-between gap-3 text-xs transition-all ${
+                                        currentUser.role === 'Student' ? 'cursor-pointer hover:border-[#0095F6]' : ''
+                                      } ${
+                                        isDone
+                                          ? 'bg-emerald-500/10 border-emerald-500/35 text-emerald-950 dark:text-emerald-200'
+                                          : 'bg-[#FAFAFA] dark:bg-[#161616] border-[#EAEAEA] dark:border-[#262626] text-black dark:text-white'
+                                      }`}
+                                    >
+                                      <div className="flex items-center gap-3 min-w-0">
+                                        {currentUser.role === 'Student' ? (
+                                          <div className={`w-5 h-5 rounded-lg flex items-center justify-center shrink-0 border transition-colors ${
+                                            isDone ? 'bg-emerald-500 border-emerald-600 text-white' : 'border-[#DBDBDB] dark:border-[#444] bg-white dark:bg-[#121212]'
+                                          }`}>
+                                            {isDone && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                                          </div>
+                                        ) : (
+                                          <span className="w-5 h-5 rounded-full bg-[#0095F6]/15 text-[#0095F6] text-[10px] font-bold flex items-center justify-center shrink-0">
+                                            {idx + 1}
+                                          </span>
+                                        )}
+                                        <div className="min-w-0">
+                                          <p className={`font-semibold ${isDone ? 'line-through text-[#737373] dark:text-[#A8A8A8]' : ''}`}>
+                                            {st.title}
+                                          </p>
+                                        </div>
+                                      </div>
+
+                                      <div className="flex items-center gap-2 shrink-0">
+                                        {st.estimatedMinutes && (
+                                          <span className="px-2 py-0.5 rounded-md bg-[#EFEFEF] dark:bg-[#202020] text-[#737373] dark:text-[#A8A8A8] text-[10px] font-mono">
+                                            ⏱ {st.estimatedMinutes} mins
+                                          </span>
+                                        )}
+                                        {st.mandatory ? (
+                                          <span className="px-2 py-0.5 rounded-md bg-rose-500/15 text-rose-600 dark:text-rose-400 font-bold text-[10px]">
+                                            Mandatory
+                                          </span>
+                                        ) : (
+                                          <span className="px-2 py-0.5 rounded-md bg-blue-500/15 text-blue-600 dark:text-blue-400 text-[10px]">
+                                            Optional
+                                          </span>
+                                        )}
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
 
                       {/* Expandable AI TL;DR Summary row */}
                       {activeSummaryId === asg.id && asg.aiSummary && (
@@ -606,6 +777,114 @@ export const AssignmentsView: React.FC = () => {
               placeholder="Outline problem numbers, format requirements, submission rules..."
               className="w-full text-xs p-3 rounded-lg border border-[#DBDBDB] dark:border-[#262626] bg-[#FAFAFA] dark:bg-[#181818] text-black dark:text-white focus:outline-none focus:border-[#0095F6] resize-none"
             />
+          </div>
+
+          {/* Subtasks Builder Section */}
+          <div className="p-3 rounded-xl bg-[#FAFAFA] dark:bg-[#181818] border border-[#DBDBDB] dark:border-[#262626] space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <ListTodo className="w-4 h-4 text-[#0095F6]" />
+                <span className="text-xs font-semibold text-black dark:text-white">
+                  Break Down into Subtasks & Milestones ({draftSubtasks.length})
+                </span>
+              </div>
+              <span className="text-[10px] text-[#8E8E8E]">
+                Optional pacing checkpoints
+              </span>
+            </div>
+
+            {/* List of draft subtasks */}
+            {draftSubtasks.length > 0 && (
+              <div className="space-y-1.5 max-h-36 overflow-y-auto pr-1">
+                {draftSubtasks.map((st, idx) => (
+                  <div
+                    key={st.id}
+                    className="flex items-center justify-between p-2 rounded-lg bg-white dark:bg-[#121212] border border-[#DBDBDB] dark:border-[#262626] text-xs"
+                  >
+                    <div className="flex items-center gap-2 truncate">
+                      <span className="w-5 h-5 rounded-full bg-[#0095F6]/10 text-[#0095F6] font-bold text-[10px] flex items-center justify-center shrink-0">
+                        {idx + 1}
+                      </span>
+                      <span className="font-medium text-black dark:text-white truncate">
+                        {st.title}
+                      </span>
+                      {st.estimatedMinutes && (
+                        <span className="text-[10px] text-[#8E8E8E] shrink-0">
+                          ~{st.estimatedMinutes}m
+                        </span>
+                      )}
+                      {st.mandatory ? (
+                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-[#ED4956]/10 text-[#ED4956] font-semibold shrink-0">
+                          Required
+                        </span>
+                      ) : (
+                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-[#8E8E8E] font-medium shrink-0">
+                          Optional
+                        </span>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveDraftSubtask(st.id)}
+                      className="p-1 text-[#8E8E8E] hover:text-[#ED4956] transition-colors"
+                      title="Remove subtask"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Add subtask input bar */}
+            <div className="space-y-2 pt-2 border-t border-[#DBDBDB]/60 dark:border-[#262626]/60">
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={subtaskTitleInput}
+                  onChange={(e) => setSubtaskTitleInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddDraftSubtask();
+                    }
+                  }}
+                  placeholder="e.g. Step 1: Literature review & draft diagrams"
+                  className="flex-1 text-xs px-3 py-2 rounded-lg border border-[#DBDBDB] dark:border-[#262626] bg-white dark:bg-[#121212] text-black dark:text-white focus:outline-none focus:border-[#0095F6]"
+                />
+                <input
+                  type="number"
+                  min="5"
+                  max="600"
+                  step="5"
+                  value={subtaskMinutesInput}
+                  onChange={(e) => setSubtaskMinutesInput(Number(e.target.value))}
+                  title="Est. minutes"
+                  placeholder="Mins"
+                  className="w-16 text-xs px-2 py-2 rounded-lg border border-[#DBDBDB] dark:border-[#262626] bg-white dark:bg-[#121212] text-black dark:text-white focus:outline-none focus:border-[#0095F6] text-center"
+                />
+                <button
+                  type="button"
+                  onClick={handleAddDraftSubtask}
+                  disabled={!subtaskTitleInput.trim()}
+                  className="px-3 py-2 rounded-lg bg-[#0095F6] hover:bg-[#1877F2] disabled:opacity-40 text-white text-xs font-semibold flex items-center gap-1"
+                >
+                  <PlusCircle className="w-3.5 h-3.5" />
+                  <span>Add</span>
+                </button>
+              </div>
+              <div className="flex items-center gap-2">
+                <label className="flex items-center gap-1.5 text-[11px] text-[#8E8E8E] cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={subtaskMandatoryInput}
+                    onChange={(e) => setSubtaskMandatoryInput(e.target.checked)}
+                    className="w-3.5 h-3.5 text-[#0095F6] rounded"
+                  />
+                  <span>Mandatory milestone</span>
+                </label>
+              </div>
+            </div>
           </div>
 
           {/* Attachment upload */}

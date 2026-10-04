@@ -16,7 +16,11 @@ import {
   ResourceItem,
   ClassPoll,
   TrustPageType,
-  AssignmentReminderConfig
+  AssignmentReminderConfig,
+  SubTask,
+  HolisticActivity,
+  GrievanceConfidentialItem,
+  FacultyAuditEntry
 } from '../types';
 import { 
   INITIAL_CLASS,
@@ -30,7 +34,10 @@ import {
   INITIAL_DISCUSSIONS,
   INITIAL_ATTENDANCE,
   INITIAL_RESOURCES,
-  INITIAL_POLLS
+  INITIAL_POLLS,
+  INITIAL_HOLISTIC_ACTIVITIES,
+  INITIAL_CONFIDENTIAL_GRIEVANCES,
+  INITIAL_FACULTY_AUDITS
 } from '../data/initialData';
 
 export type ThemeAccent = 'blue' | 'indigo' | 'emerald' | 'amber' | 'cyan' | 'teal';
@@ -55,6 +62,9 @@ interface StudySyncContextType {
   attendanceSessions: AttendanceSession[];
   resources: ResourceItem[];
   polls: ClassPoll[];
+  holisticActivities: HolisticActivity[];
+  confidentialGrievances: GrievanceConfidentialItem[];
+  facultyAudits: FacultyAuditEntry[];
   activeTab: NavTab;
   selectedAssignmentId: string | null;
   selectedStudentId: string | null;
@@ -102,14 +112,20 @@ interface StudySyncContextType {
     deadline: string; 
     fileName?: string; 
     fileSize?: string; 
-    fileUrl?: string;
+    fileUrl?: string; 
     fileData?: string;
     notifyOnCreate: boolean;
     isRecurring?: boolean;
     recurrenceRule?: 'weekly' | 'biweekly';
     maxScore?: number;
     reminderConfig?: AssignmentReminderConfig;
+    subtasks?: SubTask[];
   }) => void;
+  toggleStudentSubTask: (assignmentId: string, subTaskId: string) => void;
+  logHolisticActivity: (data: Omit<HolisticActivity, 'id' | 'status' | 'approvedBy' | 'approvedAt' | 'facultyRemarks'>) => void;
+  reviewHolisticActivity: (activityId: string, status: 'approved' | 'rejected', points: number, remarks: string) => void;
+  submitConfidentialGrievance: (data: Omit<GrievanceConfidentialItem, 'id' | 'submittedAt' | 'status' | 'facultyNotes'>) => void;
+  resolveConfidentialGrievance: (id: string, notes: string, status: 'reviewed' | 'resolved') => void;
   submitAssignment: (assignmentId: string, textResponse?: string, file?: { name: string; size: string }) => void;
   markAssignmentViewed: (assignmentId: string) => void;
   gradeSubmission: (submissionId: string, score: number, maxScore: number, feedback?: string) => void;
@@ -219,6 +235,9 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [attendanceSessions, setAttendanceSessions] = useState<AttendanceSession[]>(() => loadStorage('attendance', INITIAL_ATTENDANCE));
   const [resources, setResources] = useState<ResourceItem[]>(() => loadStorage('resources', INITIAL_RESOURCES));
   const [polls, setPolls] = useState<ClassPoll[]>(() => loadStorage('polls', INITIAL_POLLS));
+  const [holisticActivities, setHolisticActivities] = useState<HolisticActivity[]>(() => loadStorage('holistic_activities', INITIAL_HOLISTIC_ACTIVITIES));
+  const [confidentialGrievances, setConfidentialGrievances] = useState<GrievanceConfidentialItem[]>(() => loadStorage('confidential_grievances', INITIAL_CONFIDENTIAL_GRIEVANCES));
+  const [facultyAudits, setFacultyAudits] = useState<FacultyAuditEntry[]>(() => loadStorage('faculty_audits', INITIAL_FACULTY_AUDITS));
 
   const [activeTab, setActiveTabState] = useState<NavTab>(() => {
     try {
@@ -226,7 +245,8 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         const hash = window.location.hash.replace('#', '') as NavTab;
         const validTabs: NavTab[] = [
           'dashboard', 'assignments', 'attendance', 'subjects', 'resources',
-          'polls', 'calendar', 'members', 'broadcasts', 'messages', 'analytics', 'settings'
+          'polls', 'calendar', 'members', 'broadcasts', 'messages', 'analytics', 'settings',
+          'growth', 'oversight'
         ];
         if (validTabs.includes(hash)) return hash;
       }
@@ -427,12 +447,16 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       }
     }
 
-    if (role === 'CR') {
-      const cr = allUsers.find(u => u.role === 'CR') || INITIAL_USERS[0];
+    if (role === 'Faculty') {
+      const faculty = allUsers.find(u => u.role === 'Faculty') || INITIAL_USERS[0];
+      setCurrentUser(faculty);
+      showToast(`Switched to Faculty Incharge (${faculty.name})`, 'info');
+    } else if (role === 'CR') {
+      const cr = allUsers.find(u => u.role === 'CR') || INITIAL_USERS[1];
       setCurrentUser(cr);
       showToast(`Switched to CR View (${cr.name})`, 'info');
     } else {
-      const student = allUsers.find(u => u.role === 'Student') || INITIAL_USERS[1];
+      const student = allUsers.find(u => u.role === 'Student') || INITIAL_USERS[2];
       setCurrentUser(student);
       showToast(`Switched to Student View (${student.name})`, 'info');
     }
@@ -603,6 +627,7 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     recurrenceRule?: 'weekly' | 'biweekly';
     maxScore?: number;
     reminderConfig?: AssignmentReminderConfig;
+    subtasks?: SubTask[];
   }) => {
     // Validate deadline is not in the past
     if (data.deadline && new Date(data.deadline).getTime() < Date.now()) {
@@ -628,7 +653,8 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       isRecurring: data.isRecurring,
       recurrenceRule: data.recurrenceRule,
       maxScore: data.maxScore || 20,
-      reminderConfig: data.reminderConfig
+      reminderConfig: data.reminderConfig,
+      subtasks: data.subtasks || []
     };
 
     const studentUsers = allUsers.filter(u => u.role === 'Student');
@@ -638,7 +664,8 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       studentId: stu.id,
       studentName: stu.name,
       studentEmail: stu.email,
-      status: 'assigned'
+      status: 'assigned',
+      completedSubTaskIds: []
     }));
 
     setAssignments(prev => [newAsg, ...prev]);
@@ -683,6 +710,147 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
     const reminderMsg = data.reminderConfig?.enabled ? ' with automated reminder scheduled 🔔' : '';
     showToast(`Assignment "${data.title}" posted to all students${reminderMsg}`, 'success');
+  };
+
+  const toggleStudentSubTask = (assignmentId: string, subTaskId: string) => {
+    const studentId = currentUser.role === 'Student' ? currentUser.id : 'user-stu-1';
+    setSubmissions(prev => {
+      const existingIndex = prev.findIndex(s => s.assignmentId === assignmentId && s.studentId === studentId);
+      let next: Submission[];
+      if (existingIndex >= 0) {
+        const existing = prev[existingIndex];
+        const completed = new Set(existing.completedSubTaskIds || []);
+        if (completed.has(subTaskId)) {
+          completed.delete(subTaskId);
+        } else {
+          completed.add(subTaskId);
+        }
+        const updatedSub: Submission = {
+          ...existing,
+          completedSubTaskIds: Array.from(completed)
+        };
+        next = [...prev];
+        next[existingIndex] = updatedSub;
+      } else {
+        const studentUser = allUsers.find(u => u.id === studentId) || currentUser;
+        const newSub: Submission = {
+          id: `sub-${assignmentId}-${studentId}`,
+          assignmentId,
+          studentId,
+          studentName: studentUser.name,
+          studentEmail: studentUser.email,
+          status: 'viewed',
+          viewedAt: new Date().toISOString(),
+          completedSubTaskIds: [subTaskId]
+        };
+        next = [newSub, ...prev];
+      }
+      saveStorage('submissions', next);
+      return next;
+    });
+  };
+
+  const logHolisticActivity = (data: Omit<HolisticActivity, 'id' | 'status' | 'approvedBy' | 'approvedAt' | 'facultyRemarks'>) => {
+    const newActivity: HolisticActivity = {
+      ...data,
+      id: `act-${Date.now()}`,
+      status: 'pending_approval'
+    };
+    setHolisticActivities(prev => {
+      const next = [newActivity, ...prev];
+      saveStorage('holistic_activities', next);
+      return next;
+    });
+    const audit: FacultyAuditEntry = {
+      id: `aud-${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      action: 'Holistic Activity Logged',
+      performedBy: data.studentName,
+      role: 'Student',
+      details: `${data.title} (${data.category}) submitted for faculty accreditation.`,
+      severity: 'info'
+    };
+    setFacultyAudits(prev => {
+      const next = [audit, ...prev];
+      saveStorage('faculty_audits', next);
+      return next;
+    });
+    showToast('Activity submitted for Faculty Incharge accreditation!', 'success');
+  };
+
+  const reviewHolisticActivity = (activityId: string, status: 'approved' | 'rejected', points: number, remarks: string) => {
+    let targetStudentId = '';
+    setHolisticActivities(prev => {
+      const next = prev.map(a => {
+        if (a.id === activityId) {
+          targetStudentId = a.studentId;
+          return {
+            ...a,
+            status,
+            points,
+            facultyRemarks: remarks,
+            approvedBy: currentUser.name,
+            approvedAt: new Date().toISOString()
+          };
+        }
+        return a;
+      });
+      saveStorage('holistic_activities', next);
+      return next;
+    });
+
+    if (status === 'approved' && targetStudentId) {
+      setAllUsers(prev => {
+        const next = prev.map(u => {
+          if (u.id === targetStudentId) {
+            return { ...u, holisticPoints: (u.holisticPoints || 0) + points };
+          }
+          return u;
+        });
+        saveStorage('users', next);
+        return next;
+      });
+    }
+
+    const audit: FacultyAuditEntry = {
+      id: `aud-${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      action: `Holistic Activity ${status === 'approved' ? 'Approved' : 'Rejected'}`,
+      performedBy: currentUser.name,
+      role: 'Faculty',
+      details: `Awarded ${points} points for activity ${activityId}. Remarks: ${remarks}`,
+      severity: 'info'
+    };
+    setFacultyAudits(prev => {
+      const next = [audit, ...prev];
+      saveStorage('faculty_audits', next);
+      return next;
+    });
+    showToast(`Activity ${status === 'approved' ? 'approved' : 'rejected'}. Points updated!`, status === 'approved' ? 'success' : 'info');
+  };
+
+  const submitConfidentialGrievance = (data: Omit<GrievanceConfidentialItem, 'id' | 'submittedAt' | 'status' | 'facultyNotes'>) => {
+    const newGrievance: GrievanceConfidentialItem = {
+      ...data,
+      id: `grv-${Date.now()}`,
+      submittedAt: new Date().toISOString(),
+      status: 'pending'
+    };
+    setConfidentialGrievances(prev => {
+      const next = [newGrievance, ...prev];
+      saveStorage('confidential_grievances', next);
+      return next;
+    });
+    showToast('Confidential grievance delivered privately to Faculty Incharge', 'success');
+  };
+
+  const resolveConfidentialGrievance = (id: string, notes: string, status: 'reviewed' | 'resolved') => {
+    setConfidentialGrievances(prev => {
+      const next = prev.map(g => g.id === id ? { ...g, status, facultyNotes: notes } : g);
+      saveStorage('confidential_grievances', next);
+      return next;
+    });
+    showToast(`Grievance marked as ${status}`, 'info');
   };
 
   const markAssignmentViewed = (assignmentId: string) => {
@@ -1246,9 +1414,12 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setAttendanceSessions(INITIAL_ATTENDANCE);
     setResources(INITIAL_RESOURCES);
     setPolls(INITIAL_POLLS);
+    setHolisticActivities(INITIAL_HOLISTIC_ACTIVITIES);
+    setConfidentialGrievances(INITIAL_CONFIDENTIAL_GRIEVANCES);
+    setFacultyAudits(INITIAL_FACULTY_AUDITS);
     setActiveTab('dashboard');
     setSelectedAssignmentId(INITIAL_ASSIGNMENTS[0].id);
-    setSelectedStudentId(INITIAL_USERS[1].id);
+    setSelectedStudentId(INITIAL_USERS[2].id);
     setThemeAccentState('blue');
     showToast('Demo data reset to default MECH-3A state', 'info');
   };
@@ -1289,6 +1460,9 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         attendanceSessions: Array.isArray(attendanceSessions) ? attendanceSessions : [],
         resources: Array.isArray(resources) ? resources : [],
         polls: Array.isArray(polls) ? polls : [],
+        holisticActivities: Array.isArray(holisticActivities) ? holisticActivities : [],
+        confidentialGrievances: Array.isArray(confidentialGrievances) ? confidentialGrievances : [],
+        facultyAudits: Array.isArray(facultyAudits) ? facultyAudits : [],
         activeTab,
         selectedAssignmentId,
         selectedStudentId,
@@ -1326,6 +1500,11 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         createClass,
         joinClass,
         createAssignment,
+        toggleStudentSubTask,
+        logHolisticActivity,
+        reviewHolisticActivity,
+        submitConfidentialGrievance,
+        resolveConfidentialGrievance,
         submitAssignment,
         markAssignmentViewed,
         gradeSubmission,

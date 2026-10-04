@@ -1,4 +1,4 @@
-export type UserRole = 'CR' | 'Student';
+export type UserRole = 'Faculty' | 'CR' | 'Student';
 
 export interface User {
   id: string;
@@ -13,6 +13,11 @@ export interface User {
   lastActive: string;
   device?: string;
   isEmailVerified?: boolean;
+  designation?: string;
+  department?: string;
+  officeRoom?: string;
+  holisticPoints?: number;
+  attendanceRate?: number;
 }
 
 export interface SubjectConfig {
@@ -48,6 +53,14 @@ export interface AssignmentReminderConfig {
   customMessage?: string;
 }
 
+export interface SubTask {
+  id: string;
+  title: string;
+  completed?: boolean;
+  estimatedMinutes?: number;
+  mandatory?: boolean;
+}
+
 export interface Assignment {
   id: string;
   classId: string;
@@ -69,6 +82,7 @@ export interface Assignment {
   difficultyEstimate?: 'Low' | 'Medium' | 'High';
   maxScore?: number;
   reminderConfig?: AssignmentReminderConfig;
+  subtasks?: SubTask[];
 }
 
 export type SubmissionStatus = 'assigned' | 'viewed' | 'submitted' | 'missed';
@@ -104,6 +118,7 @@ export interface Submission {
   fileUrl?: string;
   proof?: SubmissionProof;
   grade?: SubmissionGrade;
+  completedSubTaskIds?: string[];
 }
 
 export interface Broadcast {
@@ -240,4 +255,58 @@ export type NavTab =
   | 'broadcasts' 
   | 'messages' 
   | 'analytics' 
-  | 'settings';
+  | 'settings'
+  | 'growth'
+  | 'oversight';
+
+// Holistic Growth & Beyond Academics Types
+export type HolisticCategory = 
+  | 'hackathon' 
+  | 'leadership' 
+  | 'certification' 
+  | 'social_impact' 
+  | 'sports_cultural' 
+  | 'research';
+
+export interface HolisticActivity {
+  id: string;
+  studentId: string;
+  studentName: string;
+  studentRollNo: string;
+  title: string;
+  category: HolisticCategory;
+  description: string;
+  organizationOrEvent: string;
+  date: string;
+  proofUrl?: string;
+  points: number;
+  status: 'pending_approval' | 'approved' | 'rejected';
+  facultyRemarks?: string;
+  approvedBy?: string;
+  approvedAt?: string;
+}
+
+// Faculty Oversight: Confidential Grievance Desk
+export interface GrievanceConfidentialItem {
+  id: string;
+  studentId: string;
+  studentName: string; // "Anonymous Student" or named student
+  isAnonymous: boolean;
+  category: 'academic_stress' | 'attendance_dispute' | 'peer_issue' | 'facility_lab' | 'general';
+  subject: string;
+  message: string;
+  submittedAt: string;
+  status: 'pending' | 'reviewed' | 'resolved';
+  facultyNotes?: string;
+}
+
+// Faculty Oversight: Audit Log
+export interface FacultyAuditEntry {
+  id: string;
+  timestamp: string;
+  action: string;
+  performedBy: string;
+  role: UserRole;
+  details: string;
+  severity: 'info' | 'warning' | 'critical';
+}

@@ -13,7 +13,10 @@ import {
   Info,
   Check,
   Copy,
-  Calendar
+  Calendar,
+  ListTodo,
+  CheckSquare,
+  Square
 } from 'lucide-react';
 
 export const RightPanel: React.FC = () => {
@@ -35,7 +38,8 @@ export const RightPanel: React.FC = () => {
     setIsSubmitDrawerOpen,
     gradeSubmission,
     showToast,
-    isOffline
+    isOffline,
+    toggleStudentSubTask
   } = useStudySync();
 
   const [activeTabSub, setActiveTabSub] = useState<'submissions' | 'discussion'>('submissions');
@@ -128,7 +132,7 @@ export const RightPanel: React.FC = () => {
 
       <div className="flex-1 overflow-y-auto flex flex-col justify-between">
         {/* VIEW 1: BROADCASTS TAB RIGHT PANEL */}
-        {activeTab === 'broadcasts' && currentUser.role === 'CR' ? (
+        {activeTab === 'broadcasts' && (currentUser.role === 'CR' || currentUser.role === 'Faculty') ? (
           <div className="p-5 space-y-4">
             <div className="border-b border-[#DBDBDB] dark:border-[#262626] pb-3">
               <h3 className="font-semibold text-sm text-black dark:text-white">
@@ -343,6 +347,89 @@ export const RightPanel: React.FC = () => {
                   </span>
                 </div>
               )}
+
+              {/* Assignment Subtasks / Milestones Widget */}
+              {selectedAsg.subtasks && selectedAsg.subtasks.length > 0 && (
+                <div className="mt-3 p-3 rounded-lg bg-[#FAFAFA] dark:bg-[#181818] border border-[#DBDBDB] dark:border-[#262626] space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5 text-xs font-semibold text-black dark:text-white">
+                      <ListTodo className="w-3.5 h-3.5 text-[#0095F6]" />
+                      <span>Subtasks & Milestones</span>
+                    </div>
+                    {currentUser.role === 'Student' && (
+                      <span className="text-[10px] font-mono text-[#8E8E8E]">
+                        {mySubmission?.completedSubTaskIds?.length || 0}/{selectedAsg.subtasks.length}
+                      </span>
+                    )}
+                  </div>
+
+                  {currentUser.role === 'Student' && (
+                    <div className="w-full bg-[#EFEFEF] dark:bg-[#262626] h-1.5 rounded-full overflow-hidden">
+                      <div 
+                        className="bg-[#0095F6] h-full transition-all duration-300"
+                        style={{ 
+                          width: `${Math.round(((mySubmission?.completedSubTaskIds?.length || 0) / selectedAsg.subtasks.length) * 100)}%` 
+                        }}
+                      />
+                    </div>
+                  )}
+
+                  <div className="space-y-1.5 pt-1">
+                    {selectedAsg.subtasks.map((st, idx) => {
+                      const isDone = mySubmission?.completedSubTaskIds?.includes(st.id);
+                      return (
+                        <div
+                          key={st.id}
+                          onClick={() => {
+                            if (currentUser.role === 'Student') {
+                              toggleStudentSubTask(selectedAsg.id, st.id);
+                            }
+                          }}
+                          className={`flex items-start gap-2 p-2 rounded-md transition-colors text-xs ${
+                            currentUser.role === 'Student' ? 'cursor-pointer hover:bg-black/5 dark:hover:bg-white/5' : ''
+                          } ${
+                            isDone ? 'bg-emerald-500/5 dark:bg-emerald-500/10' : 'bg-white dark:bg-[#121212]'
+                          } border border-[#DBDBDB]/60 dark:border-[#262626]/60`}
+                        >
+                          {currentUser.role === 'Student' ? (
+                            <button
+                              type="button"
+                              className="mt-0.5 text-emerald-600 dark:text-emerald-400 shrink-0"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleStudentSubTask(selectedAsg.id, st.id);
+                              }}
+                            >
+                              {isDone ? (
+                                <CheckSquare className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                              ) : (
+                                <Square className="w-3.5 h-3.5 text-[#8E8E8E]" />
+                              )}
+                            </button>
+                          ) : (
+                            <span className="w-4 h-4 rounded-full bg-[#0095F6]/10 text-[#0095F6] text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">
+                              {idx + 1}
+                            </span>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <span className={`block leading-tight ${isDone ? 'line-through text-[#8E8E8E]' : 'text-black dark:text-white font-medium'}`}>
+                              {st.title}
+                            </span>
+                            <div className="flex items-center gap-1.5 mt-0.5 text-[10px] text-[#8E8E8E]">
+                              {st.estimatedMinutes && <span>~{st.estimatedMinutes}m</span>}
+                              {st.mandatory ? (
+                                <span className="text-[#ED4956] font-semibold">Mandatory</span>
+                              ) : (
+                                <span>Optional</span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Submissions / Discussion Toggle */}
@@ -355,7 +442,7 @@ export const RightPanel: React.FC = () => {
                     : 'text-[#8E8E8E]'
                 }`}
               >
-                {currentUser.role === 'CR' ? 'Submission Status' : 'My Status'}
+                {(currentUser.role === 'CR' || currentUser.role === 'Faculty') ? 'Submission Status' : 'My Status'}
               </button>
               <button
                 onClick={() => setActiveTabSub('discussion')}
@@ -371,7 +458,7 @@ export const RightPanel: React.FC = () => {
 
             {/* TAB CONTENT */}
             {activeTabSub === 'submissions' ? (
-              currentUser.role === 'CR' ? (
+              (currentUser.role === 'CR' || currentUser.role === 'Faculty') ? (
                 /* CR VIEW: SUBMITTED & PENDING LISTS */
                 <div className="space-y-4">
                   {/* Submitted List */}

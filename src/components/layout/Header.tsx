@@ -20,7 +20,10 @@ import {
   HelpCircle,
   Smartphone,
   Send,
-  ArrowLeft
+  ArrowLeft,
+  Shield,
+  KeyRound,
+  GraduationCap
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -28,6 +31,7 @@ interface HeaderProps {
   onOpenSoundscapes?: () => void;
   onOpenAchievements?: () => void;
   onOpenShortcuts?: () => void;
+  onOpenRolePortals?: () => void;
   isDarkMode: boolean;
   setIsDarkMode: (val: boolean | ((prev: boolean) => boolean)) => void;
 }
@@ -37,6 +41,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenSoundscapes,
   onOpenAchievements,
   onOpenShortcuts,
+  onOpenRolePortals,
   isDarkMode, 
   setIsDarkMode 
 }) => {
@@ -355,7 +360,9 @@ export const Header: React.FC<HeaderProps> = ({
             className="flex items-center gap-2 pl-2 pr-2.5 py-1 rounded-md border border-[#DBDBDB] dark:border-[#262626] bg-white dark:bg-[#121212] hover:bg-[#FAFAFA] dark:hover:bg-[#1C1C1C] transition-all text-xs"
           >
             <div className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-[11px] text-white shrink-0 ${
-              (currentUser?.role || 'Student') === 'CR'
+              currentUser?.role === 'Faculty'
+                ? 'bg-purple-600'
+                : currentUser?.role === 'CR'
                 ? 'bg-[#0095F6]'
                 : 'bg-[#262626] dark:bg-white dark:text-black'
             }`}>
@@ -366,22 +373,72 @@ export const Header: React.FC<HeaderProps> = ({
                 {(currentUser?.name || 'User').split(' ')[0]}
               </span>
               <span className={`text-[10px] font-medium leading-none block ${
-                (currentUser?.role || 'Student') === 'CR' ? 'text-[#0095F6]' : 'text-[#8E8E8E]'
+                currentUser?.role === 'Faculty' 
+                  ? 'text-purple-600 dark:text-purple-400 font-semibold' 
+                  : currentUser?.role === 'CR' 
+                  ? 'text-[#0095F6]' 
+                  : 'text-[#8E8E8E]'
               }`}>
-                {currentUser?.role || 'Student'} Mode
+                {currentUser?.role === 'Faculty' ? 'Faculty Incharge' : `${currentUser?.role || 'Student'} Mode`}
               </span>
             </div>
             <ChevronDown className="w-3.5 h-3.5 text-[#8E8E8E]" />
           </button>
 
           {isUserSwitcherOpen && (
-            <div className="absolute right-0 mt-2 w-72 bg-white dark:bg-[#121212] border border-[#DBDBDB] dark:border-[#262626] rounded-xl shadow-xl z-50 p-2 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
-              <div className="px-2.5 py-1.5 mb-1 text-[10px] font-bold text-[#8E8E8E] uppercase tracking-wider">
-                Switch Role / Preview Persona
+            <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-[#121212] border border-[#DBDBDB] dark:border-[#262626] rounded-xl shadow-xl z-50 p-2 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+              {/* Dedicated 3 Portals CTA */}
+              <div className="p-1 mb-2 border-b border-[#DBDBDB] dark:border-[#262626]">
+                <button
+                  onClick={() => {
+                    setIsUserSwitcherOpen(false);
+                    onOpenRolePortals?.();
+                  }}
+                  className="w-full py-2 px-3 rounded-lg bg-gradient-to-r from-purple-600 via-indigo-600 to-[#0095F6] hover:opacity-95 text-white font-semibold text-xs flex items-center justify-center gap-1.5 shadow-xs transition-opacity"
+                >
+                  <KeyRound className="w-3.5 h-3.5" />
+                  <span>Open 3-Role Login Portals</span>
+                </button>
               </div>
 
-              {/* CR Option */}
-              <div className="space-y-1">
+              {/* SECTION 1: FACULTY INCHARGE (DEAN/ADMIN) */}
+              <div className="space-y-1 mb-2">
+                <div className="px-2.5 py-1 text-[10px] font-bold text-purple-600 dark:text-purple-400 uppercase tracking-wider flex items-center gap-1">
+                  <Shield className="w-3 h-3" />
+                  <span>Faculty Incharge (Institutional Admin)</span>
+                </div>
+                {allUsers.filter(u => u.role === 'Faculty').map(u => (
+                  <button
+                    key={u.id}
+                    onClick={() => {
+                      switchRole('Faculty', u.id);
+                      setIsUserSwitcherOpen(false);
+                    }}
+                    className={`w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs transition-colors ${
+                      currentUser.id === u.id 
+                        ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400 font-semibold border border-purple-500/30' 
+                        : 'text-black dark:text-white hover:bg-[#FAFAFA] dark:hover:bg-[#1C1C1C]'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-full bg-purple-600 text-white flex items-center justify-center text-[10px] font-bold">
+                        FAC
+                      </div>
+                      <div className="text-left">
+                        <div className="font-semibold text-black dark:text-white">{u.name}</div>
+                        <div className="text-[10px] text-[#8E8E8E]">{u.designation || 'Faculty Incharge'} • {u.officeRoom || 'ME-302'}</div>
+                      </div>
+                    </div>
+                    <span className="px-1.5 py-0.5 rounded bg-purple-600 text-white text-[10px] font-bold">Faculty</span>
+                  </button>
+                ))}
+              </div>
+
+              {/* SECTION 2: CLASS REPRESENTATIVE */}
+              <div className="space-y-1 mb-2 pt-1 border-t border-[#DBDBDB] dark:border-[#262626]">
+                <div className="px-2.5 py-1 text-[10px] font-bold text-[#0095F6] uppercase tracking-wider">
+                  Class Representative (CR)
+                </div>
                 {allUsers.filter(u => u.role === 'CR').map(u => (
                   <button
                     key={u.id}
@@ -401,7 +458,7 @@ export const Header: React.FC<HeaderProps> = ({
                       </div>
                       <div className="text-left">
                         <div className="font-semibold text-black dark:text-white">{u.name}</div>
-                        <div className="text-[10px] text-[#8E8E8E]">{u.email}</div>
+                        <div className="text-[10px] text-[#8E8E8E]">{u.rollNo} • {u.email}</div>
                       </div>
                     </div>
                     <span className="px-1.5 py-0.5 rounded bg-[#0095F6] text-white text-[10px] font-bold">CR</span>
@@ -409,38 +466,40 @@ export const Header: React.FC<HeaderProps> = ({
                 ))}
               </div>
 
-              <div className="h-px bg-[#DBDBDB] dark:bg-[#262626] my-2" />
+              {/* SECTION 3: STUDENT COHORT */}
+              <div className="pt-1 border-t border-[#DBDBDB] dark:border-[#262626]">
+                <div className="px-2.5 py-1 text-[10px] font-bold text-[#8E8E8E] uppercase tracking-wider flex justify-between items-center">
+                  <span>Student Cohort ({allUsers.filter(u => u.role === 'Student').length})</span>
+                  <span className="text-[9px] text-[#0095F6]">Scroll for all 48</span>
+                </div>
 
-              <div className="px-2.5 py-1 text-[10px] font-bold text-[#8E8E8E] uppercase tracking-wider">
-                Student Personas
-              </div>
-
-              <div className="max-h-48 overflow-y-auto space-y-1 pr-1">
-                {allUsers.filter(u => u.role === 'Student').map(u => (
-                  <button
-                    key={u.id}
-                    onClick={() => {
-                      switchRole('Student', u.id);
-                      setIsUserSwitcherOpen(false);
-                    }}
-                    className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors ${
-                      currentUser.id === u.id 
-                        ? 'bg-[#EFEFEF] dark:bg-[#262626] font-semibold text-black dark:text-white' 
-                        : 'text-black dark:text-white hover:bg-[#FAFAFA] dark:hover:bg-[#1C1C1C]'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2 truncate">
-                      <div className="w-5 h-5 rounded-full bg-[#DBDBDB] dark:bg-[#363636] text-neutral-800 dark:text-neutral-200 flex items-center justify-center text-[10px] font-semibold">
-                        {u.name.charAt(0)}
+                <div className="max-h-44 overflow-y-auto space-y-1 pr-1">
+                  {allUsers.filter(u => u.role === 'Student').map(u => (
+                    <button
+                      key={u.id}
+                      onClick={() => {
+                        switchRole('Student', u.id);
+                        setIsUserSwitcherOpen(false);
+                      }}
+                      className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors ${
+                        currentUser.id === u.id 
+                          ? 'bg-[#EFEFEF] dark:bg-[#262626] font-semibold text-black dark:text-white' 
+                          : 'text-black dark:text-white hover:bg-[#FAFAFA] dark:hover:bg-[#1C1C1C]'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 truncate">
+                        <div className="w-5 h-5 rounded-full bg-[#DBDBDB] dark:bg-[#363636] text-neutral-800 dark:text-neutral-200 flex items-center justify-center text-[10px] font-semibold">
+                          {u.name.charAt(0)}
+                        </div>
+                        <div className="text-left truncate">
+                          <span className="font-medium truncate block text-black dark:text-white">{u.name}</span>
+                          <span className="text-[10px] text-[#8E8E8E] block font-mono">{u.rollNo} • {u.device || 'Mobile'}</span>
+                        </div>
                       </div>
-                      <div className="text-left truncate">
-                        <span className="font-medium truncate block text-black dark:text-white">{u.name}</span>
-                        <span className="text-[10px] text-[#8E8E8E] block font-mono">{u.rollNo}</span>
-                      </div>
-                    </div>
-                    <span className="text-[10px] text-[#8E8E8E]">Student</span>
-                  </button>
-                ))}
+                      <span className="text-[10px] text-[#8E8E8E] shrink-0">{u.holisticPoints || 0} pts</span>
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           )}

@@ -19,7 +19,9 @@ import {
   QrCode, 
   Keyboard, 
   Shield,
-  GraduationCap
+  GraduationCap,
+  Sparkles,
+  ShieldAlert
 } from 'lucide-react';
 
 export const LeftPanel: React.FC = () => {
@@ -73,11 +75,14 @@ export const LeftPanel: React.FC = () => {
     label: string; 
     icon: React.FC<{ className?: string }>; 
     crOnly?: boolean;
+    facultyOnly?: boolean;
     badgeCount?: number;
   }[] = [
     { id: 'dashboard', label: 'Home', icon: Home },
     { id: 'assignments', label: 'Tasks', icon: CheckSquare, badgeCount: activeAssignmentsCount },
     { id: 'attendance', label: 'Attendance', icon: UserCheck },
+    { id: 'growth', label: 'Holistic Growth', icon: Sparkles },
+    { id: 'oversight', label: 'Faculty Oversight', icon: ShieldAlert, facultyOnly: true },
     { id: 'subjects', label: 'Subjects & CRs', icon: GraduationCap },
     { id: 'resources', label: 'Resources', icon: Folder },
     { id: 'polls', label: 'Polls & Consensus', icon: BarChart2, badgeCount: activePollsCount },
@@ -90,7 +95,11 @@ export const LeftPanel: React.FC = () => {
   ];
 
   const userRole = currentUser?.role || 'CR';
-  const visibleNav = navItems.filter(item => !item.crOnly || userRole === 'CR');
+  const visibleNav = navItems.filter(item => {
+    if (item.facultyOnly && userRole !== 'Faculty') return false;
+    if (item.crOnly && userRole !== 'CR' && userRole !== 'Faculty') return false;
+    return true;
+  });
 
   return (
     <aside className="hidden md:flex w-[68px] lg:w-[236px] bg-white dark:bg-black text-[#262626] dark:text-[#F5F5F5] flex-col justify-between h-full border-r border-[#DBDBDB] dark:border-[#262626] shrink-0 transition-all duration-150 select-none">

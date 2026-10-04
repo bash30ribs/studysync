@@ -16,12 +16,11 @@ import {
   Download,
   FileText,
   UserCheck,
-  Flame,
-  Sparkles,
-  Headphones,
-  Trophy,
-  Zap
+  EyeOff,
+  Award,
+  Sparkles
 } from 'lucide-react';
+import { Modal } from '../common/Feedback';
 
 export const StudentDashboard: React.FC = () => {
   const { 
@@ -43,7 +42,9 @@ export const StudentDashboard: React.FC = () => {
     markAssignmentViewed,
     setActiveTab,
     showToast,
-    isOffline
+    isOffline,
+    holisticActivities,
+    submitConfidentialGrievance
   } = useStudySync();
 
   const safeClass = currentClass || { name: 'Cohort', code: 'CODE' };
@@ -59,6 +60,36 @@ export const StudentDashboard: React.FC = () => {
 
   const [taskFilter, setTaskFilter] = useState<'all' | 'pending' | 'submitted'>('all');
   const [quickMsg, setQuickMsg] = useState('');
+  const [isGrievanceModalOpen, setIsGrievanceModalOpen] = useState(false);
+  const [grievanceCategory, setGrievanceCategory] = useState<'academic_stress' | 'attendance_dispute' | 'peer_issue' | 'facility_lab' | 'general'>('academic_stress');
+  const [grievanceSubject, setGrievanceSubject] = useState('');
+  const [grievanceMessage, setGrievanceMessage] = useState('');
+  const [isAnonymousGrievance, setIsAnonymousGrievance] = useState(false);
+
+  const approvedHolisticPoints = (holisticActivities || [])
+    .filter(a => a.studentId === safeUser.id && a.status === 'approved')
+    .reduce((acc, a) => acc + (a.points || 0), 0);
+
+  const handleGrievanceSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!grievanceSubject.trim() || !grievanceMessage.trim()) {
+      showToast('Please provide a subject and message for your grievance', 'error');
+      return;
+    }
+    submitConfidentialGrievance({
+      studentId: safeUser.id,
+      studentName: isAnonymousGrievance ? 'Anonymous Student' : safeUser.name,
+      isAnonymous: isAnonymousGrievance,
+      category: grievanceCategory,
+      subject: grievanceSubject.trim(),
+      message: grievanceMessage.trim()
+    });
+    setIsGrievanceModalOpen(false);
+    setGrievanceSubject('');
+    setGrievanceMessage('');
+    setIsAnonymousGrievance(false);
+    showToast('Confidential grievance routed to Faculty Incharge Dr. Meenakshi Sundaram', 'success');
+  };
 
   const latestBroadcast = safeBroadcasts[0];
   const activePoll = safePolls.find(p => !p.isClosed) || safePolls[0];
@@ -219,8 +250,37 @@ export const StudentDashboard: React.FC = () => {
         </div>
       </div>
 
+      {/* 1.5 Holistic Growth & AICTE 100 Points Meter Banner */}
+      <div 
+        onClick={() => setActiveTab('growth')}
+        className="p-4 rounded-xl bg-gradient-to-r from-purple-500/10 via-blue-500/5 to-transparent border border-purple-500/20 hover:border-purple-500/40 transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-3 group"
+      >
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 rounded-xl bg-purple-500/20 text-purple-600 dark:text-purple-400 shrink-0">
+            <Award className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400">
+                NEP 2020 / AICTE Holistic Growth Portfolio
+              </span>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-500/20 text-purple-600 dark:text-purple-400">
+                {approvedHolisticPoints + (safeUser.holisticPoints || 0)} / 100 pts
+              </span>
+            </div>
+            <p className="text-xs text-black dark:text-white font-medium mt-0.5">
+              Track hackathons, certifications, club leadership & sports credentials.
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 text-xs font-semibold text-purple-600 dark:text-purple-400 group-hover:translate-x-1 transition-transform">
+          <span>View Extracurricular Portfolio</span>
+          <ArrowRight className="w-3.5 h-3.5" />
+        </div>
+      </div>
+
       {/* 2. Quick Action Dock */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 sm:gap-3">
         <button
           onClick={() => {
             const firstPending = safeAssignments.find(a => {
@@ -245,6 +305,23 @@ export const StudentDashboard: React.FC = () => {
             </span>
             <span className="text-[11px] text-[#8E8E8E] font-medium">
               {pendingCount} remaining
+            </span>
+          </div>
+        </button>
+
+        <button
+          onClick={() => setIsGrievanceModalOpen(true)}
+          className="p-3 rounded-lg bg-white dark:bg-[#121212] border border-[#DBDBDB] dark:border-[#262626] hover:border-indigo-500/50 text-left transition-all group flex items-center gap-3 cursor-pointer"
+        >
+          <div className="w-8 h-8 rounded-md bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+            <EyeOff className="w-4 h-4" />
+          </div>
+          <div className="min-w-0">
+            <span className="text-xs font-semibold text-black dark:text-white block truncate">
+              Faculty Grievance
+            </span>
+            <span className="text-[11px] text-[#8E8E8E] font-medium">
+              Private to Dean
             </span>
           </div>
         </button>
@@ -722,6 +799,100 @@ export const StudentDashboard: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Confidential Faculty Grievance Submission Modal */}
+      <Modal
+        isOpen={isGrievanceModalOpen}
+        onClose={() => setIsGrievanceModalOpen(false)}
+        title="Confidential Grievance to Faculty Incharge"
+      >
+        <form onSubmit={handleGrievanceSubmit} className="space-y-4">
+          <div className="p-3 rounded-lg bg-indigo-500/5 border border-indigo-500/20 text-xs text-[#737373] dark:text-[#A8A8A8] space-y-1">
+            <div className="flex items-center gap-1.5 font-semibold text-indigo-600 dark:text-indigo-400">
+              <EyeOff className="w-4 h-4" />
+              <span>Direct-to-Faculty Confidentiality</span>
+            </div>
+            <p className="text-[11px] leading-relaxed">
+              This submission is routed directly to Core Faculty Incharge Dr. Meenakshi Sundaram. It is strictly hidden from your Class Representative (CR) and student peers.
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-black dark:text-white mb-1">
+              Grievance Category
+            </label>
+            <select
+              value={grievanceCategory}
+              onChange={(e) => setGrievanceCategory(e.target.value as any)}
+              className="w-full text-xs px-3 py-2 rounded-lg border border-[#DBDBDB] dark:border-[#262626] bg-[#FAFAFA] dark:bg-[#181818] text-black dark:text-white focus:outline-none focus:border-[#0095F6]"
+            >
+              <option value="academic_stress">Academic Stress & Workload Clashes</option>
+              <option value="attendance_dispute">Attendance Discrepancy / Medical Leave</option>
+              <option value="peer_issue">Peer / Hostel / CR Dispute</option>
+              <option value="facility_lab">Lab Equipment & Faculty Feedback</option>
+              <option value="general">Confidential Special Request</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-black dark:text-white mb-1">
+              Subject Line
+            </label>
+            <input
+              type="text"
+              required
+              value={grievanceSubject}
+              onChange={(e) => setGrievanceSubject(e.target.value)}
+              placeholder="e.g. Medical leave certificate submission clash"
+              className="w-full text-xs px-3 py-2 rounded-lg border border-[#DBDBDB] dark:border-[#262626] bg-[#FAFAFA] dark:bg-[#181818] text-black dark:text-white focus:outline-none focus:border-[#0095F6]"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-black dark:text-white mb-1">
+              Confidential Statement
+            </label>
+            <textarea
+              rows={4}
+              required
+              value={grievanceMessage}
+              onChange={(e) => setGrievanceMessage(e.target.value)}
+              placeholder="Explain the situation in detail. Include dates, course codes, or circumstance..."
+              className="w-full text-xs p-3 rounded-lg border border-[#DBDBDB] dark:border-[#262626] bg-[#FAFAFA] dark:bg-[#181818] text-black dark:text-white focus:outline-none focus:border-[#0095F6] resize-none"
+            />
+          </div>
+
+          <div className="flex items-center gap-2 p-2.5 rounded-lg bg-[#FAFAFA] dark:bg-[#181818] border border-[#DBDBDB] dark:border-[#262626]">
+            <input
+              type="checkbox"
+              id="anonymous-check"
+              checked={isAnonymousGrievance}
+              onChange={(e) => setIsAnonymousGrievance(e.target.checked)}
+              className="w-4 h-4 text-indigo-600 rounded"
+            />
+            <label htmlFor="anonymous-check" className="text-xs text-black dark:text-white cursor-pointer select-none">
+              Submit Anonymously <span className="text-[#8E8E8E] text-[11px]">(Hides your roll number and name from the faculty record)</span>
+            </label>
+          </div>
+
+          <div className="flex justify-end gap-2 pt-2">
+            <button
+              type="button"
+              onClick={() => setIsGrievanceModalOpen(false)}
+              className="px-4 py-2 rounded-lg border border-[#DBDBDB] dark:border-[#262626] text-xs font-semibold text-[#8E8E8E]"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors"
+            >
+              <EyeOff className="w-3.5 h-3.5" />
+              <span>Submit to Faculty Incharge</span>
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 };

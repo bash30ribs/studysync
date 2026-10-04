@@ -9,6 +9,7 @@
 [![Vite 6](https://img.shields.io/badge/Vite-6.4-646CFF?style=flat-square&logo=vite)](https://vitejs.dev/)
 [![Tailwind CSS v4](https://img.shields.io/badge/Tailwind-v4.3-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
 [![Vitest](https://img.shields.io/badge/Tested%20with-Vitest-FCC72B?style=flat-square&logo=vitest)](https://vitest.dev/)
+[![npm package](https://img.shields.io/badge/npm-v10+-CB3837?style=flat-square&logo=npm)](https://www.npmjs.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 
 <p align="center">
@@ -34,6 +35,21 @@
 - **Attendance Session Tracker**: Fast roster roll-calls with exportable attendance CSV reports.
 - **Personal Student Analytics**: Detailed attendance audit, defaulter threshold tracking, and per-subject breakdown.
 - **Flutter Mobile Companion**: Cross-platform mobile app in `mobile/` with offline cache awareness.
+
+### 🏛️ 3-Role Institutional Portals & Personas
+- **Core Faculty Incharge Hub**: Confidential Grievance Desk with resolution tracking, At-Risk Defaulter Radar (<75% attendance / overdue tasks), and Cryptographic SHA-256 Audit Trail.
+- **Class Representative (CR) Command Center**: Broadcast dispatch, milestone subtask builder, automated roster attendance, and submission pace radar.
+- **Student Cohort Portal (50 Realistic Profiles)**: Subtask step tracking, confidential grievance ticketing, streak counters, and AICTE activity logging.
+
+### 📋 Assignment Subtasks & Milestone Tracking
+- **Milestone Breakdown**: Tasks support ordered subtasks with weightages and descriptions.
+- **Interactive Checklists**: Students toggle subtasks with automatic completion percentage badges and visual progress bars.
+- **CR Subtask Composer**: Add, edit, remove, and reorder milestone steps during assignment creation.
+
+### 🌱 Beyond Academics & NEP 2020 Holistic Growth
+- **AICTE 100 Activity Points Radar**: Track accreditation points across Technical Skills, Sports/Fitness, Community Outreach, Cultural/Arts, Leadership, and Innovation.
+- **Self-Report Activity Claims**: Students submit external accomplishments with digital verification URLs and hours.
+- **Faculty Accreditation Review**: Incharge approval workflow with badge awards and cohort Wall of Fame leaderboard.
 
 ### 🎧 Deep Focus & Gamification Layer
 - **Procedural Soundscapes**: Web Audio synthesizer with Brown Noise, Rain, Pink Noise, and 10Hz Alpha Binaural beats without heavy audio assets.
@@ -80,31 +96,35 @@ graph TD
 - **Node.js**: `v20.x` or higher
 - **npm**: `v10.x` or higher
 
-### Installation
+### Installation & Scripts
 
 ```bash
 # Clone the repository
 git clone https://github.com/bash30ribs/studysync.git
 cd studysync
 
-# Install dependencies
+# Install dependencies via npm
 npm install
 
-# Start local development server
-npm run dev
+# Start local development server (or use npm start)
+npm start
+# or: npm run dev
 ```
 
 Visit `http://localhost:5173` to explore StudySync locally.
 
 ---
 
-## 🧪 Testing & Verification
+## 🧪 Testing, Quality & Verification
 
 ```bash
-# Run unit test suite
-npm run test
+# Run unit test suite (57 tests)
+npm test
 
-# Run fast linter
+# Run TypeScript strict type-checking
+npm run typecheck
+
+# Run fast linter (oxlint)
 npm run lint
 
 # Build production bundle with optimized chunking

@@ -6,19 +6,21 @@ import {
   CheckSquare,
   MessageSquare,
   BarChart2,
-  Settings
+  Settings,
+  Sparkles,
+  ShieldAlert
 } from 'lucide-react';
 
 export const MobileNav: React.FC = () => {
-  const { activeTab, setActiveTab, assignments, polls } = useStudySync();
+  const { currentUser, activeTab, setActiveTab, assignments } = useStudySync();
 
   const pendingTasksCount = assignments.filter(a => a.status === 'active').length;
 
   const tabs: { id: NavTab; label: string; icon: React.FC<{ className?: string }>; badge?: number }[] = [
     { id: 'dashboard', label: 'Home', icon: Home },
     { id: 'assignments', label: 'Tasks', icon: CheckSquare, badge: pendingTasksCount },
-    { id: 'messages', label: 'Messages', icon: MessageSquare },
-    { id: 'polls', label: 'Polls', icon: BarChart2 },
+    { id: 'growth', label: 'Growth', icon: Sparkles },
+    ...(currentUser?.role === 'Faculty' ? [{ id: 'oversight' as NavTab, label: 'Oversight', icon: ShieldAlert }] : []),
     { id: 'settings', label: 'More', icon: Settings },
   ];
 

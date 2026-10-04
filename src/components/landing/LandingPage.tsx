@@ -22,6 +22,8 @@ import {
   FileCheck
 } from 'lucide-react';
 import { CreateClassModal, JoinClassModal, FastLoginModal } from '../onboarding/OnboardingModals';
+import { RolePortalsModal } from '../auth/RolePortalsModal';
+import { UserRole } from '../../types';
 
 // Feature pill shown in the "Why StudySync" section
 const FeatureRow: React.FC<{ icon: React.ReactNode; title: string; desc: string }> = ({ icon, title, desc }) => (
@@ -258,9 +260,16 @@ export const LandingPage: React.FC<{ onEnterApp: () => void }> = ({ onEnterApp }
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isJoinOpen, setIsJoinOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [portalRole, setPortalRole] = useState<UserRole>('Faculty');
 
-  const crUser = allUsers.find(u => u.role === 'CR') || { id: 'user-cr-1', name: 'Aarav Sharma' };
-  const studentUser = allUsers.find(u => u.role === 'Student') || { id: 'user-stu-1', name: 'Ishan Patel' };
+  const facultyUser = allUsers.find(u => u.role === 'Faculty') || { id: 'user-fac-1', name: 'Dr. Meenakshi Sundaram' };
+  const crUser = allUsers.find(u => u.role === 'CR') || { id: 'user-cr-1', name: 'Ribhav Sharma (CR)' };
+  const studentUser = allUsers.find(u => u.role === 'Student') || { id: 'user-stu-1', name: 'Aaditya Verma' };
+
+  const handleInstantFacultyLogin = () => {
+    switchRole('Faculty', facultyUser.id);
+    onEnterApp();
+  };
 
   const handleInstantCrLogin = () => {
     switchRole('CR', crUser.id);
@@ -344,21 +353,49 @@ export const LandingPage: React.FC<{ onEnterApp: () => void }> = ({ onEnterApp }
                 Built for CRs. Trusted by cohorts. No password needed.
               </p>
 
-              {/* Stagger 4: Fast 1-Tap Login Badges */}
+              {/* Stagger 4: Fast 1-Tap Login Badges for 3 Roles */}
               <div className="hero-stagger-4 p-3.5 rounded-2xl bg-[#0A0A0A] border border-[#1A1A1A] space-y-2">
-                <span className="text-[10px] font-bold text-[#8E8E8E] uppercase tracking-wider block">
-                  ⚡ 1-Tap Quick Access (No password required)
-                </span>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-bold text-[#8E8E8E] uppercase tracking-wider block">
+                    ⚡ 3 Distinct Role Portals (1-Tap Authenticated)
+                  </span>
+                  <button
+                    onClick={() => {
+                      setPortalRole('Faculty');
+                      setIsLoginOpen(true);
+                    }}
+                    className="text-[10px] text-[#0095F6] hover:underline font-semibold"
+                  >
+                    View Portals Modal
+                  </button>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  <button
+                    onClick={handleInstantFacultyLogin}
+                    className="p-2.5 rounded-xl border border-purple-500/40 bg-purple-500/10 hover:bg-purple-500/20 text-xs font-bold text-purple-400 flex items-center justify-between transition-all cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2">
+                      <GraduationCap className="w-4 h-4 text-purple-400 shrink-0" />
+                      <div className="text-left">
+                        <span className="block leading-tight">Faculty Incharge</span>
+                        <span className="text-[10px] text-[#A8A8A8] font-normal block truncate">Dr. M. Sundaram</span>
+                      </div>
+                    </div>
+                    <ArrowRight className="w-3.5 h-3.5 shrink-0" />
+                  </button>
+
                   <button
                     onClick={handleInstantCrLogin}
                     className="p-2.5 rounded-xl border border-[#0095F6]/40 bg-[#0095F6]/10 hover:bg-[#0095F6]/20 text-xs font-bold text-[#0095F6] flex items-center justify-between transition-all cursor-pointer"
                   >
                     <div className="flex items-center gap-2">
-                      <Crown className="w-4 h-4 text-amber-500" />
-                      <span>Log In as CR (Aarav)</span>
+                      <Crown className="w-4 h-4 text-amber-500 shrink-0" />
+                      <div className="text-left">
+                        <span className="block leading-tight">Class Rep (CR)</span>
+                        <span className="text-[10px] text-[#A8A8A8] font-normal block truncate">Ribhav Sharma</span>
+                      </div>
                     </div>
-                    <ArrowRight className="w-3.5 h-3.5" />
+                    <ArrowRight className="w-3.5 h-3.5 shrink-0" />
                   </button>
 
                   <button
@@ -366,10 +403,13 @@ export const LandingPage: React.FC<{ onEnterApp: () => void }> = ({ onEnterApp }
                     className="p-2.5 rounded-xl border border-[#262626] bg-[#121212] hover:border-[#363636] text-xs font-semibold text-white flex items-center justify-between transition-all cursor-pointer"
                   >
                     <div className="flex items-center gap-2">
-                      <Users className="w-4 h-4 text-neutral-400" />
-                      <span>Log In as Student (Ishan)</span>
+                      <Users className="w-4 h-4 text-neutral-400 shrink-0" />
+                      <div className="text-left">
+                        <span className="block leading-tight">Student Cohort</span>
+                        <span className="text-[10px] text-[#A8A8A8] font-normal block truncate">48 Students</span>
+                      </div>
                     </div>
-                    <ArrowRight className="w-3.5 h-3.5" />
+                    <ArrowRight className="w-3.5 h-3.5 shrink-0" />
                   </button>
                 </div>
               </div>
@@ -563,13 +603,13 @@ export const LandingPage: React.FC<{ onEnterApp: () => void }> = ({ onEnterApp }
 
       <CreateClassModal isOpen={isCreateOpen} onClose={() => setIsCreateOpen(false)} onSuccess={onEnterApp} />
       <JoinClassModal isOpen={isJoinOpen} onClose={() => setIsJoinOpen(false)} onSuccess={onEnterApp} />
-      <FastLoginModal
+      <RolePortalsModal
         isOpen={isLoginOpen}
         onClose={() => setIsLoginOpen(false)}
         onEnterApp={onEnterApp}
-        onOpenJoin={() => setIsJoinOpen(true)}
-        onOpenCreate={() => setIsCreateOpen(true)}
+        initialRole={portalRole}
       />
     </div>
   );
 };
+

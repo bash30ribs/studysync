@@ -15,11 +15,13 @@ import {
   CheckCircle2,
   GraduationCap,
   Share2,
-  RefreshCw
+  RefreshCw,
+  ShieldAlert
 } from 'lucide-react';
 
 export const CRDashboard: React.FC = () => {
   const { 
+    currentUser,
     currentClass, 
     allUsers, 
     assignments, 
@@ -282,6 +284,37 @@ export const CRDashboard: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/* Faculty Incharge Direct Hub Access Banner */}
+      {currentUser?.role === 'Faculty' && (
+        <div className="p-4 rounded-2xl bg-gradient-to-r from-purple-600/10 via-indigo-600/5 to-transparent border border-purple-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-purple-600 text-white font-bold shrink-0">
+              <ShieldAlert className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-bold text-black dark:text-white">
+                  Faculty Incharge Command Center
+                </span>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-600 text-white">
+                  Associate Dean
+                </span>
+              </div>
+              <p className="text-xs text-[#8E8E8E] mt-0.5">
+                Logged in as Dr. Meenakshi Sundaram. Confidential student grievance desk and statutory AICTE at-risk radars active.
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => setActiveTab('oversight')}
+            className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors shrink-0 shadow-xs cursor-pointer"
+          >
+            <span>Open Confidential Oversight Hub</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
 
       {/* 2. Focused Metrics with easeOutCubic Animated Counters */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">

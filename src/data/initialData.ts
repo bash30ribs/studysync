@@ -9,7 +9,10 @@ import {
   DiscussionComment,
   AttendanceSession,
   ResourceItem,
-  ClassPoll
+  ClassPoll,
+  HolisticActivity,
+  GrievanceConfidentialItem,
+  FacultyAuditEntry
 } from '../types';
 
 export const INITIAL_CLASS: ClassGroup = {
@@ -17,7 +20,7 @@ export const INITIAL_CLASS: ClassGroup = {
   name: 'MECH-3A',
   code: '7F2K9Q',
   crId: 'user-cr-1',
-  crName: 'Aarav Sharma',
+  crName: 'Ribhav Sharma',
   createdAt: '2026-08-01T09:00:00.000Z',
   subjects: [
     'Fluid Mechanics',
@@ -88,14 +91,28 @@ export const INITIAL_CLASS: ClassGroup = {
 export const INITIAL_USERS: User[] = [
   {
     id: 'user-cr-1',
-    name: 'Aarav Sharma',
-    email: 'aarav.sharma@college.edu',
+    name: 'Ribhav Sharma',
+    email: 'ribhav.cr@college.edu',
     role: 'CR',
     classId: 'class-mech-3a',
     joinedAt: '2026-08-01T09:00:00.000Z',
     rollNo: '23ME001',
     lastActive: 'Just now',
-    device: 'Linux / Chrome 124'
+    device: 'Linux / Chrome 124',
+    holisticPoints: 185
+  },
+  {
+    id: 'user-fac-1',
+    name: 'Dr. Meenakshi Sundaram',
+    email: 'm.sundaram@college.edu',
+    role: 'Faculty',
+    classId: 'class-mech-3a',
+    joinedAt: '2026-07-15T08:00:00.000Z',
+    designation: 'Professor & Core Faculty Incharge',
+    department: 'Mechanical Engineering & Academic Dean Office',
+    officeRoom: 'Tech Block 3, Room 412',
+    lastActive: 'Active now',
+    device: 'macOS / Safari 17.5'
   },
   {
     id: 'user-stu-1',
@@ -104,9 +121,10 @@ export const INITIAL_USERS: User[] = [
     role: 'Student',
     classId: 'class-mech-3a',
     joinedAt: '2026-08-02T10:15:00.000Z',
-    rollNo: '23ME014',
+    rollNo: '23ME002',
     lastActive: '10 mins ago',
-    device: 'macOS / Safari 17'
+    device: 'macOS / Safari 17',
+    holisticPoints: 180
   },
   {
     id: 'user-stu-2',
@@ -115,9 +133,10 @@ export const INITIAL_USERS: User[] = [
     role: 'Student',
     classId: 'class-mech-3a',
     joinedAt: '2026-08-02T10:30:00.000Z',
-    rollNo: '23ME028',
+    rollNo: '23ME003',
     lastActive: '15 mins ago',
-    device: 'Windows 11 / Chrome 124'
+    device: 'Windows 11 / Chrome 124',
+    holisticPoints: 210
   },
   {
     id: 'user-stu-3',
@@ -126,9 +145,10 @@ export const INITIAL_USERS: User[] = [
     role: 'Student',
     classId: 'class-mech-3a',
     joinedAt: '2026-08-02T11:00:00.000Z',
-    rollNo: '23ME042',
+    rollNo: '23ME004',
     lastActive: '1 hour ago',
-    device: 'Android 14 / Chrome Mobile'
+    device: 'Android 14 / Chrome Mobile',
+    holisticPoints: 140
   },
   {
     id: 'user-stu-4',
@@ -137,9 +157,10 @@ export const INITIAL_USERS: User[] = [
     role: 'Student',
     classId: 'class-mech-3a',
     joinedAt: '2026-08-02T11:45:00.000Z',
-    rollNo: '23ME035',
+    rollNo: '23ME005',
     lastActive: '25 mins ago',
-    device: 'iOS 17 / Mobile Safari'
+    device: 'iOS 17 / Mobile Safari',
+    holisticPoints: 260
   },
   {
     id: 'user-stu-5',
@@ -148,9 +169,10 @@ export const INITIAL_USERS: User[] = [
     role: 'Student',
     classId: 'class-mech-3a',
     joinedAt: '2026-08-03T09:20:00.000Z',
-    rollNo: '23ME009',
+    rollNo: '23ME006',
     lastActive: '2 hours ago',
-    device: 'Windows 10 / Firefox 125'
+    device: 'Windows 10 / Firefox 125',
+    holisticPoints: 110
   },
   {
     id: 'user-stu-6',
@@ -159,9 +181,10 @@ export const INITIAL_USERS: User[] = [
     role: 'Student',
     classId: 'class-mech-3a',
     joinedAt: '2026-08-03T10:05:00.000Z',
-    rollNo: '23ME051',
+    rollNo: '23ME007',
     lastActive: '5 mins ago',
-    device: 'macOS / Chrome 124'
+    device: 'macOS / Chrome 124',
+    holisticPoints: 195
   },
   {
     id: 'user-stu-7',
@@ -170,9 +193,10 @@ export const INITIAL_USERS: User[] = [
     role: 'Student',
     classId: 'class-mech-3a',
     joinedAt: '2026-08-03T11:30:00.000Z',
-    rollNo: '23ME019',
+    rollNo: '23ME008',
     lastActive: 'Yesterday',
-    device: 'Windows 11 / Edge 124'
+    device: 'Windows 11 / Edge 124',
+    holisticPoints: 90
   },
   {
     id: 'user-stu-8',
@@ -181,9 +205,10 @@ export const INITIAL_USERS: User[] = [
     role: 'Student',
     classId: 'class-mech-3a',
     joinedAt: '2026-08-04T08:50:00.000Z',
-    rollNo: '23ME058',
+    rollNo: '23ME009',
     lastActive: '3 hours ago',
-    device: 'iOS 17 / Chrome Mobile'
+    device: 'iOS 17 / Chrome Mobile',
+    holisticPoints: 225
   },
   {
     id: 'user-stu-9',
@@ -192,9 +217,10 @@ export const INITIAL_USERS: User[] = [
     role: 'Student',
     classId: 'class-mech-3a',
     joinedAt: '2026-08-04T12:10:00.000Z',
-    rollNo: '23ME022',
+    rollNo: '23ME010',
     lastActive: '30 mins ago',
-    device: 'Android 14 / Firefox Mobile'
+    device: 'Android 14 / Firefox Mobile',
+    holisticPoints: 175
   },
   {
     id: 'user-stu-10',
@@ -203,9 +229,466 @@ export const INITIAL_USERS: User[] = [
     role: 'Student',
     classId: 'class-mech-3a',
     joinedAt: '2026-08-05T09:15:00.000Z',
-    rollNo: '23ME005',
+    rollNo: '23ME011',
     lastActive: '3 days ago',
-    device: 'Windows 11 / Chrome 124'
+    device: 'Windows 11 / Chrome 124',
+    holisticPoints: 65
+  },
+  {
+    id: 'user-stu-11',
+    name: 'Ananya Deshmukh',
+    email: 'ananya.d@college.edu',
+    role: 'Student',
+    classId: 'class-mech-3a',
+    joinedAt: '2026-08-05T10:00:00.000Z',
+    rollNo: '23ME012',
+    lastActive: '12 mins ago',
+    device: 'macOS / Chrome 124',
+    holisticPoints: 240
+  },
+  {
+    id: 'user-stu-12',
+    name: 'Harsh Vardhan',
+    email: 'harsh.v@college.edu',
+    role: 'Student',
+    classId: 'class-mech-3a',
+    joinedAt: '2026-08-05T11:20:00.000Z',
+    rollNo: '23ME013',
+    lastActive: '45 mins ago',
+    device: 'Windows 11 / Chrome 124',
+    holisticPoints: 130
+  },
+  {
+    id: 'user-stu-13',
+    name: 'Sneha Nambiar',
+    email: 'sneha.n@college.edu',
+    role: 'Student',
+    classId: 'class-mech-3a',
+    joinedAt: '2026-08-05T12:00:00.000Z',
+    rollNo: '23ME014',
+    lastActive: '20 mins ago',
+    device: 'iOS 17 / Safari',
+    holisticPoints: 215
+  },
+  {
+    id: 'user-stu-14',
+    name: 'Kartik Iyer',
+    email: 'kartik.i@college.edu',
+    role: 'Student',
+    classId: 'class-mech-3a',
+    joinedAt: '2026-08-06T09:00:00.000Z',
+    rollNo: '23ME015',
+    lastActive: '1 hour ago',
+    device: 'Android 14 / Brave',
+    holisticPoints: 185
+  },
+  {
+    id: 'user-stu-15',
+    name: 'Pooja Hegde',
+    email: 'pooja.h@college.edu',
+    role: 'Student',
+    classId: 'class-mech-3a',
+    joinedAt: '2026-08-06T10:15:00.000Z',
+    rollNo: '23ME016',
+    lastActive: '4 hours ago',
+    device: 'Windows 11 / Edge 124',
+    holisticPoints: 160
+  },
+  {
+    id: 'user-stu-16',
+    name: 'Siddharth Ghosh',
+    email: 'siddharth.g@college.edu',
+    role: 'Student',
+    classId: 'class-mech-3a',
+    joinedAt: '2026-08-06T11:30:00.000Z',
+    rollNo: '23ME017',
+    lastActive: '8 mins ago',
+    device: 'Linux / Firefox 125',
+    holisticPoints: 280
+  },
+  {
+    id: 'user-stu-17',
+    name: 'Divya Pillai',
+    email: 'divya.p@college.edu',
+    role: 'Student',
+    classId: 'class-mech-3a',
+    joinedAt: '2026-08-06T13:40:00.000Z',
+    rollNo: '23ME018',
+    lastActive: '35 mins ago',
+    device: 'macOS / Safari 17',
+    holisticPoints: 190
+  },
+  {
+    id: 'user-stu-18',
+    name: 'Manav Malhotra',
+    email: 'manav.m@college.edu',
+    role: 'Student',
+    classId: 'class-mech-3a',
+    joinedAt: '2026-08-07T08:50:00.000Z',
+    rollNo: '23ME019',
+    lastActive: 'Yesterday',
+    device: 'Windows 10 / Chrome 124',
+    holisticPoints: 75
+  },
+  {
+    id: 'user-stu-19',
+    name: 'Ritu Sen',
+    email: 'ritu.s@college.edu',
+    role: 'Student',
+    classId: 'class-mech-3a',
+    joinedAt: '2026-08-07T09:30:00.000Z',
+    rollNo: '23ME020',
+    lastActive: '50 mins ago',
+    device: 'Android 14 / Chrome Mobile',
+    holisticPoints: 145
+  },
+  {
+    id: 'user-stu-20',
+    name: 'Varun Chawla',
+    email: 'varun.c@college.edu',
+    role: 'Student',
+    classId: 'class-mech-3a',
+    joinedAt: '2026-08-07T10:45:00.000Z',
+    rollNo: '23ME021',
+    lastActive: '2 hours ago',
+    device: 'Windows 11 / Chrome 124',
+    holisticPoints: 170
+  },
+  {
+    id: 'user-stu-21',
+    name: 'Shreya Mukherjee',
+    email: 'shreya.m@college.edu',
+    role: 'Student',
+    classId: 'class-mech-3a',
+    joinedAt: '2026-08-07T11:15:00.000Z',
+    rollNo: '23ME022',
+    lastActive: '15 mins ago',
+    device: 'macOS / Chrome 124',
+    holisticPoints: 230
+  },
+  {
+    id: 'user-stu-22',
+    name: 'Pranav Bhat',
+    email: 'pranav.b@college.edu',
+    role: 'Student',
+    classId: 'class-mech-3a',
+    joinedAt: '2026-08-08T09:00:00.000Z',
+    rollNo: '23ME023',
+    lastActive: '1 hour ago',
+    device: 'iOS 17 / Safari',
+    holisticPoints: 155
+  },
+  {
+    id: 'user-stu-23',
+    name: 'Meera Namboodiri',
+    email: 'meera.n@college.edu',
+    role: 'Student',
+    classId: 'class-mech-3a',
+    joinedAt: '2026-08-08T10:10:00.000Z',
+    rollNo: '23ME024',
+    lastActive: '25 mins ago',
+    device: 'macOS / Safari 17',
+    holisticPoints: 200
+  },
+  {
+    id: 'user-stu-24',
+    name: 'Nikhil Tiwari',
+    email: 'nikhil.t@college.edu',
+    role: 'Student',
+    classId: 'class-mech-3a',
+    joinedAt: '2026-08-08T11:45:00.000Z',
+    rollNo: '23ME025',
+    lastActive: '3 hours ago',
+    device: 'Windows 11 / Chrome 124',
+    holisticPoints: 120
+  },
+  {
+    id: 'user-stu-25',
+    name: 'Swati Agarwal',
+    email: 'swati.a@college.edu',
+    role: 'Student',
+    classId: 'class-mech-3a',
+    joinedAt: '2026-08-09T08:40:00.000Z',
+    rollNo: '23ME026',
+    lastActive: '40 mins ago',
+    device: 'Android 14 / Chrome Mobile',
+    holisticPoints: 165
+  },
+  {
+    id: 'user-stu-26',
+    name: 'Chirag Solanki',
+    email: 'chirag.s@college.edu',
+    role: 'Student',
+    classId: 'class-mech-3a',
+    joinedAt: '2026-08-09T09:50:00.000Z',
+    rollNo: '23ME027',
+    lastActive: '1 hour ago',
+    device: 'Windows 10 / Firefox 125',
+    holisticPoints: 135
+  },
+  {
+    id: 'user-stu-27',
+    name: 'Ishita Bose',
+    email: 'ishita.b@college.edu',
+    role: 'Student',
+    classId: 'class-mech-3a',
+    joinedAt: '2026-08-09T11:00:00.000Z',
+    rollNo: '23ME028',
+    lastActive: '18 mins ago',
+    device: 'macOS / Chrome 124',
+    holisticPoints: 250
+  },
+  {
+    id: 'user-stu-28',
+    name: 'Rahul Saini',
+    email: 'rahul.s@college.edu',
+    role: 'Student',
+    classId: 'class-mech-3a',
+    joinedAt: '2026-08-10T09:20:00.000Z',
+    rollNo: '23ME029',
+    lastActive: '5 hours ago',
+    device: 'Android 14 / Brave',
+    holisticPoints: 115
+  },
+  {
+    id: 'user-stu-29',
+    name: 'Lavanya Sundar',
+    email: 'lavanya.s@college.edu',
+    role: 'Student',
+    classId: 'class-mech-3a',
+    joinedAt: '2026-08-10T10:30:00.000Z',
+    rollNo: '23ME030',
+    lastActive: '22 mins ago',
+    device: 'iOS 17 / Safari',
+    holisticPoints: 210
+  },
+  {
+    id: 'user-stu-30',
+    name: 'Gourav Pandey',
+    email: 'gourav.p@college.edu',
+    role: 'Student',
+    classId: 'class-mech-3a',
+    joinedAt: '2026-08-10T12:10:00.000Z',
+    rollNo: '23ME031',
+    lastActive: '2 days ago',
+    device: 'Windows 11 / Edge 124',
+    holisticPoints: 80
+  },
+  {
+    id: 'user-stu-31',
+    name: 'Deepa Kulkarni',
+    email: 'deepa.k@college.edu',
+    role: 'Student',
+    classId: 'class-mech-3a',
+    joinedAt: '2026-08-11T09:00:00.000Z',
+    rollNo: '23ME032',
+    lastActive: '30 mins ago',
+    device: 'Windows 11 / Chrome 124',
+    holisticPoints: 175
+  },
+  {
+    id: 'user-stu-32',
+    name: 'Kunal Kapoor',
+    email: 'kunal.k@college.edu',
+    role: 'Student',
+    classId: 'class-mech-3a',
+    joinedAt: '2026-08-11T10:15:00.000Z',
+    rollNo: '23ME033',
+    lastActive: '1 hour ago',
+    device: 'macOS / Safari 17',
+    holisticPoints: 190
+  },
+  {
+    id: 'user-stu-33',
+    name: 'Ankit Jaiswal',
+    email: 'ankit.j@college.edu',
+    role: 'Student',
+    classId: 'class-mech-3a',
+    joinedAt: '2026-08-11T11:45:00.000Z',
+    rollNo: '23ME034',
+    lastActive: '2 hours ago',
+    device: 'Android 14 / Chrome Mobile',
+    holisticPoints: 140
+  },
+  {
+    id: 'user-stu-34',
+    name: 'Bhavna Rathi',
+    email: 'bhavna.r@college.edu',
+    role: 'Student',
+    classId: 'class-mech-3a',
+    joinedAt: '2026-08-12T09:10:00.000Z',
+    rollNo: '23ME035',
+    lastActive: '14 mins ago',
+    device: 'iOS 17 / Safari',
+    holisticPoints: 220
+  },
+  {
+    id: 'user-stu-35',
+    name: 'Tushar Saxena',
+    email: 'tushar.s@college.edu',
+    role: 'Student',
+    classId: 'class-mech-3a',
+    joinedAt: '2026-08-12T10:20:00.000Z',
+    rollNo: '23ME036',
+    lastActive: '4 hours ago',
+    device: 'Windows 11 / Chrome 124',
+    holisticPoints: 150
+  },
+  {
+    id: 'user-stu-36',
+    name: 'Smriti Mandhana',
+    email: 'smriti.m@college.edu',
+    role: 'Student',
+    classId: 'class-mech-3a',
+    joinedAt: '2026-08-12T11:40:00.000Z',
+    rollNo: '23ME037',
+    lastActive: '10 mins ago',
+    device: 'macOS / Chrome 124',
+    holisticPoints: 270
+  },
+  {
+    id: 'user-stu-37',
+    name: 'Ayushmaan Kaul',
+    email: 'ayushmaan.k@college.edu',
+    role: 'Student',
+    classId: 'class-mech-3a',
+    joinedAt: '2026-08-13T09:00:00.000Z',
+    rollNo: '23ME038',
+    lastActive: '3 hours ago',
+    device: 'Windows 10 / Firefox 125',
+    holisticPoints: 160
+  },
+  {
+    id: 'user-stu-38',
+    name: 'Payal Trivedi',
+    email: 'payal.t@college.edu',
+    role: 'Student',
+    classId: 'class-mech-3a',
+    joinedAt: '2026-08-13T10:30:00.000Z',
+    rollNo: '23ME039',
+    lastActive: '45 mins ago',
+    device: 'Android 14 / Chrome Mobile',
+    holisticPoints: 180
+  },
+  {
+    id: 'user-stu-39',
+    name: 'Yashwant Singhania',
+    email: 'yashwant.s@college.edu',
+    role: 'Student',
+    classId: 'class-mech-3a',
+    joinedAt: '2026-08-13T12:00:00.000Z',
+    rollNo: '23ME040',
+    lastActive: '1 day ago',
+    device: 'Windows 11 / Chrome 124',
+    holisticPoints: 130
+  },
+  {
+    id: 'user-stu-40',
+    name: 'Kritika Mishra',
+    email: 'kritika.m@college.edu',
+    role: 'Student',
+    classId: 'class-mech-3a',
+    joinedAt: '2026-08-14T08:50:00.000Z',
+    rollNo: '23ME041',
+    lastActive: '16 mins ago',
+    device: 'iOS 17 / Safari',
+    holisticPoints: 205
+  },
+  {
+    id: 'user-stu-41',
+    name: 'Omkar Patil',
+    email: 'omkar.p@college.edu',
+    role: 'Student',
+    classId: 'class-mech-3a',
+    joinedAt: '2026-08-14T10:00:00.000Z',
+    rollNo: '23ME042',
+    lastActive: '3 hours ago',
+    device: 'Android 14 / Firefox',
+    holisticPoints: 125
+  },
+  {
+    id: 'user-stu-42',
+    name: 'Nandini Roy',
+    email: 'nandini.r@college.edu',
+    role: 'Student',
+    classId: 'class-mech-3a',
+    joinedAt: '2026-08-14T11:15:00.000Z',
+    rollNo: '23ME043',
+    lastActive: '28 mins ago',
+    device: 'macOS / Safari 17',
+    holisticPoints: 195
+  },
+  {
+    id: 'user-stu-43',
+    name: 'Tarun Vohra',
+    email: 'tarun.v@college.edu',
+    role: 'Student',
+    classId: 'class-mech-3a',
+    joinedAt: '2026-08-15T09:30:00.000Z',
+    rollNo: '23ME044',
+    lastActive: '3 days ago',
+    device: 'Windows 11 / Edge 124',
+    holisticPoints: 70
+  },
+  {
+    id: 'user-stu-44',
+    name: 'Aishwarya Shenoy',
+    email: 'aishwarya.s@college.edu',
+    role: 'Student',
+    classId: 'class-mech-3a',
+    joinedAt: '2026-08-15T10:45:00.000Z',
+    rollNo: '23ME045',
+    lastActive: '12 mins ago',
+    device: 'macOS / Chrome 124',
+    holisticPoints: 245
+  },
+  {
+    id: 'user-stu-45',
+    name: 'Mohit Chauhan',
+    email: 'mohit.c@college.edu',
+    role: 'Student',
+    classId: 'class-mech-3a',
+    joinedAt: '2026-08-15T12:00:00.000Z',
+    rollNo: '23ME046',
+    lastActive: '2 hours ago',
+    device: 'Windows 11 / Chrome 124',
+    holisticPoints: 140
+  },
+  {
+    id: 'user-stu-46',
+    name: 'Riya Bhardwaj',
+    email: 'riya.b@college.edu',
+    role: 'Student',
+    classId: 'class-mech-3a',
+    joinedAt: '2026-08-16T09:15:00.000Z',
+    rollNo: '23ME047',
+    lastActive: '24 mins ago',
+    device: 'iOS 17 / Safari',
+    holisticPoints: 215
+  },
+  {
+    id: 'user-stu-47',
+    name: 'Gaurav Dutta',
+    email: 'gaurav.d@college.edu',
+    role: 'Student',
+    classId: 'class-mech-3a',
+    joinedAt: '2026-08-16T10:30:00.000Z',
+    rollNo: '23ME048',
+    lastActive: '1 hour ago',
+    device: 'Android 14 / Chrome Mobile',
+    holisticPoints: 160
+  },
+  {
+    id: 'user-stu-48',
+    name: 'Trisha Banerjee',
+    email: 'trisha.b@college.edu',
+    role: 'Student',
+    classId: 'class-mech-3a',
+    joinedAt: '2026-08-16T11:45:00.000Z',
+    rollNo: '23ME049',
+    lastActive: '15 mins ago',
+    device: 'macOS / Safari 17',
+    holisticPoints: 235
   }
 ];
 
@@ -227,9 +710,15 @@ export const INITIAL_ASSIGNMENTS: Assignment[] = [
     fileUrl: '#',
     deadline: todayMidnight,
     postedAt: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-    createdBy: 'Aarav Sharma',
+    createdBy: 'Ribhav Sharma',
     status: 'active',
-    notifyOnCreate: true
+    notifyOnCreate: true,
+    subtasks: [
+      { id: 'st-1-1', title: 'Derive Bernoulli energy equation for Venturi tube', estimatedMinutes: 45, mandatory: true },
+      { id: 'st-1-2', title: 'Solve problems 4.1 to 4.4 (differential manometer head)', estimatedMinutes: 60, mandatory: true },
+      { id: 'st-1-3', title: 'Plot discharge coefficient vs Reynolds number curve', estimatedMinutes: 30, mandatory: false },
+      { id: 'st-1-4', title: 'Format PDF with cover sheet and unit check verification', estimatedMinutes: 15, mandatory: true }
+    ]
   },
   {
     id: 'asg-2',
@@ -242,9 +731,14 @@ export const INITIAL_ASSIGNMENTS: Assignment[] = [
     fileUrl: '#',
     deadline: fridayDeadline,
     postedAt: new Date(now.getTime() - 4 * 24 * 60 * 60 * 1000).toISOString(),
-    createdBy: 'Aarav Sharma',
+    createdBy: 'Ribhav Sharma',
     status: 'active',
-    notifyOnCreate: true
+    notifyOnCreate: true,
+    subtasks: [
+      { id: 'st-2-1', title: 'Tabulate Michelson interferometer fringe count data', estimatedMinutes: 30, mandatory: true },
+      { id: 'st-2-2', title: 'Compute laser wavelength and percentage error estimation', estimatedMinutes: 40, mandatory: true },
+      { id: 'st-2-3', title: 'Attach labeled apparatus schematic & sample raw data sheet', estimatedMinutes: 20, mandatory: true }
+    ]
   },
   {
     id: 'asg-3',
@@ -257,9 +751,14 @@ export const INITIAL_ASSIGNMENTS: Assignment[] = [
     fileUrl: '#',
     deadline: pastDeadline,
     postedAt: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-    createdBy: 'Aarav Sharma',
+    createdBy: 'Ribhav Sharma',
     status: 'closed',
-    notifyOnCreate: true
+    notifyOnCreate: true,
+    subtasks: [
+      { id: 'st-3-1', title: 'Draft front and top orthographic views with 1:1 scale', estimatedMinutes: 90, mandatory: true },
+      { id: 'st-3-2', title: 'Construct auxiliary section plane on inclined face', estimatedMinutes: 60, mandatory: true },
+      { id: 'st-3-3', title: 'Complete standard title block and surface roughness symbols', estimatedMinutes: 25, mandatory: true }
+    ]
   },
   {
     id: 'asg-4',
@@ -272,9 +771,14 @@ export const INITIAL_ASSIGNMENTS: Assignment[] = [
     fileUrl: '#',
     deadline: nextWeekDeadline,
     postedAt: new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-    createdBy: 'Aarav Sharma',
+    createdBy: 'Ribhav Sharma',
     status: 'active',
-    notifyOnCreate: true
+    notifyOnCreate: true,
+    subtasks: [
+      { id: 'st-4-1', title: 'Calculate turbine work and condenser heat rejection', estimatedMinutes: 50, mandatory: true },
+      { id: 'st-4-2', title: 'Determine thermal efficiency of reheat Rankine cycle', estimatedMinutes: 45, mandatory: true },
+      { id: 'st-4-3', title: 'Plot state points on Mollier h-s chart', estimatedMinutes: 35, mandatory: false }
+    ]
   }
 ];
 
@@ -851,10 +1355,205 @@ export const INITIAL_POLLS: ClassPoll[] = [
       { id: 'opt-3', text: 'Saturday 11:59 PM (Weekend Window)', votes: ['user-stu-9', 'user-stu-10'] }
     ],
     createdBy: 'user-cr-1',
-    createdByName: 'Aarav Sharma',
+    createdByName: 'Ribhav Sharma',
     createdAt: new Date(now.getTime() - 14 * 60 * 60 * 1000).toISOString(),
     expiresAt: new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString(),
     isClosed: false
   }
 ];
+
+export const INITIAL_HOLISTIC_ACTIVITIES: HolisticActivity[] = [
+  {
+    id: 'act-1',
+    studentId: 'user-stu-16',
+    studentName: 'Siddharth Ghosh',
+    studentRollNo: '23ME017',
+    title: 'Smart India Hackathon 2026 — Finalist (Hardware Edition)',
+    category: 'hackathon',
+    description: 'Built an IoT-based smart agricultural pipeline monitoring device with predictive sensor telemetry.',
+    organizationOrEvent: 'Ministry of Education Innovation Cell / AICTE',
+    date: '2026-09-12',
+    proofUrl: 'https://sih.gov.in/certificate/MECH-SIH26-8812',
+    points: 40,
+    status: 'approved',
+    facultyRemarks: 'Exceptional prototype design. 40 NEP activity points awarded.',
+    approvedBy: 'Dr. Meenakshi Sundaram',
+    approvedAt: '2026-09-15T11:00:00.000Z'
+  },
+  {
+    id: 'act-2',
+    studentId: 'user-stu-4',
+    studentName: 'Priya Nair',
+    studentRollNo: '23ME005',
+    title: 'SAE Baja Collegiate Design Series — Chassis Lead',
+    category: 'leadership',
+    description: 'Led a team of 14 students designing the chromoly roll cage and impact absorption geometry in ANSYS.',
+    organizationOrEvent: 'Society of Automotive Engineers (SAE India)',
+    date: '2026-09-18',
+    proofUrl: 'https://saeindia.org/teams/mech-baja-2026',
+    points: 35,
+    status: 'approved',
+    facultyRemarks: 'Verified structural telemetry and crash simulations. Approved.',
+    approvedBy: 'Dr. Meenakshi Sundaram',
+    approvedAt: '2026-09-20T14:30:00.000Z'
+  },
+  {
+    id: 'act-3',
+    studentId: 'user-stu-27',
+    studentName: 'Ishita Bose',
+    studentRollNo: '23ME028',
+    title: 'AWS Certified Cloud Practitioner (CLF-C02)',
+    category: 'certification',
+    description: 'Scored 890/1000 in official AWS Cloud Architecture and automated microservices certification.',
+    organizationOrEvent: 'Amazon Web Services Training & Certification',
+    date: '2026-09-24',
+    proofUrl: 'https://aws.amazon.com/verification/CLF890912',
+    points: 25,
+    status: 'approved',
+    facultyRemarks: 'Industry-standard accreditation verified.',
+    approvedBy: 'Dr. Meenakshi Sundaram',
+    approvedAt: '2026-09-25T09:15:00.000Z'
+  },
+  {
+    id: 'act-4',
+    studentId: 'user-stu-36',
+    studentName: 'Smriti Mandhana',
+    studentRollNo: '23ME037',
+    title: 'Inter-University Cricket Championship — Gold Medalist',
+    category: 'sports_cultural',
+    description: 'Captained the college varsity team to victory in the All-India Inter-University Zonal Trophy.',
+    organizationOrEvent: 'Association of Indian Universities (AIU)',
+    date: '2026-09-28',
+    proofUrl: 'https://sports.university.edu/medals/2026/cricket-gold',
+    points: 30,
+    status: 'approved',
+    facultyRemarks: 'Outstanding sporting achievement brought university laurels.',
+    approvedBy: 'Dr. Meenakshi Sundaram',
+    approvedAt: '2026-09-30T16:00:00.000Z'
+  },
+  {
+    id: 'act-5',
+    studentId: 'user-stu-11',
+    studentName: 'Ananya Deshmukh',
+    studentRollNo: '23ME012',
+    title: 'NSS Mega Blood Donation & Thalassemia Screening Drive Lead',
+    category: 'social_impact',
+    description: 'Coordinated mobilization across 3 blocks, registering 340+ voluntary blood donors in 48 hours.',
+    organizationOrEvent: 'National Service Scheme (NSS) Unit 4',
+    date: '2026-10-01',
+    proofUrl: 'https://nss.gov.in/camp/reports/2026-bl-4',
+    points: 20,
+    status: 'pending_approval',
+    facultyRemarks: undefined
+  },
+  {
+    id: 'act-6',
+    studentId: 'user-stu-1',
+    studentName: 'Ishan Patel',
+    studentRollNo: '23ME002',
+    title: 'Research Paper: Microchannel Heat Sink Optimization in Electronics',
+    category: 'research',
+    description: 'Submitted manuscript to ASME Journal of Thermal Science and Engineering Applications.',
+    organizationOrEvent: 'ASME Student Chapter',
+    date: '2026-10-02',
+    proofUrl: 'https://asme.org/papers/draft-99120',
+    points: 30,
+    status: 'pending_approval',
+    facultyRemarks: undefined
+  },
+  {
+    id: 'act-7',
+    studentId: 'user-stu-8',
+    studentName: 'Tanvi Joshi',
+    studentRollNo: '23ME009',
+    title: 'National Robotics Competition — Best Autonomous Algorithm',
+    category: 'hackathon',
+    description: 'Engineered SLAM LiDAR path-planning algorithm for industrial AGV navigation maze.',
+    organizationOrEvent: 'IIT Bombay Techfest',
+    date: '2026-10-03',
+    proofUrl: 'https://techfest.org/certificates/2026-robo-slam',
+    points: 25,
+    status: 'pending_approval',
+    facultyRemarks: undefined
+  }
+];
+
+export const INITIAL_CONFIDENTIAL_GRIEVANCES: GrievanceConfidentialItem[] = [
+  {
+    id: 'grv-1',
+    studentId: 'user-stu-10',
+    studentName: 'Aditya Rao (Confidential)',
+    isAnonymous: false,
+    category: 'attendance_dispute',
+    subject: 'Hospitalization during Midterm Lab Sessions & Medical Exemption',
+    message: 'Respected Dr. Sundaram, I was admitted to the hospital with viral pneumonia for 8 days. I submitted medical papers to the office, but my Applied Physics attendance reflects 62% which bars me from midterms. Requesting faculty exemption review.',
+    submittedAt: '2026-10-01T14:20:00.000Z',
+    status: 'pending',
+    facultyNotes: 'Hospital discharge summary received via email. Need to notify Dr. Rao.'
+  },
+  {
+    id: 'grv-2',
+    studentId: 'user-stu-43',
+    studentName: 'Anonymous Student',
+    isAnonymous: true,
+    category: 'academic_stress',
+    subject: 'High pressure due to overlapping 3-day lab deadlines',
+    message: 'Three subjects have scheduled comprehensive lab reports on the exact same Friday afternoon. Students are working past 3 AM without sleep. Could the faculty council please enforce a distributed deadline policy?',
+    submittedAt: '2026-10-02T19:40:00.000Z',
+    status: 'reviewed',
+    facultyNotes: 'Discussed with HOD. We will stagger Thermo and Fluid Mechanics reports by 72 hours.'
+  },
+  {
+    id: 'grv-3',
+    studentId: 'user-stu-18',
+    studentName: 'Manav Malhotra (Confidential)',
+    isAnonymous: false,
+    category: 'facility_lab',
+    subject: 'CAD Lab System 14 malfunctioning graphical driver crashes',
+    message: 'System 14 in the CAD Suite repeatedly crashes during AutoCAD 3D rendering, corrupting saved work right before export. CR was informed but lab technician has not serviced it.',
+    submittedAt: '2026-10-03T11:10:00.000Z',
+    status: 'resolved',
+    facultyNotes: 'Lab technician replaced RAM and updated GPU drivers on Oct 4.'
+  }
+];
+
+export const INITIAL_FACULTY_AUDITS: FacultyAuditEntry[] = [
+  {
+    id: 'aud-1',
+    timestamp: '2026-10-04T18:45:00.000Z',
+    action: 'Attendance Modification Audit',
+    performedBy: 'Prof. K. N. Murthy',
+    role: 'Faculty',
+    details: 'CAD Lab Batch B session modified: 3 absent marks corrected to present after verifying lab sign-in register.',
+    severity: 'info'
+  },
+  {
+    id: 'aud-2',
+    timestamp: '2026-10-04T15:20:00.000Z',
+    action: 'Broadcast Notice Dispatched',
+    performedBy: 'Ribhav Sharma (CR)',
+    role: 'CR',
+    details: 'Urgent notice dispatched to all 48 students regarding Midterm Seating Matrix. 100% delivered.',
+    severity: 'info'
+  },
+  {
+    id: 'aud-3',
+    timestamp: '2026-10-03T21:10:00.000Z',
+    action: 'Low Attendance Warning Generated',
+    performedBy: 'System Engine',
+    role: 'Faculty',
+    details: '5 students flagged under 75% statutory minimum attendance threshold (Aditya Rao, Vikram Desai, Manav Malhotra, Gourav Pandey, Tarun Vohra).',
+    severity: 'warning'
+  },
+  {
+    id: 'aud-4',
+    timestamp: '2026-10-02T10:00:00.000Z',
+    action: 'Cryptographic Hash Verification Check',
+    performedBy: 'System Integrity Sentinel',
+    role: 'Faculty',
+    details: 'Verified 42 student submission proof hashes against browser canvas fingerprints. No tampering detected.',
+    severity: 'info'
+  }
+];
+
 

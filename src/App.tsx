@@ -29,6 +29,9 @@ import { StudentAnalyticsView } from './components/analytics/StudentAnalyticsVie
 import { SettingsView } from './components/settings/SettingsView';
 import { SubjectsView } from './components/subjects/SubjectsView';
 import { LandingPage } from './components/landing/LandingPage';
+import { HolisticGrowthView } from './components/growth/HolisticGrowthView';
+import { FacultyOversightView } from './components/faculty/FacultyOversightView';
+import { RolePortalsModal } from './components/auth/RolePortalsModal';
 
 const MainLayout: React.FC<{ isDarkMode: boolean; setIsDarkMode: React.Dispatch<React.SetStateAction<boolean>> }> = ({
   isDarkMode,
@@ -44,6 +47,7 @@ const MainLayout: React.FC<{ isDarkMode: boolean; setIsDarkMode: React.Dispatch<
   // the same number of hooks to be called on every single render.
   const [showSoundscapes, setShowSoundscapes] = useState(false);
   const [showAchievements, setShowAchievements] = useState(false);
+  const [showRolePortals, setShowRolePortals] = useState(false);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -75,6 +79,8 @@ const MainLayout: React.FC<{ isDarkMode: boolean; setIsDarkMode: React.Dispatch<
       dashboard: 'Dashboard · StudySync',
       assignments: 'Assignments · StudySync',
       attendance: 'Attendance · StudySync',
+      growth: 'Holistic Growth · StudySync',
+      oversight: 'Faculty Oversight · StudySync',
       resources: 'Resources · StudySync',
       polls: 'Polls · StudySync',
       calendar: 'Calendar · StudySync',
@@ -102,13 +108,19 @@ const MainLayout: React.FC<{ isDarkMode: boolean; setIsDarkMode: React.Dispatch<
     let content: React.ReactNode;
     switch (activeTab) {
       case 'dashboard':
-        content = userRole === 'CR' ? <CRDashboard /> : <StudentDashboard />;
+        content = (userRole === 'CR' || userRole === 'Faculty') ? <CRDashboard /> : <StudentDashboard />;
         break;
       case 'assignments':
         content = <AssignmentsView />;
         break;
       case 'attendance':
         content = <AttendanceView />;
+        break;
+      case 'growth':
+        content = <HolisticGrowthView />;
+        break;
+      case 'oversight':
+        content = <FacultyOversightView />;
         break;
       case 'resources':
         content = <ResourceLibraryView />;
@@ -120,7 +132,7 @@ const MainLayout: React.FC<{ isDarkMode: boolean; setIsDarkMode: React.Dispatch<
         content = <CalendarView />;
         break;
       case 'members':
-        content = userRole === 'CR' ? <MembersView /> : <StudentDashboard />;
+        content = (userRole === 'CR' || userRole === 'Faculty') ? <MembersView /> : <StudentDashboard />;
         break;
       case 'subjects':
         content = <SubjectsView />;
@@ -132,17 +144,17 @@ const MainLayout: React.FC<{ isDarkMode: boolean; setIsDarkMode: React.Dispatch<
         content = <MessagesView />;
         break;
       case 'analytics':
-        content = userRole === 'CR' ? <AnalyticsView /> : <StudentAnalyticsView />;
+        content = (userRole === 'CR' || userRole === 'Faculty') ? <AnalyticsView /> : <StudentAnalyticsView />;
         break;
       case 'settings':
         content = <SettingsView />;
         break;
       default:
-        content = userRole === 'CR' ? <CRDashboard /> : <StudentDashboard />;
+        content = (userRole === 'CR' || userRole === 'Faculty') ? <CRDashboard /> : <StudentDashboard />;
     }
 
     return (
-      <div key={activeTab} className="page-enter">
+      <div key={activeTab} className="page-enter w-full max-w-7xl mx-auto">
         {content}
       </div>
     );
@@ -156,6 +168,7 @@ const MainLayout: React.FC<{ isDarkMode: boolean; setIsDarkMode: React.Dispatch<
         onOpenSoundscapes={() => setShowSoundscapes(true)}
         onOpenAchievements={() => setShowAchievements(true)}
         onOpenShortcuts={() => setIsShortcutsOpen(true)}
+        onOpenRolePortals={() => setShowRolePortals(true)}
         isDarkMode={isDarkMode}
         setIsDarkMode={setIsDarkMode}
       />
@@ -192,6 +205,7 @@ const MainLayout: React.FC<{ isDarkMode: boolean; setIsDarkMode: React.Dispatch<
       <ShortcutsModal />
       <QRCodeModal />
       <TrustPages />
+      <RolePortalsModal isOpen={showRolePortals} onClose={() => setShowRolePortals(false)} />
       <StudySoundscapesModal isOpen={showSoundscapes} onClose={() => setShowSoundscapes(false)} />
       <AchievementsModal isOpen={showAchievements} onClose={() => setShowAchievements(false)} />
       <Toast />

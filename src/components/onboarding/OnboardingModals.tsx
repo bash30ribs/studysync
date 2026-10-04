@@ -380,10 +380,18 @@ export const FastLoginModal: React.FC<{
 
   if (!isOpen) return null;
 
+  const facultyUser = allUsers.find(u => u.role === 'Faculty') || {
+    id: 'user-fac-1',
+    name: 'Dr. Meenakshi Sundaram',
+    email: 'm.sundaram@college.edu',
+    role: 'Faculty',
+    designation: 'Professor & Core Faculty Incharge'
+  };
+
   const crUser = allUsers.find(u => u.role === 'CR') || {
     id: 'user-cr-1',
-    name: 'Aarav Sharma',
-    email: 'aarav.sharma@college.edu',
+    name: 'Ribhav Sharma',
+    email: 'ribhav.cr@college.edu',
     role: 'CR'
   };
 
@@ -392,7 +400,13 @@ export const FastLoginModal: React.FC<{
     name: 'Ishan Patel',
     email: 'ishan.p@college.edu',
     role: 'Student',
-    rollNo: '23ME014'
+    rollNo: '23ME002'
+  };
+
+  const handleLoginFaculty = () => {
+    switchRole('Faculty', facultyUser.id);
+    onClose();
+    setTimeout(() => onEnterApp(), 0);
   };
 
   const handleLoginCR = () => {
@@ -409,15 +423,39 @@ export const FastLoginModal: React.FC<{
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Log In & Select Persona">
-      <div className="space-y-4">
+      <div className="space-y-3.5">
         <p className="text-xs text-[#737373] dark:text-[#A8A8A8]">
           Choose an instant role to enter the <strong className="text-black dark:text-white">{currentClass?.name || 'MECH-3A'}</strong> workspace immediately:
         </p>
 
-        {/* 1. CR Option */}
+        {/* 1. Faculty Incharge Option */}
+        <div 
+          onClick={handleLoginFaculty}
+          className="p-3.5 rounded-xl border border-purple-500/40 bg-purple-500/5 hover:bg-purple-500/10 transition-all cursor-pointer flex items-center justify-between group"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-purple-600 text-white flex items-center justify-center font-bold text-sm shadow-sm">
+              <ShieldCheck className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-sm text-black dark:text-white">{facultyUser.name}</span>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-600 text-white">FACULTY INCHARGE</span>
+              </div>
+              <p className="text-xs text-[#737373] dark:text-[#A8A8A8]">
+                {facultyUser.email} · Academic Oversight, Grievances & Audit
+              </p>
+            </div>
+          </div>
+          <button className="px-3 py-1.5 rounded-lg bg-purple-600 text-white text-xs font-bold group-hover:bg-purple-700 transition-colors">
+            Enter as Faculty
+          </button>
+        </div>
+
+        {/* 2. CR Option */}
         <div 
           onClick={handleLoginCR}
-          className="p-4 rounded-xl border border-[#0095F6]/40 bg-[#0095F6]/5 hover:bg-[#0095F6]/10 transition-all cursor-pointer flex items-center justify-between group"
+          className="p-3.5 rounded-xl border border-[#0095F6]/40 bg-[#0095F6]/5 hover:bg-[#0095F6]/10 transition-all cursor-pointer flex items-center justify-between group"
         >
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-[#0095F6] text-white flex items-center justify-center font-bold text-sm shadow-sm">
@@ -438,10 +476,10 @@ export const FastLoginModal: React.FC<{
           </button>
         </div>
 
-        {/* 2. Student Option */}
+        {/* 3. Student Option */}
         <div 
           onClick={handleLoginStudent}
-          className="p-4 rounded-xl border border-[#DBDBDB] dark:border-[#262626] bg-[#FAFAFA] dark:bg-[#161616] hover:border-neutral-400 dark:hover:border-neutral-600 transition-all cursor-pointer flex items-center justify-between group"
+          className="p-3.5 rounded-xl border border-[#DBDBDB] dark:border-[#262626] bg-[#FAFAFA] dark:bg-[#161616] hover:border-neutral-400 dark:hover:border-neutral-600 transition-all cursor-pointer flex items-center justify-between group"
         >
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-neutral-800 text-white flex items-center justify-center font-bold text-sm shadow-sm">
@@ -453,7 +491,7 @@ export const FastLoginModal: React.FC<{
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-neutral-200 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200">Student</span>
               </div>
               <p className="text-xs text-[#737373] dark:text-[#A8A8A8]">
-                {studentUser.email} · Task Submissions & Attendance
+                {studentUser.email} · Subtasks, Growth & Attendance
               </p>
             </div>
           </div>
