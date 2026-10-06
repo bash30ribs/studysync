@@ -1424,6 +1424,113 @@ body.pointer-on .cursor-ring{opacity:1}
   transition:height .1s linear;
   box-shadow:0 0 12px rgba(139,169,196,.4);
 }
+
+/* Dropzone & File Attachment */
+.dropzone{
+  border:1.5px dashed var(--border-3);
+  border-radius:12px;
+  padding:22px 18px;
+  text-align:center;
+  background:rgba(255,255,255,.015);
+  cursor:pointer;
+  transition:all .25s var(--ease);
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+}
+.dropzone:hover, .dropzone.dragover{
+  border-color:var(--accent);
+  background:rgba(139,169,196,.06);
+}
+.dropzone-icon{
+  width:40px;
+  height:40px;
+  border-radius:10px;
+  background:rgba(139,169,196,.1);
+  color:var(--accent);
+  display:grid;
+  place-items:center;
+}
+.dropzone-title{
+  font-size:13px;
+  font-weight:500;
+  color:var(--text);
+}
+.dropzone-sub{
+  font-size:11px;
+  color:var(--text-3);
+}
+.attached-file-badge{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:10px 14px;
+  border-radius:9px;
+  background:rgba(139,169,196,.08);
+  border:1px solid var(--accent-border);
+  margin-top:6px;
+}
+.attached-file-info{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:12.5px;
+  color:var(--text);
+}
+.attached-file-remove{
+  background:none;
+  border:none;
+  color:var(--text-3);
+  cursor:pointer;
+  font-size:14px;
+  padding:2px 6px;
+  border-radius:4px;
+  transition:all .2s;
+}
+.attached-file-remove:hover{
+  color:var(--rose);
+  background:rgba(224,82,99,.15);
+}
+.date-presets{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-top:8px;
+}
+.date-preset-btn{
+  font-size:11px;
+  padding:4px 9px;
+  border-radius:6px;
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--border);
+  color:var(--text-2);
+  cursor:pointer;
+  transition:all .2s;
+  font-family:inherit;
+}
+.date-preset-btn:hover{
+  background:rgba(139,169,196,.12);
+  border-color:var(--accent-border);
+  color:var(--text);
+}
+.asg-file-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-size:11px;
+  padding:4px 9px;
+  border-radius:6px;
+  background:rgba(139,169,196,.08);
+  border:1px solid rgba(139,169,196,.2);
+  color:var(--accent);
+  font-family:'JetBrains Mono',monospace;
+}
+.storage-widget{cursor:pointer;transition:border-color .2s, background .2s}
+.storage-widget:hover{background:rgba(255,255,255,.03);border-color:var(--border-2)}
 </style>
 </head>
 <body>
@@ -1455,10 +1562,12 @@ body.pointer-on .cursor-ring{opacity:1}
       <span class="brand-text"><b>StudySync</b><span>Hub</span></span>
     </button>
 
-    <div class="class-pill" id="classPill" role="button" tabindex="0">
+    <div class="class-pill" id="classPill" role="button" tabindex="0" title="Class Join Code: CS2026 · Click for details and invite options" style="cursor:pointer">
       <span class="label">AIML 2026</span>
       <b>·</b>
-      <span class="code mono" id="classCode" title="Click to reveal">••••••</span>
+      <span class="code-label" style="font-size:11px;color:var(--text-3);font-weight:400">Join Code:</span>
+      <span class="code mono" id="classCode" style="color:var(--accent);font-weight:600">CS2026</span>
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:0.7;margin-left:2px"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
     </div>
 
     <div class="live-pill" id="livePill" role="button" tabindex="0">
@@ -1565,12 +1674,19 @@ body.pointer-on .cursor-ring{opacity:1}
         <!-- populated by JS -->
       </div>
       <div class="left-foot">
-        <div class="storage-widget">
+        <div class="storage-widget" id="storageWidget" role="button" tabindex="0" title="Local Offline Storage (PWA) · Click to inspect cache" style="cursor:pointer">
           <div class="storage-top">
-            <span>Offline cache</span>
-            <b>62%</b>
+            <span style="display:flex;align-items:center;gap:5px">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></svg>
+              Local Offline Cache
+            </span>
+            <b id="cacheSizeText">3.1 MB</b>
           </div>
-          <div class="storage-bar"><i></i></div>
+          <div class="storage-bar"><i style="width:18%"></i></div>
+          <div style="font-size:10px;color:var(--text-4);margin-top:4px;display:flex;justify-content:space-between">
+            <span>PWA Offline Ready</span>
+            <span style="color:var(--accent)">Active</span>
+          </div>
         </div>
       </div>
     </aside>
@@ -1764,7 +1880,7 @@ const STUDENTS = [
   { id: 's10', name: 'Arjun Nambiar', code: 'CS21577', rfc: 'STU-AIML26WIL077', att: 82.5, sessions: 30, total: 36 }
 ];
 
-const SUBMISSIONS = [
+const INITIAL_SUBMISSIONS = [
   { id: 'sub1', student: 'Aaditya Verma', code: 'CS21571', assignment: 'Fluid Mechanics — Lab 4', ts: '2 min ago', hash: '0x7f4a8d1c3e9b2a6f', status: 'verified' },
   { id: 'sub2', student: 'Sneha Nair', code: 'CS21566', assignment: 'Fluid Mechanics — Lab 4', ts: '14 min ago', hash: '0x2c8e9f5b7a1d4e3c', status: 'verified' },
   { id: 'sub3', student: 'Priya Desai', code: 'CS21538', assignment: 'Fluid Mechanics — Lab 4', ts: '32 min ago', hash: '0x9b3a7e2d5f8c1a4b', status: 'verified' },
@@ -1775,21 +1891,57 @@ const SUBMISSIONS = [
   { id: 'sub8', student: 'Sahil Khan', code: 'CS21545', assignment: 'Fluid Mechanics — Lab 4', ts: '4h ago', hash: '0x3c7f2e9a6d1b8c4e', status: 'verified' }
 ];
 
-const ASSIGNMENTS = [
-  { id: 'a1', title: 'Fluid Mechanics — Lab Experiment 4', subject: 'Fluid Mechanics', due: 'Tomorrow · 5:00 PM', submitted: 34, total: 48, status: 'active', hash: '0x7f4a8d1c' },
-  { id: 'a2', title: 'Engineering Maths — Assignment 3', subject: 'Engineering Maths', due: 'Friday · 11:59 PM', submitted: 28, total: 48, status: 'active', hash: '0x2c8e9f5b' },
-  { id: 'a3', title: 'Data Structures — Viva Submission', subject: 'Data Structures', due: 'Next Monday', submitted: 12, total: 48, status: 'active', hash: '0x9b3a7e2d' },
-  { id: 'a4', title: 'Operating Systems — Case Study', subject: 'Operating Systems', due: 'Past — Closed', submitted: 48, total: 48, status: 'closed', hash: '0x4d8f2b9e' }
+let SUBMISSIONS = (() => {
+  try {
+    const s = localStorage.getItem('studysync_submissions');
+    if (s) return JSON.parse(s);
+  } catch(e) {}
+  return [...INITIAL_SUBMISSIONS];
+})();
+
+function saveSubmissions() {
+  try { localStorage.setItem('studysync_submissions', JSON.stringify(SUBMISSIONS)); } catch(e) {}
+}
+
+const INITIAL_ASSIGNMENTS = [
+  { id: 'a1', title: 'Fluid Mechanics — Lab Experiment 4', subject: 'Fluid Mechanics', due: 'Tomorrow · 5:00 PM', submitted: 34, total: 48, status: 'active', hash: '0x7f4a8d1c', pdfName: 'Fluid_Mechanics_Lab4_Brief.pdf', pdfSize: '1.8 MB' },
+  { id: 'a2', title: 'Engineering Maths — Assignment 3', subject: 'Engineering Maths', due: 'Friday · 11:59 PM', submitted: 28, total: 48, status: 'active', hash: '0x2c8e9f5b', pdfName: 'Maths_Assignment3_Problems.pdf', pdfSize: '950 KB' },
+  { id: 'a3', title: 'Data Structures — Viva Submission', subject: 'Data Structures', due: 'Next Monday · 9:00 AM', submitted: 12, total: 48, status: 'active', hash: '0x9b3a7e2d', pdfName: 'DSA_Viva_Rubric_Questions.pdf', pdfSize: '1.2 MB' },
+  { id: 'a4', title: 'Operating Systems — Case Study', subject: 'Operating Systems', due: 'Past · Closed', submitted: 48, total: 48, status: 'closed', hash: '0x4d8f2b9e', pdfName: 'OS_CaseStudy_Guidelines.pdf', pdfSize: '2.1 MB' }
 ];
 
-const RESOURCES = [
-  { id: 'r1', title: 'Bernoulli\'s Theorem — Unit 3 Notes', type: 'PDF', size: '2.4 MB', author: 'Dr. M. Sundaram', added: '2d ago' },
-  { id: 'r2', title: 'PYQ 2024 — Engineering Maths', type: 'PDF', size: '1.1 MB', author: 'CR Upload', added: '5d ago' },
-  { id: 'r3', title: 'Lab Manual — Fluid Mechanics', type: 'PDF', size: '4.8 MB', author: 'Department', added: '1w ago' },
-  { id: 'r4', title: 'Compiler Design Syllabus', type: 'PDF', size: '320 KB', author: 'Faculty', added: '2w ago' },
-  { id: 'r5', title: 'DSA Cheat Sheet (Viva)', type: 'PDF', size: '890 KB', author: 'Aaditya Verma', added: '3d ago' },
-  { id: 'r6', title: 'OS Case Study Reference', type: 'LINK', size: 'External', author: 'Prof. Nair', added: '4d ago' }
+let ASSIGNMENTS = (() => {
+  try {
+    const s = localStorage.getItem('studysync_assignments');
+    if (s) return JSON.parse(s);
+  } catch(e) {}
+  return [...INITIAL_ASSIGNMENTS];
+})();
+
+function saveAssignments() {
+  try { localStorage.setItem('studysync_assignments', JSON.stringify(ASSIGNMENTS)); } catch(e) {}
+}
+
+const INITIAL_RESOURCES = [
+  { id: 'r1', title: 'Bernoulli\'s Theorem — Unit 3 Notes', type: 'PDF', size: '2.4 MB', author: 'Dr. M. Sundaram', added: '2d ago', fileName: 'Bernoulli_Theorem_Unit3_Notes.pdf' },
+  { id: 'r2', title: 'PYQ 2024 — Engineering Maths', type: 'PDF', size: '1.1 MB', author: 'CR Upload', added: '5d ago', fileName: 'PYQ_2024_Engineering_Maths.pdf' },
+  { id: 'r3', title: 'Lab Manual — Fluid Mechanics', type: 'PDF', size: '4.8 MB', author: 'Department', added: '1w ago', fileName: 'FM_Lab_Manual_2026.pdf' },
+  { id: 'r4', title: 'Compiler Design Syllabus', type: 'PDF', size: '320 KB', author: 'Faculty', added: '2w ago', fileName: 'Compiler_Design_Syllabus.pdf' },
+  { id: 'r5', title: 'DSA Cheat Sheet (Viva)', type: 'CHEAT SHEET', size: '890 KB', author: 'Aaditya Verma', added: '3d ago', fileName: 'DSA_Viva_Quick_CheatSheet.pdf' },
+  { id: 'r6', title: 'OS Case Study Reference Guide', type: 'PDF', size: '1.6 MB', author: 'Prof. Nair', added: '4d ago', fileName: 'OS_CaseStudy_Reference.pdf' }
 ];
+
+let RESOURCES = (() => {
+  try {
+    const s = localStorage.getItem('studysync_resources');
+    if (s) return JSON.parse(s);
+  } catch(e) {}
+  return [...INITIAL_RESOURCES];
+})();
+
+function saveResources() {
+  try { localStorage.setItem('studysync_resources', JSON.stringify(RESOURCES)); } catch(e) {}
+}
 
 const BROADCASTS = [
   { id: 'b1', author: 'Ribhav Sharma', role: 'CR', code: 'CS21532', text: 'Fluid Mechanics Lab 4 submission portal closes tomorrow at 5:00 PM. 34 of 48 submitted. Check the Assignment Tracker for real-time status.', time: '2h ago', pinned: true, reactions: 12 },
@@ -2184,6 +2336,7 @@ function renderStudentDashboard() {
       </div>
       <div class="card card-pad" style="margin-bottom:26px">
         ${pending.map(a => {
+          const pdfName = a.pdfName || (a.title.replace(/[^a-zA-Z0-9]/g, '_') + '_Brief.pdf');
           return `
             <div class="feed-item">
               <div class="feed-icon accent">
@@ -2192,15 +2345,24 @@ function renderStudentDashboard() {
               <div class="feed-meta">
                 <div class="feed-title">${a.title}</div>
                 <div class="feed-sub">
-                  <span>${a.due}</span>
+                  <span>Due: <b style="color:var(--amber)">${a.due}</b></span>
                   <span class="dot"></span>
                   <span>${a.submitted} / ${a.total} submitted</span>
                 </div>
+                <div style="margin-top:6px">
+                  <span class="asg-file-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg> ${pdfName}</span>
+                </div>
               </div>
-              <button class="btn btn-accent btn-sm magnetic" data-action="submit" data-id="${a.id}">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8l-5-5-5 5M12 3v12"/></svg>
-                Submit
-              </button>
+              <div style="display:flex;gap:6px;align-items:center">
+                <button class="btn btn-ghost btn-sm magnetic" data-action="download-brief" data-id="${a.id}" title="Download Question Paper / Brief PDF">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5M12 15V3"/></svg>
+                  Brief
+                </button>
+                <button class="btn btn-accent btn-sm magnetic" data-action="submit" data-id="${a.id}">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8l-5-5-5 5M12 3v12"/></svg>
+                  Submit
+                </button>
+              </div>
             </div>
           `;
         }).join('')}
@@ -2240,9 +2402,13 @@ function renderAssignments() {
         <div class="view-title-group">
           <div class="view-eyebrow">Assignments</div>
           <h1 class="view-title">Assignment tracker</h1>
-          <p class="view-sub">Every assignment, every submission, every SHA-256 hash. No more "I already submitted it, sir."</p>
+          <p class="view-sub">Every assignment, every submission, every SHA-256 hash. Attached briefs and cryptographic proofs always in sync.</p>
         </div>
         <div class="view-actions">
+          <button class="btn btn-ghost magnetic" data-action="export" data-type="assignments">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5M12 15V3"/></svg>
+            Export CSV
+          </button>
           <button class="btn btn-accent magnetic" data-action="new-assignment">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
             New Assignment
@@ -2256,20 +2422,33 @@ function renderAssignments() {
       <div class="card" style="margin-bottom:26px">
         ${ASSIGNMENTS.filter(a => a.status === 'active').map(a => {
           const pct = (a.submitted / a.total) * 100;
+          const pdfName = a.pdfName || (a.title.replace(/[^a-zA-Z0-9]/g, '_') + '_Brief.pdf');
+          const pdfSize = a.pdfSize || '1.8 MB';
           return `
             <div style="padding:20px;border-bottom:1px solid var(--border)">
               <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:14px;flex-wrap:wrap">
                 <div>
                   <div style="font-size:14.5px;font-weight:500;letter-spacing:-.01em;margin-bottom:6px">${a.title}</div>
-                  <div style="display:flex;gap:10px;flex-wrap:wrap;font-size:11.5px;color:var(--text-3)">
+                  <div style="display:flex;gap:10px;flex-wrap:wrap;font-size:11.5px;color:var(--text-3);align-items:center">
                     <span>${a.subject}</span>
                     <span style="color:var(--text-4)">·</span>
-                    <span>Due: <b style="color:var(--amber);font-weight:500">${a.due}</b></span>
+                    <span>Due: <b style="color:var(--amber);font-weight:500;cursor:pointer;text-decoration:underline dotted" data-action="edit-due" data-id="${a.id}" title="Click to edit deadline">${a.due} ✎</b></span>
                     <span style="color:var(--text-4)">·</span>
                     <span class="mono" style="color:var(--accent-2)">${a.hash}…</span>
                   </div>
+                  <div style="display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap">
+                    <span class="asg-file-badge">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+                      ${pdfName} <span style="opacity:0.7">(${pdfSize})</span>
+                    </span>
+                    <button class="btn btn-ghost btn-sm magnetic" data-action="download-brief" data-id="${a.id}" title="Download Question Paper / Brief PDF" style="padding:4px 9px;font-size:11px">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5M12 15V3"/></svg>
+                      Download Brief
+                    </button>
+                  </div>
                 </div>
-                <div style="display:flex;gap:8px;align-items:center">
+                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                  <button class="btn btn-ghost btn-sm magnetic" data-action="edit-due" data-id="${a.id}">Edit Deadline</button>
                   <button class="btn btn-ghost btn-sm magnetic" data-action="nudge" data-id="${a.id}">Nudge Pending</button>
                   <button class="btn btn-primary btn-sm magnetic" data-action="view-submissions" data-id="${a.id}">View</button>
                 </div>
@@ -2497,30 +2676,44 @@ function renderResources() {
         <div class="view-actions">
           <button class="btn btn-accent magnetic" data-action="upload">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8l-5-5-5 5M12 3v12"/><path d="M3 15v4a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4"/></svg>
-            Upload
+            Upload Document
           </button>
         </div>
       </div>
 
       <div class="res-grid">
-        ${RESOURCES.map(r => `
-          <div class="res-card">
-            <div class="res-head">
-              <div class="res-icon">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+        ${RESOURCES.map(r => {
+          const fn = r.fileName || (r.title.replace(/[^a-zA-Z0-9]/g, '_') + '.pdf');
+          return `
+            <div class="res-card" style="display:flex;flex-direction:column;justify-content:space-between">
+              <div>
+                <div class="res-head">
+                  <div class="res-icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+                  </div>
+                  <span class="res-type">${r.type}</span>
+                </div>
+                <div class="res-title">${r.title}</div>
+                <div class="res-meta">
+                  <span>${r.author}</span>
+                  <span class="dot"></span>
+                  <span>${r.size}</span>
+                  <span class="dot"></span>
+                  <span>${r.added}</span>
+                </div>
               </div>
-              <span class="res-type">${r.type}</span>
+              <div style="display:flex;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid var(--border)">
+                <button class="btn btn-ghost btn-sm magnetic" data-action="download-resource" data-id="${r.id}" style="flex:1;justify-content:center" title="Download ${fn}">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5M12 15V3"/></svg>
+                  Download
+                </button>
+                <button class="btn btn-primary btn-sm magnetic" data-action="download-resource" data-id="${r.id}" style="padding:0 10px" title="Preview / Open PDF">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+              </div>
             </div>
-            <div class="res-title">${r.title}</div>
-            <div class="res-meta">
-              <span>${r.author}</span>
-              <span class="dot"></span>
-              <span>${r.size}</span>
-              <span class="dot"></span>
-              <span>${r.added}</span>
-            </div>
-          </div>
-        `).join('')}
+          `;
+        }).join('')}
       </div>
     </div>
   `;
@@ -2963,7 +3156,7 @@ function renderSettings() {
               <span>Full structured data for backup or migration</span>
             </div>
             <div class="settings-actions">
-              <button class="btn btn-ghost btn-sm magnetic" data-action="export">Download JSON</button>
+              <button class="btn btn-ghost btn-sm magnetic" data-action="export-json">Download JSON</button>
             </div>
           </div>
           <div class="settings-row">
@@ -3066,6 +3259,96 @@ function wireModal() {
 }
 
 /* ============================================================
+   FILE DOWNLOAD & EXPORT UTILITIES
+   ============================================================ */
+function triggerFileDownload(filename, mimeType, textContent) {
+  let blob;
+  if (mimeType === 'application/pdf') {
+    const titleText = filename.replace(/\.[^/.]+$/, '').replace(/_/g, ' ');
+    const pdfBody = 
+`%PDF-1.4
+1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj
+2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj
+3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >> endobj
+4 0 obj << /Length 320 >> stream
+BT
+/F1 18 Tf
+50 720 Td
+(StudySync Academic Document) Tj
+/F1 12 Tf
+0 -30 Td
+(Title: ${titleText}) Tj
+0 -20 Td
+(Class Cohort: AIML 2026 | Code: CS2026) Tj
+0 -20 Td
+(Issued: ${new Date().toLocaleString()}) Tj
+0 -20 Td
+(Integrity Hash: 0x${Math.random().toString(16).slice(2, 12)}) Tj
+0 -30 Td
+(Verified by StudySync Academic Engine.) Tj
+ET
+endstream
+endobj
+5 0 obj << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> endobj
+xref
+0 6
+0000000000 65535 f 
+0000000010 00000 n 
+0000000060 00000 n 
+0000000117 00000 n 
+0000000238 00000 n 
+0000000611 00000 n 
+trailer << /Size 6 /Root 1 0 R >>
+startxref
+685
+%%EOF`;
+    blob = new Blob([pdfBody], { type: 'application/pdf' });
+  } else {
+    blob = new Blob([textContent || ''], { type: mimeType || 'text/plain;charset=utf-8' });
+  }
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 2500);
+}
+
+function exportCSV(category) {
+  if (category === 'assignments' || state.activeTab === 'assignments') {
+    let csv = 'Assignment ID,Title,Subject,Due Date,Submissions Count,Total Cohort,Status,Proof Hash,Attached Brief\n';
+    ASSIGNMENTS.forEach(a => {
+      csv += `"${a.id}","${a.title.replace(/"/g, '""')}","${a.subject}","${a.due}",${a.submitted},${a.total},"${a.status}","${a.hash}","${a.pdfName || ''}"\n`;
+    });
+    triggerFileDownload('StudySync_CS2026_Assignments_Tracker.csv', 'text/csv;charset=utf-8', csv);
+    toast('Assignments CSV exported and downloaded', 'green');
+  } else {
+    let csv = 'Roll No,Name,Email,Attendance %,Present Sessions,Total Sessions,Status,Safe To Miss\n';
+    STUDENTS.forEach(s => {
+      csv += `"${s.code}","${s.name.replace(/"/g, '""')}","${s.email}",${s.att}%,${s.sessions},${s.total},"${s.status}",${s.safe}\n`;
+    });
+    triggerFileDownload('StudySync_CS2026_Student_Roster.csv', 'text/csv;charset=utf-8', csv);
+    toast('Class Roster CSV exported and downloaded', 'green');
+  }
+}
+
+function exportJSON() {
+  const data = {
+    classCode: 'CS2026',
+    cohort: 'AIML 2026',
+    exportTimestamp: new Date().toISOString(),
+    students: STUDENTS,
+    assignments: ASSIGNMENTS,
+    resources: RESOURCES,
+    submissions: SUBMISSIONS
+  };
+  triggerFileDownload('StudySync_CS2026_Full_Ledger.json', 'application/json;charset=utf-8', JSON.stringify(data, null, 2));
+  toast('Full Workspace JSON backup downloaded', 'green');
+}
+
+/* ============================================================
    ACTION HANDLER
    ============================================================ */
 function handleAction(action, el) {
@@ -3073,36 +3356,215 @@ function handleAction(action, el) {
     case 'new-assignment':
       openModal(`
         <h3>New assignment</h3>
-        <p class="modal-sub">Post a new assignment to the cohort. Students receive a notification and can submit with cryptographic proof.</p>
+        <p class="modal-sub">Post a new assignment to the cohort with question paper / brief attachments and cryptographic proof.</p>
         <div class="form-row">
-          <label>Title</label>
-          <input class="input" id="naTitle" placeholder="e.g. Fluid Mechanics — Lab Experiment 5" />
+          <label>Assignment Title</label>
+          <input class="input" id="naTitle" placeholder="e.g. Fluid Mechanics — Lab Experiment 5 (Boundary Layer Flow)" />
         </div>
         <div class="form-row">
-          <label>Subject</label>
+          <label>Subject / Module</label>
           <select class="select" id="naSubject">
-            <option>Fluid Mechanics</option>
-            <option>Engineering Maths</option>
-            <option>Data Structures</option>
-            <option>Operating Systems</option>
-            <option>Compiler Design</option>
-            <option>Artificial Intelligence</option>
+            <option value="Fluid Mechanics">Fluid Mechanics (ME201)</option>
+            <option value="Engineering Maths">Engineering Maths (MA201)</option>
+            <option value="Data Structures">Data Structures & Algorithms (CS204)</option>
+            <option value="Operating Systems">Operating Systems (CS206)</option>
+            <option value="Compiler Design">Compiler Design (CS301)</option>
+            <option value="Artificial Intelligence">Artificial Intelligence (AI302)</option>
           </select>
         </div>
         <div class="form-row">
-          <label>Due date</label>
-          <input class="input" id="naDue" type="datetime-local" />
+          <label>Due Date & Submission Deadline</label>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input class="input" id="naDueText" value="Tomorrow · 5:00 PM" placeholder="e.g. Tomorrow · 5:00 PM or 2026-10-15 17:00" style="flex:1" />
+            <input class="input" id="naDuePicker" type="datetime-local" style="width:48px;padding:9px;cursor:pointer" title="Pick date from calendar" />
+          </div>
+          <div class="date-presets">
+            <button type="button" class="date-preset-btn" data-preset="Tomorrow · 5:00 PM">Tomorrow 5:00 PM</button>
+            <button type="button" class="date-preset-btn" data-preset="Friday · 11:59 PM">Friday 11:59 PM</button>
+            <button type="button" class="date-preset-btn" data-preset="Next Monday · 9:00 AM">Next Monday 9:00 AM</button>
+            <button type="button" class="date-preset-btn" data-preset="In 7 Days · 5:00 PM">In 7 Days</button>
+          </div>
         </div>
-        <button class="btn btn-accent btn-lg" id="naSubmit" style="width:100%;margin-top:6px">Post assignment</button>
+        <div class="form-row">
+          <label>Attach Assignment Brief / Question Paper (PDF)</label>
+          <div class="dropzone" id="naDropzone">
+            <div class="dropzone-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M12 18v-6"/><path d="m9 15 3-3 3 3"/></svg>
+            </div>
+            <div class="dropzone-title">Click to upload or drag & drop PDF / Document</div>
+            <div class="dropzone-sub">Upload question paper, rubric, or starter guidelines (PDF, DOCX up to 25 MB)</div>
+          </div>
+          <input type="file" id="naFileInput" accept=".pdf,.doc,.docx" style="display:none" />
+          <div id="naAttachedFile" class="attached-file-badge" style="display:none">
+            <div class="attached-file-info">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+              <span id="naFileName" class="mono" style="font-weight:500">brief.pdf</span>
+              <span id="naFileSize" style="color:var(--text-3);font-size:11px">(1.8 MB)</span>
+            </div>
+            <button type="button" id="naRemoveFile" class="attached-file-remove" title="Remove attachment">✕</button>
+          </div>
+        </div>
+        <div class="form-row">
+          <label>Submission Instructions / Notes (Optional)</label>
+          <textarea class="input" id="naNotes" rows="2" placeholder="e.g. Submit single PDF with handwritten calculations and graph scans." style="resize:vertical"></textarea>
+        </div>
+        <button class="btn btn-accent btn-lg" id="naSubmit" style="width:100%;margin-top:10px">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          Post Assignment to Cohort
+        </button>
       `);
       setTimeout(() => {
-        $('#naSubmit').addEventListener('click', () => {
-          const t = $('#naTitle').value || 'Untitled assignment';
+        let attachedFile = null;
+        const dropzone = $('#naDropzone');
+        const fileInput = $('#naFileInput');
+        const fileBadge = $('#naAttachedFile');
+        const fileNameEl = $('#naFileName');
+        const fileSizeEl = $('#naFileSize');
+        const removeBtn = $('#naRemoveFile');
+        const dueTextInput = $('#naDueText');
+        const duePicker = $('#naDuePicker');
+
+        if (dropzone && fileInput) {
+          dropzone.addEventListener('click', () => fileInput.click());
+          dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('dragover'); });
+          dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+          dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropzone.classList.remove('dragover');
+            if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+              attachFile(e.dataTransfer.files[0]);
+            }
+          });
+          fileInput.addEventListener('change', () => {
+            if (fileInput.files && fileInput.files[0]) {
+              attachFile(fileInput.files[0]);
+            }
+          });
+        }
+
+        function attachFile(file) {
+          attachedFile = file;
+          fileNameEl.textContent = file.name;
+          fileSizeEl.textContent = '(' + (file.size ? (file.size / (1024*1024)).toFixed(1) + ' MB' : '1.8 MB') + ')';
+          fileBadge.style.display = 'flex';
+          dropzone.style.display = 'none';
+        }
+
+        if (removeBtn) {
+          removeBtn.addEventListener('click', () => {
+            attachedFile = null;
+            fileInput.value = '';
+            fileBadge.style.display = 'none';
+            dropzone.style.display = 'flex';
+          });
+        }
+
+        $$('.date-preset-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            if (dueTextInput) dueTextInput.value = btn.dataset.preset;
+          });
+        });
+
+        if (duePicker) {
+          duePicker.addEventListener('change', (e) => {
+            if (e.target.value && dueTextInput) {
+              const d = new Date(e.target.value);
+              dueTextInput.value = d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }) + ' · ' + d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+            }
+          });
+        }
+
+        $('#naSubmit')?.addEventListener('click', () => {
+          const title = $('#naTitle').value.trim() || 'Untitled Assignment';
+          const subject = $('#naSubject').value;
+          const due = $('#naDueText').value.trim() || 'Tomorrow · 5:00 PM';
+          const pdfName = attachedFile ? attachedFile.name : (title.replace(/[^a-zA-Z0-9]/g, '_') + '_Brief.pdf');
+          const pdfSize = attachedFile ? ((attachedFile.size / (1024*1024)).toFixed(1) + ' MB') : '1.8 MB';
+          
+          const newAsg = {
+            id: 'a' + Date.now(),
+            title,
+            subject,
+            due,
+            submitted: 0,
+            total: 48,
+            status: 'active',
+            hash: '0x' + Math.random().toString(16).slice(2, 10),
+            pdfName,
+            pdfSize
+          };
+          ASSIGNMENTS.unshift(newAsg);
+          saveAssignments();
           closeModal();
-          toast(`Assignment "${t}" posted to 48 students`, 'green');
+          renderView();
+          toast(`Assignment "${title}" posted with attached brief (${pdfName}) to 48 students`, 'green');
         });
       }, 20);
       break;
+
+    case 'edit-due': {
+      const asgId = el ? el.dataset.id : '';
+      const asg = ASSIGNMENTS.find(a => a.id === asgId);
+      if (!asg) {
+        toast('Select an assignment to edit', 'amber');
+        break;
+      }
+      openModal(`
+        <h3>Edit Assignment Deadline</h3>
+        <p class="modal-sub">Update the submission deadline for <b>${asg.title}</b>. All 48 students will receive an instant deadline update notification.</p>
+        <div class="form-row">
+          <label>Current Due Date</label>
+          <div style="font-size:13px;color:var(--amber);margin-bottom:8px;font-weight:500">${asg.due}</div>
+        </div>
+        <div class="form-row">
+          <label>New Due Date & Time</label>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input class="input" id="editDueText" value="${asg.due}" placeholder="e.g. Friday · 11:59 PM" style="flex:1" />
+            <input class="input" id="editDuePicker" type="datetime-local" style="width:48px;padding:9px;cursor:pointer" title="Pick date from calendar" />
+          </div>
+          <div class="date-presets">
+            <button type="button" class="date-preset-btn" data-preset="Tomorrow · 5:00 PM">Tomorrow 5:00 PM</button>
+            <button type="button" class="date-preset-btn" data-preset="Friday · 11:59 PM">Friday 11:59 PM</button>
+            <button type="button" class="date-preset-btn" data-preset="Next Monday · 9:00 AM">Next Monday 9:00 AM</button>
+            <button type="button" class="date-preset-btn" data-preset="Extended +3 Days">Extended +3 Days</button>
+            <button type="button" class="date-preset-btn" data-preset="Extended +7 Days">Extended +7 Days</button>
+          </div>
+        </div>
+        <button class="btn btn-accent btn-lg" id="editDueSubmit" style="width:100%;margin-top:12px">Update Deadline</button>
+      `);
+      setTimeout(() => {
+        $$('.date-preset-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            $('#editDueText').value = btn.dataset.preset;
+          });
+        });
+        $('#editDuePicker')?.addEventListener('change', (e) => {
+          if (e.target.value) {
+            const d = new Date(e.target.value);
+            $('#editDueText').value = d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }) + ' · ' + d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+          }
+        });
+        $('#editDueSubmit')?.addEventListener('click', () => {
+          const val = $('#editDueText').value.trim();
+          if (!val) { toast('Please enter a valid due date', 'amber'); return; }
+          asg.due = val;
+          saveAssignments();
+          closeModal();
+          renderView();
+          toast(`Deadline updated to "${val}" for ${asg.title}`, 'green');
+        });
+      }, 20);
+      break;
+    }
+
+    case 'download-brief': {
+      const asgId = el ? el.dataset.id : '';
+      const asg = ASSIGNMENTS.find(a => a.id === asgId);
+      const fn = (asg && asg.pdfName) ? asg.pdfName : ((asg ? asg.title.replace(/[^a-zA-Z0-9]/g, '_') : 'Assignment') + '_Brief.pdf');
+      triggerFileDownload(fn, 'application/pdf');
+      toast(`Downloaded assignment brief: ${fn}`, 'green');
+      break;
+    }
 
     case 'take-attendance':
       openModal(`
@@ -3131,7 +3593,7 @@ function handleAction(action, el) {
         <button class="btn btn-accent btn-lg" id="attSubmit" style="width:100%">Commit session · 10 present</button>
       `);
       setTimeout(() => {
-        $('#attSubmit').addEventListener('click', () => {
+        $('#attSubmit')?.addEventListener('click', () => {
           closeModal();
           toast('Attendance session committed to local ledger', 'green');
         });
@@ -3153,7 +3615,7 @@ function handleAction(action, el) {
         <button class="btn btn-accent btn-lg" id="bSubmit" style="width:100%">Broadcast</button>
       `);
       setTimeout(() => {
-        $('#bSubmit').addEventListener('click', () => {
+        $('#bSubmit')?.addEventListener('click', () => {
           const t = $('#bText').value.trim();
           if (!t) { toast('Enter a message first', 'amber'); return; }
           closeModal();
@@ -3173,11 +3635,233 @@ function handleAction(action, el) {
       break;
 
     case 'export':
-      toast('CSV exported to downloads', 'green');
+      exportCSV(el?.dataset?.type || state.activeTab);
+      break;
+
+    case 'export-json':
+      exportJSON();
       break;
 
     case 'upload':
-      toast('Upload dialog opened', 'blue');
+      openModal(`
+        <h3>Upload to Academic Vault</h3>
+        <p class="modal-sub">Upload notes, previous year question papers (PYQs), lab manuals, or formula sheets for permanent offline-first storage.</p>
+        <div class="form-row">
+          <label>Document Title</label>
+          <input class="input" id="resTitle" placeholder="e.g. Unit 3 — Navier-Stokes Equations & Derivations" />
+        </div>
+        <div class="form-row">
+          <label>Subject</label>
+          <select class="select" id="resSubject">
+            <option value="Fluid Mechanics">Fluid Mechanics (ME201)</option>
+            <option value="Engineering Maths">Engineering Maths (MA201)</option>
+            <option value="Data Structures">Data Structures & Algorithms (CS204)</option>
+            <option value="Operating Systems">Operating Systems (CS206)</option>
+            <option value="Compiler Design">Compiler Design (CS301)</option>
+            <option value="Artificial Intelligence">Artificial Intelligence (AI302)</option>
+            <option value="General">General / All Subjects</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>Resource Category</label>
+          <select class="select" id="resCategory">
+            <option value="PDF">Lecture Notes (PDF)</option>
+            <option value="PYQ">Previous Year Questions (PYQ)</option>
+            <option value="MANUAL">Lab Manual / Code</option>
+            <option value="CHEAT SHEET">Formula / Cheat Sheet</option>
+            <option value="BOOK">Reference Textbook</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>Select File (PDF, DOCX, ZIP)</label>
+          <div class="dropzone" id="resDropzone">
+            <div class="dropzone-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M12 18v-6"/><path d="m9 15 3-3 3 3"/></svg>
+            </div>
+            <div class="dropzone-title">Click to upload or drag & drop document</div>
+            <div class="dropzone-sub">PDF, DOCX, PPTX, ZIP up to 50 MB</div>
+          </div>
+          <input type="file" id="resFileInput" accept=".pdf,.doc,.docx,.ppt,.pptx,.zip" style="display:none" />
+          <div id="resAttachedFile" class="attached-file-badge" style="display:none">
+            <div class="attached-file-info">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+              <span id="resFileName" class="mono" style="font-weight:500">notes.pdf</span>
+              <span id="resFileSize" style="color:var(--text-3);font-size:11px">(2.4 MB)</span>
+            </div>
+            <button type="button" id="resRemoveFile" class="attached-file-remove" title="Remove attachment">✕</button>
+          </div>
+        </div>
+        <div class="form-row">
+          <label>Author / Contributor</label>
+          <input class="input" id="resAuthor" value="${state.activeUser === 'ribhav' ? 'Ribhav Sharma (CR)' : 'Faculty'}" />
+        </div>
+        <button class="btn btn-accent btn-lg" id="resSubmit" style="width:100%;margin-top:10px">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M17 8l-5-5-5 5M12 3v12"/><path d="M3 15v4a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4"/></svg>
+          Upload Document to Vault
+        </button>
+      `);
+      setTimeout(() => {
+        let attachedFile = null;
+        const dropzone = $('#resDropzone');
+        const fileInput = $('#resFileInput');
+        const fileBadge = $('#resAttachedFile');
+        const fileNameEl = $('#resFileName');
+        const fileSizeEl = $('#resFileSize');
+        const removeBtn = $('#resRemoveFile');
+
+        if (dropzone && fileInput) {
+          dropzone.addEventListener('click', () => fileInput.click());
+          dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('dragover'); });
+          dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+          dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropzone.classList.remove('dragover');
+            if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+              attachFile(e.dataTransfer.files[0]);
+            }
+          });
+          fileInput.addEventListener('change', () => {
+            if (fileInput.files && fileInput.files[0]) {
+              attachFile(fileInput.files[0]);
+            }
+          });
+        }
+
+        function attachFile(file) {
+          attachedFile = file;
+          fileNameEl.textContent = file.name;
+          fileSizeEl.textContent = '(' + (file.size ? (file.size / (1024*1024)).toFixed(1) + ' MB' : '2.4 MB') + ')';
+          fileBadge.style.display = 'flex';
+          dropzone.style.display = 'none';
+        }
+
+        if (removeBtn) {
+          removeBtn.addEventListener('click', () => {
+            attachedFile = null;
+            fileInput.value = '';
+            fileBadge.style.display = 'none';
+            dropzone.style.display = 'flex';
+          });
+        }
+
+        $('#resSubmit')?.addEventListener('click', () => {
+          const rawTitle = $('#resTitle').value.trim() || 'Untitled Academic Resource';
+          const subject = $('#resSubject').value;
+          const type = $('#resCategory').value;
+          const author = $('#resAuthor').value.trim() || 'Class Rep';
+          const title = rawTitle + (subject !== 'General' ? ' — ' + subject : '');
+          const fileName = attachedFile ? attachedFile.name : (rawTitle.replace(/[^a-zA-Z0-9]/g, '_') + '.pdf');
+          const size = attachedFile ? ((attachedFile.size / (1024*1024)).toFixed(1) + ' MB') : '2.4 MB';
+          
+          const newRes = {
+            id: 'r' + Date.now(),
+            title,
+            type,
+            size,
+            author,
+            added: 'Just now',
+            fileName
+          };
+          RESOURCES.unshift(newRes);
+          saveResources();
+          closeModal();
+          renderView();
+          toast(`Uploaded "${title}" to Academic Vault`, 'green');
+        });
+      }, 20);
+      break;
+
+    case 'download-resource': {
+      const rId = el ? el.dataset.id : '';
+      const r = RESOURCES.find(x => x.id === rId);
+      const fn = (r && r.fileName) ? r.fileName : ((r ? r.title.replace(/[^a-zA-Z0-9]/g, '_') : 'Document') + '.pdf');
+      triggerFileDownload(fn, 'application/pdf');
+      toast(`Downloaded resource: ${fn}`, 'green');
+      break;
+    }
+
+    case 'class-info':
+      openModal(`
+        <div style="text-align:center;padding:10px 0 16px">
+          <div style="width:48px;height:48px;border-radius:14px;background:rgba(139,169,196,.1);border:1px solid var(--accent-border);display:grid;place-items:center;margin:0 auto 14px;color:var(--accent)">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          </div>
+          <div class="view-eyebrow" style="color:var(--accent)">Classroom Identifier</div>
+          <h3 style="font-size:20px;letter-spacing:-.02em">Class Join Code</h3>
+          <div style="font-size:32px;font-weight:700;letter-spacing:.08em;font-family:'JetBrains Mono',monospace;color:var(--text);padding:14px 20px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid var(--border-2);margin:16px 0;user-select:all">
+            CS2026
+          </div>
+          <div style="text-align:left;line-height:1.6;font-size:12.5px;color:var(--text-3);padding:12px 14px;border-radius:10px;background:rgba(255,255,255,.02);border:1px solid var(--border);margin-bottom:14px">
+            <b style="color:var(--text);display:block;margin-bottom:4px">What is this code meant for?</b>
+            This 6-character code (<code style="color:var(--accent)">CS2026</code>) is your class workspace enrollment key for <b>AIML 2026</b>.<br/><br/>
+            • <b>For Students:</b> Enter this code when joining StudySync to automatically enroll in the class roster, view the attendance radar, and submit assignments.<br/>
+            • <b>For CRs & Faculty:</b> Share this code or the invite link on WhatsApp or email so students can join without manual verification.
+          </div>
+        </div>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-primary btn-lg magnetic" style="flex:1" data-copy="CS2026">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copy Join Code
+          </button>
+          <button class="btn btn-accent btn-lg magnetic" style="flex:1" data-copy="https://studysync.edu/join?code=CS2026">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            Copy Invite Link
+          </button>
+        </div>
+      `);
+      break;
+
+    case 'storage-info':
+      openModal(`
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+          <div style="width:40px;height:40px;border-radius:10px;background:rgba(139,169,196,.1);border:1px solid var(--accent-border);display:grid;place-items:center;color:var(--accent)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></svg>
+          </div>
+          <div>
+            <h3 style="margin:0;font-size:17px">Local Offline Storage (PWA)</h3>
+            <div style="font-size:11.5px;color:var(--accent);font-family:'JetBrains Mono',monospace">Status: Active & Synchronized · 3.1 MB / 50 MB</div>
+          </div>
+        </div>
+
+        <p class="modal-sub" style="line-height:1.6">
+          <b>What does "Offline Cache" mean?</b><br/>
+          StudySync is engineered as an offline-first Progressive Web App. All critical classroom data is cached directly in your local browser storage (IndexedDB & LocalStorage). This guarantees zero-latency access during lecture hours, even in basement labs with dead Wi-Fi.
+        </p>
+
+        <div style="margin:16px 0;padding:12px 14px;border-radius:10px;background:rgba(255,255,255,.02);border:1px solid var(--border)">
+          <div style="font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">Cached Classroom Data</div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 0;border-bottom:1px solid var(--border)">
+            <span>Class Roster & Attendance Radar</span>
+            <b class="mono" style="color:var(--text)">48 students · 120 KB</b>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 0;border-bottom:1px solid var(--border)">
+            <span>Active Assignments & Briefs</span>
+            <b class="mono" style="color:var(--text)">${ASSIGNMENTS.length} assignments · 450 KB</b>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 0;border-bottom:1px solid var(--border)">
+            <span>Academic Vault Documents</span>
+            <b class="mono" style="color:var(--text)">${RESOURCES.length} documents · 2.4 MB</b>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 0">
+            <span>Timetable & Broadcast Feed</span>
+            <b class="mono" style="color:var(--text)">18 updates · 130 KB</b>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:10px;margin-top:18px">
+          <button class="btn btn-ghost btn-lg" style="flex:1" id="btnSyncNow">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+            Sync Now
+          </button>
+          <button class="btn btn-accent btn-lg" style="flex:1" onclick="closeModal()">Got it</button>
+        </div>
+      `);
+      setTimeout(() => {
+        $('#btnSyncNow')?.addEventListener('click', () => {
+          toast('Cache synchronized with local & cloud ledger', 'green');
+          closeModal();
+        });
+      }, 20);
       break;
 
     case 'new-poll':
@@ -3203,19 +3887,35 @@ function handleAction(action, el) {
       setTab('assignments');
       break;
 
-    case 'submit':
+    case 'submit': {
+      const asgId = el ? el.dataset.id : '';
+      const asg = ASSIGNMENTS.find(a => a.id === asgId);
+      const asgTitle = asg ? asg.title : 'Assignment';
       openModal(`
         <h3>Submit assignment</h3>
-        <p class="modal-sub">Your submission will be hashed with SHA-256 and timestamped. The receipt is immutable.</p>
+        <p class="modal-sub">Submitting for <b>${asgTitle}</b>. Your submission will be hashed with SHA-256 and timestamped. The receipt is immutable.</p>
         <div class="form-row">
-          <label>File</label>
-          <div style="padding:24px;border:1.5px dashed var(--border-3);border-radius:10px;text-align:center;color:var(--text-3);font-size:12.5px;cursor:pointer">
-            Drop PDF or click to select
+          <label>Submission PDF File</label>
+          <div class="dropzone" id="subDropzone">
+            <div class="dropzone-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M12 18v-6"/><path d="m9 15 3-3 3 3"/></svg>
+            </div>
+            <div class="dropzone-title">Click to upload or drag & drop PDF</div>
+            <div class="dropzone-sub">Single PDF up to 25 MB</div>
+          </div>
+          <input type="file" id="subFileInput" accept=".pdf" style="display:none" />
+          <div id="subAttachedFile" class="attached-file-badge" style="display:none">
+            <div class="attached-file-info">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+              <span id="subFileName" class="mono" style="font-weight:500">submission.pdf</span>
+              <span id="subFileSize" style="color:var(--text-3);font-size:11px">(1.4 MB)</span>
+            </div>
+            <button type="button" id="subRemoveFile" class="attached-file-remove">✕</button>
           </div>
         </div>
         <div class="form-row">
           <label>Notes (optional)</label>
-          <input class="input" placeholder="Any context for your CR or faculty" />
+          <input class="input" id="subNotes" placeholder="Any context for your CR or faculty" />
         </div>
         <button class="btn btn-accent btn-lg" id="subSubmit" style="width:100%;margin-top:6px">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
@@ -3223,12 +3923,70 @@ function handleAction(action, el) {
         </button>
       `);
       setTimeout(() => {
-        $('#subSubmit').addEventListener('click', () => {
+        let attachedSubFile = null;
+        const dropzone = $('#subDropzone');
+        const fileInput = $('#subFileInput');
+        const badge = $('#subAttachedFile');
+        const fnEl = $('#subFileName');
+        const fsEl = $('#subFileSize');
+        const rmBtn = $('#subRemoveFile');
+
+        if (dropzone && fileInput) {
+          dropzone.addEventListener('click', () => fileInput.click());
+          dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('dragover'); });
+          dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+          dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropzone.classList.remove('dragover');
+            if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+              attachSub(e.dataTransfer.files[0]);
+            }
+          });
+          fileInput.addEventListener('change', () => {
+            if (fileInput.files && fileInput.files[0]) {
+              attachSub(fileInput.files[0]);
+            }
+          });
+        }
+
+        function attachSub(file) {
+          attachedSubFile = file;
+          fnEl.textContent = file.name;
+          fsEl.textContent = '(' + (file.size ? (file.size / (1024*1024)).toFixed(1) + ' MB' : '1.4 MB') + ')';
+          badge.style.display = 'flex';
+          dropzone.style.display = 'none';
+        }
+
+        if (rmBtn) {
+          rmBtn.addEventListener('click', () => {
+            attachedSubFile = null;
+            fileInput.value = '';
+            badge.style.display = 'none';
+            dropzone.style.display = 'flex';
+          });
+        }
+
+        $('#subSubmit')?.addEventListener('click', () => {
+          const hash = '0x' + Array.from({length: 16}, () => Math.floor(Math.random()*16).toString(16)).join('');
+          if (asg) asg.submitted = Math.min(asg.total, asg.submitted + 1);
+          SUBMISSIONS.unshift({
+            id: 'sub' + Date.now(),
+            student: state.activeUser === 'aaditya' ? 'Aaditya Verma' : 'Ribhav Sharma',
+            code: state.activeUser === 'aaditya' ? 'CS21540' : 'CS21532',
+            assignment: asgTitle,
+            ts: 'Just now',
+            hash,
+            status: 'verified'
+          });
+          saveAssignments();
+          saveSubmissions();
           closeModal();
-          toast('Submitted · SHA-256 receipt generated', 'green');
+          renderView();
+          toast('Submitted · SHA-256 receipt generated: ' + hash.slice(0, 10) + '…', 'green');
         });
       }, 20);
       break;
+    }
 
     case 'reset-cache':
       openModal(`
@@ -3240,7 +3998,7 @@ function handleAction(action, el) {
         </div>
       `);
       setTimeout(() => {
-        $('#confirmReset').addEventListener('click', () => {
+        $('#confirmReset')?.addEventListener('click', () => {
           try { localStorage.clear(); } catch(e) {}
           closeModal();
           toast('Local cache cleared', 'green');
@@ -3501,17 +4259,26 @@ function updateLivePill() {
    CLASS CODE REVEAL
    ============================================================ */
 function setupClassCode() {
-  const code = $('#classCode');
-  let revealed = false;
   const pill = $('#classPill');
-  const toggle = () => {
-    revealed = !revealed;
-    code.textContent = revealed ? 'CS2026' : '••••••';
-    code.classList.toggle('revealed', revealed);
-    if (revealed) toast('Join code revealed: CS2026', 'blue');
-  };
-  pill.addEventListener('click', toggle);
-  pill.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } });
+  if (pill) {
+    pill.addEventListener('click', () => handleAction('class-info'));
+    pill.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        handleAction('class-info');
+      }
+    });
+  }
+  const sw = $('#storageWidget');
+  if (sw) {
+    sw.addEventListener('click', () => handleAction('storage-info'));
+    sw.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        handleAction('storage-info');
+      }
+    });
+  }
 }
 
 /* ============================================================
