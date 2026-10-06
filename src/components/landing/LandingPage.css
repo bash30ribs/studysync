@@ -600,6 +600,22 @@ body.pointer-on .cursor-ring {
   text-wrap: balance;
 }
 
+.hero h1 .split { display: inline-block; }
+.hero h1 .split > span {
+  display: inline-block;
+  opacity: 0;
+  transform: translate3d(0, 34px, 0) rotateX(-40deg);
+  filter: blur(8px);
+  transform-origin: 50% 100%;
+  animation: letterIn .9s var(--ease) forwards;
+  animation-delay: var(--ld, 0s);
+  will-change: opacity, transform, filter;
+}
+.hero h1 .split > span.space { width: .28em; }
+@keyframes letterIn {
+  to { opacity: 1; transform: translate3d(0, 0, 0) rotateX(0); filter: blur(0); }
+}
+
 .hero h1 .accent {
   color: var(--accent-2);
   font-weight: 500;
@@ -617,9 +633,38 @@ body.pointer-on .cursor-ring {
   text-wrap: balance;
 }
 
+.hero-sub .word {
+  display: inline-block;
+  opacity: 0;
+  transform: translate3d(0, 14px, 0);
+  filter: blur(6px);
+  animation: wordIn .8s var(--ease) forwards;
+  animation-delay: var(--wd, 0s);
+  will-change: opacity, transform, filter;
+}
+@keyframes wordIn {
+  to { opacity: 1; transform: translate3d(0, 0, 0); filter: blur(0); }
+}
+
 .hero-sub strong {
   color: var(--text);
   font-weight: 500;
+}
+
+.ripple {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(circle, rgba(255, 255, 255, .18), transparent 70%);
+  transform: translate(-50%, -50%) scale(0);
+  animation: rippleAnim .7s var(--ease-out);
+  z-index: 0;
+}
+.btn-primary .ripple, .btn-white .ripple {
+  background: radial-gradient(circle, rgba(0, 0, 0, .14), transparent 70%);
+}
+@keyframes rippleAnim {
+  to { transform: translate(-50%, -50%) scale(1); opacity: 0; }
 }
 
 .cta-row {
@@ -2569,16 +2614,16 @@ body.pointer-on .cursor-ring {
 }
 
 /* ============================================================
-   AUDIO DOCK
+   AUDIO DOCK — moved to bottom-left to make room for signal rail
    ============================================================ */
 .audio-dock {
   position: fixed;
-  right: 20px;
+  left: 20px;
   bottom: 20px;
   z-index: 75;
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: flex-start;
   gap: 8px;
 }
 
@@ -2597,7 +2642,7 @@ body.pointer-on .cursor-ring {
   transform: translateY(8px) scale(.96);
   pointer-events: none;
   transition: all .35s var(--ease);
-  transform-origin: bottom right;
+  transform-origin: bottom left;
 }
 
 .audio-dock.open .audio-menu {
@@ -2699,4 +2744,147 @@ body.pointer-on .cursor-ring {
 @keyframes eqBar {
   0%, 100% { height: 4px; }
   50% { height: 13px; }
+}
+
+/* ============================================================
+   SIGNAL RAIL — the vertical data stream that travels with scroll
+   ============================================================ */
+.signal-rail {
+  position: fixed;
+  right: 22px;
+  top: 12vh;
+  height: 76vh;
+  width: 64px;
+  z-index: 74;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate3d(0, 0, 0);
+  transition: opacity .8s var(--ease);
+  will-change: opacity;
+}
+
+.signal-rail.show {
+  opacity: 1;
+}
+
+.signal-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.signal-path-track,
+.signal-path-progress {
+  fill: none;
+  stroke-width: 1;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.signal-path-track {
+  stroke: rgba(255, 255, 255, .07);
+}
+
+.signal-path-progress {
+  stroke: rgba(200, 215, 235, .55);
+  filter: drop-shadow(0 0 3px rgba(200, 215, 235, .35));
+}
+
+.signal-node {
+  position: absolute;
+  right: 18px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .15);
+  transform: translateY(-50%);
+  transition: background .6s var(--ease), box-shadow .6s var(--ease), transform .4s var(--ease);
+}
+
+.signal-node::after {
+  content: attr(data-label);
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: .06em;
+  color: var(--text-4);
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity .5s var(--ease), color .5s var(--ease);
+}
+
+.signal-node.active {
+  background: rgba(200, 215, 235, .9);
+  box-shadow: 0 0 12px rgba(200, 215, 235, .55), 0 0 0 3px rgba(200, 215, 235, .08);
+}
+
+.signal-node.active::after {
+  opacity: 1;
+  color: rgba(200, 215, 235, .85);
+}
+
+.signal-node.passed {
+  background: rgba(139, 169, 196, .45);
+}
+
+.signal-node.passed::after {
+  opacity: .4;
+  color: var(--text-3);
+}
+
+.signal-orb-wrap {
+  position: absolute;
+  right: 22px;
+  top: 0;
+  width: 14px;
+  height: 14px;
+  margin-top: -7px;
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+}
+
+.signal-orb {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 40%, #fff 0%, #d7e2ec 35%, #8ba9c4 70%, transparent 100%);
+  box-shadow:
+    0 0 10px rgba(200, 215, 235, .7),
+    0 0 24px rgba(139, 169, 196, .4),
+    0 0 48px rgba(139, 169, 196, .2);
+}
+
+.signal-orb-ring {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 1px solid rgba(200, 215, 235, .4);
+  animation: orbPulse 2.6s ease-in-out infinite;
+}
+
+@keyframes orbPulse {
+  0%, 100% { transform: scale(1); opacity: .7; }
+  50% { transform: scale(1.4); opacity: 0; }
+}
+
+.signal-trail {
+  position: absolute;
+  right: 28px;
+  top: 0;
+  width: 2px;
+  height: 0;
+  background: linear-gradient(180deg, transparent, rgba(200, 215, 235, .55), transparent);
+  transform-origin: 0 0;
+  filter: blur(1px);
+  will-change: transform;
+}
+
+@media (max-width: 960px) {
+  .signal-rail { display: none; }
 }
