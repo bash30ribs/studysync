@@ -230,4 +230,20 @@ describe('Comprehensive Feature Verification', () => {
     const cmdHtml = renderWithStore(<CommandPalette />);
     expect(cmdHtml).toBeDefined();
   });
+
+  it('23. Verifies Header StudySync brand button exists and works as interactive landing page redirector', () => {
+    let landingCalled = false;
+    const html = renderWithStore(
+      <Header 
+        isDarkMode={true} 
+        setIsDarkMode={() => {}} 
+        onOpenLanding={() => { landingCalled = true; }} 
+      />
+    );
+    expect(html).toContain('id="header-brand-button"');
+    expect(html).toContain('data-testid="header-brand-button"');
+    expect(html).toContain('Return to StudySync Landing Page');
+    expect(html).toContain('StudySync');
+    expect(html).toContain('Hub');
+  });
 });

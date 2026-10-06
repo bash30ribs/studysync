@@ -164,7 +164,10 @@ const MainLayout: React.FC<{ isDarkMode: boolean; setIsDarkMode: React.Dispatch<
     <div className="flex flex-col h-screen w-screen overflow-hidden bg-[#fafafa] dark:bg-black text-[#000000] dark:text-[#F5F5F5] transition-colors duration-150">
       {/* Top Bar */}
       <Header
-        onOpenLanding={() => setShowLanding(true)}
+        onOpenLanding={() => {
+          try { sessionStorage.removeItem('studysync_entered'); } catch {}
+          setShowLanding(true);
+        }}
         onOpenSoundscapes={() => setShowSoundscapes(true)}
         onOpenAchievements={() => setShowAchievements(true)}
         onOpenShortcuts={() => setIsShortcutsOpen(true)}

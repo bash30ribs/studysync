@@ -138,19 +138,27 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
         )}
 
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-black dark:bg-white flex items-center justify-center text-white dark:text-black font-extrabold text-xs tracking-tight">
+        <button
+          type="button"
+          onClick={onOpenLanding}
+          id="header-brand-button"
+          data-testid="header-brand-button"
+          title="Return to StudySync Landing Page"
+          aria-label="StudySync Hub - Return to Landing Page"
+          className="flex items-center gap-2.5 px-2 py-1.5 -mx-1.5 -my-1 rounded-lg group cursor-pointer text-left transition-all duration-150 active:scale-95 hover:bg-[#EFEFEF] dark:hover:bg-[#1A1A1A] border border-transparent hover:border-[#DBDBDB] dark:hover:border-[#262626] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[#0095F6]"
+        >
+          <div className="w-8 h-8 rounded-lg bg-black dark:bg-white flex items-center justify-center text-white dark:text-black font-extrabold text-xs tracking-tight group-hover:scale-105 transition-transform duration-150 shadow-xs">
             <BookOpen className="w-4 h-4" />
           </div>
           <div className="flex flex-col">
-            <span className="font-extrabold text-black dark:text-white tracking-tight text-sm leading-none">
+            <span className="font-extrabold text-black dark:text-white tracking-tight text-sm leading-none group-hover:text-[#0095F6] transition-colors">
               StudySync
             </span>
             <span className="text-[10px] text-[#0095F6] font-semibold tracking-wider uppercase mt-0.5">
               Hub
             </span>
           </div>
-        </div>
+        </button>
 
         <div className="h-4 w-px bg-[#DBDBDB] dark:bg-[#262626] hidden sm:block ml-1" />
 

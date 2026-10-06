@@ -39,6 +39,12 @@ import {
   INITIAL_CONFIDENTIAL_GRIEVANCES,
   INITIAL_FACULTY_AUDITS
 } from '../data/initialData';
+import { 
+  generateStudentUid, 
+  generateTeacherUid, 
+  generateStudentRollNo, 
+  generateSecureTempPassword 
+} from '../utils/edutrackUid';
 
 export type ThemeAccent = 'blue' | 'indigo' | 'emerald' | 'amber' | 'cyan' | 'teal';
 
@@ -142,6 +148,23 @@ interface StudySyncContextType {
   createPoll: (data: { question: string; description?: string; options: string[]; expiresHours?: number }) => void;
   votePoll: (pollId: string, optionId: string) => void;
   closePoll: (pollId: string) => void;
+  addStudent: (studentData: {
+    name: string;
+    email?: string;
+    rollNo?: string;
+    department?: string;
+    phone?: string;
+    guardianPhone?: string;
+  }) => User;
+  addFaculty: (facultyData: {
+    name: string;
+    email?: string;
+    department?: string;
+    designation?: string;
+    officeRoom?: string;
+    phone?: string;
+  }) => User;
+  removeUser: (userId: string) => void;
   removeStudent: (studentId: string) => void;
   regenerateClassCode: () => string;
   updateClassName: (name: string) => void;
@@ -1249,14 +1272,121 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     showToast('Poll closed for voting', 'info');
   };
 
-  const removeStudent = (studentId: string) => {
-    const stu = allUsers.find(u => u.id === studentId);
-    setAllUsers(prev => prev.filter(u => u.id !== studentId));
-    setSubmissions(prev => prev.filter(s => s.studentId !== studentId));
-    if (selectedStudentId === studentId) {
+  const addStudent = (studentData: {
+    name: string;
+    email?: string;
+    rollNo?: string;
+    department?: string;
+    phone?: string;
+    guardianPhone?: string;
+  }): User => {
+    const department = studentData.department || 'CSE';
+    const rollNo = (studentData.rollNo || '').trim() || generateStudentRollNo(department, allUsers);
+    const uid = generateStudentUid(studentData.name, department, allUsers);
+    const email = (studentData.email || '').trim().toLowerCase() || `${uid.toLowerCase()}@studysync.edu`;
+    const tempPassword = generateSecureTempPassword();
+    const id = `user-stu-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+    const now = new Date().toISOString();
+
+    const newStudent: User = {
+      id,
+      name: studentData.name.trim(),
+      email,
+      role: 'Student',
+      classId: currentClass.id,
+      enrolledClassIds: [currentClass.id],
+      joinedAt: now,
+      rollNo,
+      department,
+      phone: studentData.phone?.trim() || undefined,
+      guardianPhone: studentData.guardianPhone?.trim() || undefined,
+      uid,
+      tempPassword,
+      lastActive: 'just now',
+      attendanceRate: 100,
+      holisticPoints: 0,
+      device: 'Student Mobile Device'
+    };
+
+    setAllUsers(prev => [newStudent, ...prev]);
+
+    const notif: NotificationItem = {
+      id: `notif-enroll-${Date.now()}`,
+      userId: 'ALL',
+      type: 'broadcast',
+      title: 'New Student Registered',
+      content: `${newStudent.name} (${newStudent.rollNo}) has joined the cohort. Portal UID: ${newStudent.uid}`,
+      createdAt: now,
+      read: false
+    };
+    setNotifications(prev => [notif, ...prev]);
+    showToast(`Student ${newStudent.name} registered (UID: ${newStudent.uid})`, 'success');
+
+    return newStudent;
+  };
+
+  const addFaculty = (facultyData: {
+    name: string;
+    email?: string;
+    department?: string;
+    designation?: string;
+    officeRoom?: string;
+    phone?: string;
+  }): User => {
+    const department = facultyData.department || 'CSE';
+    const uid = generateTeacherUid(facultyData.name, department, allUsers);
+    const email = (facultyData.email || '').trim().toLowerCase() || `${uid.toLowerCase()}@faculty.studysync.edu`;
+    const tempPassword = generateSecureTempPassword();
+    const id = `user-fac-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+    const now = new Date().toISOString();
+
+    const newFaculty: User = {
+      id,
+      name: facultyData.name.trim(),
+      email,
+      role: 'Faculty',
+      classId: currentClass.id,
+      enrolledClassIds: [currentClass.id],
+      joinedAt: now,
+      department,
+      designation: facultyData.designation?.trim() || 'Assistant Professor',
+      officeRoom: facultyData.officeRoom?.trim() || 'Cabin 204',
+      phone: facultyData.phone?.trim() || undefined,
+      uid,
+      tempPassword,
+      lastActive: 'just now',
+      device: 'Faculty Workstation'
+    };
+
+    setAllUsers(prev => [newFaculty, ...prev]);
+
+    const notif: NotificationItem = {
+      id: `notif-faculty-${Date.now()}`,
+      userId: 'ALL',
+      type: 'broadcast',
+      title: 'Faculty Member Onboarded',
+      content: `${newFaculty.designation} ${newFaculty.name} (${newFaculty.department}) added. Portal ID: ${newFaculty.uid}`,
+      createdAt: now,
+      read: false
+    };
+    setNotifications(prev => [notif, ...prev]);
+    showToast(`Faculty ${newFaculty.name} onboarded (UID: ${newFaculty.uid})`, 'success');
+
+    return newFaculty;
+  };
+
+  const removeUser = (userId: string) => {
+    const target = allUsers.find(u => u.id === userId);
+    setAllUsers(prev => prev.filter(u => u.id !== userId));
+    setSubmissions(prev => prev.filter(s => s.studentId !== userId));
+    if (selectedStudentId === userId) {
       setSelectedStudentId(null);
     }
-    showToast(`Student ${stu?.name || ''} removed from class`, 'info');
+    showToast(`${target?.role || 'User'} ${target?.name || ''} removed`, 'info');
+  };
+
+  const removeStudent = (studentId: string) => {
+    removeUser(studentId);
   };
 
   const regenerateClassCode = (): string => {
@@ -1337,12 +1467,16 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   };
 
   const exportMembersCSV = () => {
-    const headers = ['Name', 'Email', 'Role', 'Roll Number', 'Joined Date', 'Last Active'];
+    const headers = ['Name', 'Email', 'Role', 'Portal UID', 'Roll Number', 'Department', 'Designation', 'Phone', 'Joined Date', 'Last Active'];
     const rows = allUsers.map(u => [
       escapeCSV(u.name),
       escapeCSV(u.email),
       escapeCSV(u.role),
+      escapeCSV(u.uid || ''),
       escapeCSV(u.rollNo || ''),
+      escapeCSV(u.department || ''),
+      escapeCSV(u.designation || ''),
+      escapeCSV(u.phone || ''),
       escapeCSV(new Date(u.joinedAt).toLocaleDateString()),
       escapeCSV(u.lastActive)
     ].join(','));
@@ -1521,6 +1655,9 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         createPoll,
         votePoll,
         closePoll,
+        addStudent,
+        addFaculty,
+        removeUser,
         removeStudent,
         regenerateClassCode,
         updateClassName,

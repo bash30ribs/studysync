@@ -18,6 +18,10 @@ export interface User {
   officeRoom?: string;
   holisticPoints?: number;
   attendanceRate?: number;
+  phone?: string;
+  guardianPhone?: string;
+  uid?: string;
+  tempPassword?: string;
 }
 
 export interface SubjectConfig {

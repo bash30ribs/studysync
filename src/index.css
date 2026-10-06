@@ -331,3 +331,15 @@
 .hero-stagger-5 { animation: hero-fade-slide 0.5s cubic-bezier(0.16, 1, 0.3, 1) both 320ms; }
 .hero-stagger-6 { animation: hero-fade-slide 0.5s cubic-bezier(0.16, 1, 0.3, 1) both 400ms; }
 
+/* ── Glow & Grid Background Utilities for Landing Page ── */
+.bg-grid-pattern {
+  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 36px 36px;
+}
+
+.glow-ambient {
+  filter: blur(100px);
+  pointer-events: none;
+}
+
