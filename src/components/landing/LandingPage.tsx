@@ -8,7 +8,6 @@ import {
   BarChart2,
   ArrowRight,
   ShieldCheck,
-  Zap,
   ChevronRight,
   UserCheck,
   Megaphone,
@@ -24,6 +23,10 @@ import {
   VolumeX,
   Headphones,
   Calendar,
+  AlertTriangle,
+  Clock,
+  Copy,
+  Check,
   Layers,
   Sparkle
 } from 'lucide-react';
@@ -68,7 +71,7 @@ const AnimatedCRDashboardMockup: React.FC<{ onEnterApp: () => void }> = ({ onEnt
     const y = e.clientY - rect.top;
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
-    // Subtle tilt: max 6 degrees
+    // Smooth, gentle 3D tilt
     setTilt({
       x: ((y - centerY) / centerY) * -5,
       y: ((x - centerX) / centerX) * 5
@@ -369,12 +372,12 @@ const AnimatedCRDashboardMockup: React.FC<{ onEnterApp: () => void }> = ({ onEnt
           </div>
         ) : (
           /* EduTrack Roster Slip Mockup */
-          <div className="p-3.5 rounded-xl bg-[#0E0E0E] border border-purple-500/30 space-y-2.5 font-mono text-xs">
+          <div className="p-3.5 rounded-xl bg-[#0E0E0E] border border-blue-500/30 space-y-2.5 font-mono text-xs">
             <div className="flex items-center justify-between border-b border-[#222] pb-1.5">
-              <span className="text-[10px] text-purple-400 font-bold uppercase font-sans">
+              <span className="text-[10px] text-blue-400 font-bold uppercase font-sans">
                 EduTrack Identity Engine
               </span>
-              <span className="text-[10px] bg-purple-500/15 text-purple-400 px-1.5 py-0.2 rounded font-sans">
+              <span className="text-[10px] bg-blue-500/15 text-blue-400 px-1.5 py-0.2 rounded font-sans">
                 RFC-Academic
               </span>
             </div>
@@ -412,6 +415,290 @@ const AnimatedCRDashboardMockup: React.FC<{ onEnterApp: () => void }> = ({ onEnt
   );
 };
 
+// ── Interactive 75% Attendance & Bunk Calculator (Super Relatable Student Tool) ──
+const AttendanceBunkCalculator: React.FC = () => {
+  const [totalClasses, setTotalClasses] = useState(36);
+  const [attendedClasses, setAttendedClasses] = useState(26);
+
+  const pct = totalClasses > 0 ? (attendedClasses / totalClasses) * 100 : 0;
+  const isSafe = pct >= 75;
+
+  // If below 75%: How many consecutive classes needed?
+  // (attended + x) / (total + x) >= 0.75  =>  x >= 3*total - 4*attended
+  const neededClasses = Math.max(0, Math.ceil(3 * totalClasses - 4 * attendedClasses));
+
+  // If above 75%: How many can you bunk?
+  // attended / (total + b) >= 0.75  =>  b <= (4*attended - 3*total) / 3
+  const canBunkClasses = Math.max(0, Math.floor((4 * attendedClasses - 3 * totalClasses) / 3));
+
+  return (
+    <div className="rounded-2xl border border-white/10 bg-[#0A0A0A]/95 p-6 sm:p-8 backdrop-blur-xl shadow-xl space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#1A1A1A] pb-5">
+        <div>
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#0095F6]/10 text-[#0095F6] text-xs font-bold mb-1.5">
+            <Activity className="w-3.5 h-3.5" />
+            <span>Interactive Simulator</span>
+          </div>
+          <h3 className="text-xl font-bold text-white tracking-tight">The 75% Attendance & Bunk Radar</h3>
+          <p className="text-xs text-[#8E8E8E] mt-0.5">
+            Test your real semester numbers. StudySync automatically warns you before you hit the exam defaulter list.
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <span
+            className={`text-2xl sm:text-3xl font-extrabold font-mono px-3.5 py-1 rounded-xl border ${
+              isSafe
+                ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
+                : 'bg-rose-500/10 text-rose-400 border-rose-500/30'
+            }`}
+          >
+            {pct.toFixed(1)}%
+          </span>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Sliders */}
+        <div className="space-y-5">
+          <div className="space-y-2">
+            <div className="flex justify-between text-xs font-semibold">
+              <span className="text-[#A8A8A8]">Total Conducted Lectures</span>
+              <span className="text-white font-mono">{totalClasses} classes</span>
+            </div>
+            <input
+              type="range"
+              min="10"
+              max="70"
+              value={totalClasses}
+              onChange={(e) => {
+                const val = Number(e.target.value);
+                setTotalClasses(val);
+                if (attendedClasses > val) setAttendedClasses(val);
+              }}
+              className="w-full h-2 bg-[#1A1A1A] rounded-lg appearance-none cursor-pointer accent-[#0095F6]"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex justify-between text-xs font-semibold">
+              <span className="text-[#A8A8A8]">Lectures You Attended</span>
+              <span className="text-white font-mono">{attendedClasses} classes</span>
+            </div>
+            <input
+              type="range"
+              min="0"
+              max={totalClasses}
+              value={attendedClasses}
+              onChange={(e) => setAttendedClasses(Number(e.target.value))}
+              className="w-full h-2 bg-[#1A1A1A] rounded-lg appearance-none cursor-pointer accent-[#0095F6]"
+            />
+          </div>
+
+          {/* Quick Preset Buttons */}
+          <div className="flex items-center gap-2 pt-1 text-[11px]">
+            <span className="text-[#737373]">Quick presets:</span>
+            <button
+              onClick={() => {
+                setTotalClasses(40);
+                setAttendedClasses(28); // 70%
+              }}
+              className="px-2 py-1 rounded bg-[#161616] hover:bg-[#222] text-[#A8A8A8] hover:text-white transition-colors cursor-pointer"
+            >
+              Defaulter (70%)
+            </button>
+            <button
+              onClick={() => {
+                setTotalClasses(40);
+                setAttendedClasses(30); // 75%
+              }}
+              className="px-2 py-1 rounded bg-[#161616] hover:bg-[#222] text-[#A8A8A8] hover:text-white transition-colors cursor-pointer"
+            >
+              Edge (75%)
+            </button>
+            <button
+              onClick={() => {
+                setTotalClasses(40);
+                setAttendedClasses(36); // 90%
+              }}
+              className="px-2 py-1 rounded bg-[#161616] hover:bg-[#222] text-[#A8A8A8] hover:text-white transition-colors cursor-pointer"
+            >
+              Safe (90%)
+            </button>
+          </div>
+        </div>
+
+        {/* Live Status Calculation Card */}
+        <div
+          className={`p-5 rounded-xl border flex flex-col justify-between ${
+            isSafe
+              ? 'bg-emerald-500/[0.04] border-emerald-500/25'
+              : 'bg-rose-500/[0.04] border-rose-500/25'
+          }`}
+        >
+          <div className="space-y-2.5">
+            <div className="flex items-center gap-2">
+              {isSafe ? (
+                <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+              ) : (
+                <AlertTriangle className="w-5 h-5 text-rose-400 shrink-0" />
+              )}
+              <span className={`text-sm font-bold ${isSafe ? 'text-emerald-400' : 'text-rose-400'}`}>
+                {isSafe ? 'Exam Eligible (Safe Zone)' : 'Defaulter Warning: Exam At Risk'}
+              </span>
+            </div>
+
+            <p className="text-xs text-neutral-300 leading-relaxed">
+              {isSafe ? (
+                <>
+                  You have a comfortable buffer! You can safely miss{' '}
+                  <span className="font-bold font-mono text-emerald-400">{canBunkClasses}</span> more{' '}
+                  {canBunkClasses === 1 ? 'lecture' : 'lectures'} and still remain above the university 75% threshold.
+                </>
+              ) : (
+                <>
+                  You are currently below 75%. You must attend the next{' '}
+                  <span className="font-bold font-mono text-rose-400">{neededClasses}</span> consecutive{' '}
+                  {neededClasses === 1 ? 'lecture' : 'lectures'} without missing any to restore eligibility.
+                </>
+              )}
+            </p>
+          </div>
+
+          <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-[11px] text-[#8E8E8E]">
+            <span>University Minimum: 75.0%</span>
+            <span className="font-mono text-white">
+              {attendedClasses} / {totalClasses} attended
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ── Interactive Assignment Submission & Verification Simulator ──
+const AssignmentProofSimulator: React.FC = () => {
+  const [studentName, setStudentName] = useState('Aaditya Verma');
+  const [selectedTask, setSelectedTask] = useState('Fluid Mechanics: Bernoulli Lab');
+  const [generatedHash, setGeneratedHash] = useState<string | null>(null);
+  const [timestamp, setTimestamp] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  const handleSimulateSubmit = () => {
+    // Generate simulated SHA-256 hash
+    const fakeHash = '0x' + Array.from({ length: 16 }, () => Math.floor(Math.random() * 16).toString(16)).join('');
+    const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    setGeneratedHash(fakeHash);
+    setTimestamp(now);
+  };
+
+  const copyHash = () => {
+    if (!generatedHash) return;
+    navigator.clipboard.writeText(generatedHash);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="rounded-2xl border border-white/10 bg-[#0A0A0A]/95 p-6 sm:p-8 backdrop-blur-xl shadow-xl space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#1A1A1A] pb-5">
+        <div>
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#0095F6]/10 text-[#0095F6] text-xs font-bold mb-1.5">
+            <FileCheck2 className="w-3.5 h-3.5" />
+            <span>Cryptographic Proof Engine</span>
+          </div>
+          <h3 className="text-xl font-bold text-white tracking-tight">Zero-Dispute Assignment Hand-in</h3>
+          <p className="text-xs text-[#8E8E8E] mt-0.5">
+            No more "Sir, I sent it on WhatsApp but it didn't deliver". Every submission produces a verifiable receipt.
+          </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+        {/* Controls */}
+        <div className="space-y-4">
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-[#A8A8A8]">Student Name / Roll No</label>
+            <input
+              type="text"
+              value={studentName}
+              onChange={(e) => setStudentName(e.target.value)}
+              className="w-full px-3.5 py-2.5 rounded-xl bg-[#141414] border border-[#262626] text-sm text-white focus:outline-hidden focus:border-[#0095F6]"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-[#A8A8A8]">Select Practical / Assignment</label>
+            <select
+              value={selectedTask}
+              onChange={(e) => setSelectedTask(e.target.value)}
+              className="w-full px-3.5 py-2.5 rounded-xl bg-[#141414] border border-[#262626] text-sm text-white focus:outline-hidden focus:border-[#0095F6]"
+            >
+              <option>Fluid Mechanics: Bernoulli Lab</option>
+              <option>Database Systems: SQL Joins Assignment 2</option>
+              <option>Computer Networks: Packet Trace Submission</option>
+            </select>
+          </div>
+
+          <button
+            onClick={handleSimulateSubmit}
+            className="w-full py-3 rounded-xl bg-[#0095F6] hover:bg-[#1877F2] text-white text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer"
+          >
+            <CheckCircle2 className="w-4 h-4" />
+            <span>Generate Submission Receipt</span>
+          </button>
+        </div>
+
+        {/* Receipt Display */}
+        <div className="p-5 rounded-xl bg-[#111111] border border-white/10 space-y-3 font-mono text-xs">
+          <div className="flex items-center justify-between border-b border-[#222] pb-2 font-sans">
+            <span className="text-xs font-bold text-white flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              Official Verification Receipt
+            </span>
+            <span className="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20">
+              IMMUTABLE
+            </span>
+          </div>
+
+          <div className="space-y-1.5 text-[11px]">
+            <div className="flex justify-between">
+              <span className="text-[#737373] font-sans">Student:</span>
+              <span className="text-white font-sans font-medium">{studentName}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-[#737373] font-sans">Task:</span>
+              <span className="text-white font-sans font-medium truncate max-w-[200px]">{selectedTask}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-[#737373] font-sans">Timestamp:</span>
+              <span className="text-neutral-300">{timestamp || 'Pending simulation'}</span>
+            </div>
+          </div>
+
+          <div className="p-2.5 rounded-lg bg-black border border-[#262626] flex items-center justify-between">
+            <div className="overflow-hidden">
+              <span className="text-[9px] text-[#737373] block uppercase">SHA-256 Hash Proof</span>
+              <span className="text-blue-400 text-[10px] truncate block font-bold">
+                {generatedHash || 'Click button to simulate hash...'}
+              </span>
+            </div>
+            {generatedHash && (
+              <button
+                onClick={copyHash}
+                title="Copy verification hash"
+                className="p-1.5 rounded hover:bg-neutral-800 text-[#A8A8A8] hover:text-white transition-colors cursor-pointer shrink-0"
+              >
+                {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export const LandingPage: React.FC<{ onEnterApp: () => void }> = ({ onEnterApp }) => {
   const { setActiveTrustPage, switchRole, allUsers } = useStudySync();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -421,7 +708,7 @@ export const LandingPage: React.FC<{ onEnterApp: () => void }> = ({ onEnterApp }
 
   // Ambient sound state for landing page
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
-  const [activeSoundPreset, setActiveSoundPreset] = useState<'rain' | 'brown' | 'binaural'>('rain');
+  const [activeSoundPreset] = useState<'rain' | 'brown' | 'binaural'>('rain');
 
   const toggleFocusAudio = () => {
     if (isAudioPlaying) {
@@ -460,39 +747,23 @@ export const LandingPage: React.FC<{ onEnterApp: () => void }> = ({ onEnterApp }
 
   return (
     <div className="min-h-screen bg-[#000000] text-[#FFFFFF] flex flex-col relative overflow-hidden selection:bg-[#0095F6]/30 selection:text-white">
-      {/* ── 3D THREE.JS CANVAS BACKGROUND (Interactive Constellation & Academic Sync Core) ── */}
-      <StudySyncThreeScene primaryColor="#0095F6" particleCount={60} className="opacity-80 z-0" />
+      {/* ── 3D THREE.JS CANVAS BACKGROUND (Smooth, cohesive wave grid & constellation) ── */}
+      <StudySyncThreeScene primaryColor="#0095F6" particleCount={65} className="opacity-70 z-0" />
 
       {/* Background Ambient Mesh & Grids */}
-      <div className="absolute inset-0 bg-grid-pattern opacity-30 pointer-events-none -z-10 [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_80%)]" />
+      <div className="absolute inset-0 bg-grid-pattern opacity-25 pointer-events-none -z-10 [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_80%)]" />
 
-      {/* Layered glowing orbs — colours match the subject orbital rings in the 3D scene */}
-      {/* Blue orb: CS/tech subject ring — top center */}
-      <div 
-        className="glow-ambient absolute -top-32 left-1/2 -translate-x-1/2 w-[800px] h-[500px] rounded-full -z-10"
-        style={{
-          background: 'radial-gradient(ellipse, rgba(0,149,246,0.18) 0%, rgba(56,189,248,0.07) 45%, transparent 75%)'
-        }}
-      />
-      {/* Amber orb: Maths subject ring — bottom left */}
-      <div 
-        className="glow-ambient absolute bottom-1/3 -left-24 w-[420px] h-[420px] rounded-full -z-10"
-        style={{
-          background: 'radial-gradient(circle, rgba(245,158,11,0.08) 0%, transparent 65%)'
-        }}
-      />
-      {/* Purple orb: Faculty / Physics ring — right */}
-      <div 
-        className="glow-ambient absolute top-1/2 -right-20 w-[400px] h-[400px] rounded-full -z-10"
-        style={{
-          background: 'radial-gradient(circle, rgba(168,85,247,0.10) 0%, transparent 65%)'
-        }}
-      />
-      {/* Emerald orb: Labs ring — footer area */}
+      {/* Refined, cohesive deep-blue ambient glow orbs (no random multi-color flashes) */}
       <div
-        className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[250px] rounded-full -z-10"
+        className="glow-ambient absolute -top-40 left-1/2 -translate-x-1/2 w-[850px] h-[500px] rounded-full -z-10 pointer-events-none"
         style={{
-          background: 'radial-gradient(ellipse, rgba(16,185,129,0.07) 0%, transparent 70%)'
+          background: 'radial-gradient(ellipse, rgba(0, 149, 246, 0.16) 0%, rgba(59, 130, 246, 0.05) 50%, transparent 80%)'
+        }}
+      />
+      <div
+        className="glow-ambient absolute top-[40%] right-[-10%] w-[500px] h-[500px] rounded-full -z-10 pointer-events-none"
+        style={{
+          background: 'radial-gradient(circle, rgba(0, 149, 246, 0.08) 0%, transparent 70%)'
         }}
       />
 
@@ -516,6 +787,7 @@ export const LandingPage: React.FC<{ onEnterApp: () => void }> = ({ onEnterApp }
           </button>
 
           <nav className="hidden md:flex items-center gap-7 text-xs font-semibold text-[#A8A8A8]">
+            <a href="#calculator" className="hover:text-white transition-colors cursor-pointer">75% Calculator</a>
             <a href="#features" className="hover:text-white transition-colors cursor-pointer">Architecture</a>
             <a href="#comparison" className="hover:text-white transition-colors cursor-pointer">Why StudySync</a>
             <button onClick={() => setActiveTrustPage('about')} className="hover:text-white transition-colors cursor-pointer">About</button>
@@ -656,7 +928,7 @@ export const LandingPage: React.FC<{ onEnterApp: () => void }> = ({ onEnterApp }
                 </button>
               </div>
 
-              {/* Stagger 6: 4 Pill Badges below CTA */}
+              {/* Stagger 6: Pill Badges */}
               <div className="hero-stagger-6 flex flex-wrap items-center gap-2 pt-1">
                 <span className="px-3 py-1.5 rounded-full bg-[#0E0E0E]/90 border border-[#1A1A1A] text-xs font-medium text-[#E0E0E0] shadow-xs">
                   📊 Submission Tracking
@@ -682,6 +954,29 @@ export const LandingPage: React.FC<{ onEnterApp: () => void }> = ({ onEnterApp }
             <div className="w-full">
               <AnimatedCRDashboardMockup onEnterApp={onEnterApp} />
             </div>
+          </div>
+        </section>
+
+        {/* ── INTERACTIVE STUDENT TOOLS SECTION (HIGHLY RELATABLE TO EVERY COLLEGE STUDENT) ── */}
+        <section id="calculator" className="max-w-6xl mx-auto px-5 lg:px-8 py-14 border-t border-white/[0.08] space-y-10">
+          <div className="text-center max-w-2xl mx-auto space-y-2">
+            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-[#0095F6]/10 text-[#0095F6] border border-[#0095F6]/20">
+              Direct Student Utilities
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+              Tools That Solve Daily College Headaches
+            </h2>
+            <p className="text-xs sm:text-sm text-[#A8A8A8]">
+              Try the live interactive simulators below to see how StudySync simplifies attendance defense and assignment hand-ins.
+            </p>
+          </div>
+
+          <div className="space-y-8">
+            {/* 1. The 75% Attendance & Bunk Radar */}
+            <AttendanceBunkCalculator />
+
+            {/* 2. Cryptographic Assignment Proof Generator */}
+            <AssignmentProofSimulator />
           </div>
         </section>
 
