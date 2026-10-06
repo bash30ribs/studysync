@@ -461,22 +461,38 @@ export const LandingPage: React.FC<{ onEnterApp: () => void }> = ({ onEnterApp }
   return (
     <div className="min-h-screen bg-[#000000] text-[#FFFFFF] flex flex-col relative overflow-hidden selection:bg-[#0095F6]/30 selection:text-white">
       {/* ── 3D THREE.JS CANVAS BACKGROUND (Interactive Constellation & Academic Sync Core) ── */}
-      <StudySyncThreeScene primaryColor="#0095F6" particleCount={95} className="opacity-75 z-0" />
+      <StudySyncThreeScene primaryColor="#0095F6" particleCount={60} className="opacity-80 z-0" />
 
       {/* Background Ambient Mesh & Grids */}
       <div className="absolute inset-0 bg-grid-pattern opacity-30 pointer-events-none -z-10 [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_80%)]" />
 
-      {/* Layered glowing orbs */}
+      {/* Layered glowing orbs — colours match the subject orbital rings in the 3D scene */}
+      {/* Blue orb: CS/tech subject ring — top center */}
       <div 
-        className="glow-ambient absolute -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[450px] rounded-full -z-10"
+        className="glow-ambient absolute -top-32 left-1/2 -translate-x-1/2 w-[800px] h-[500px] rounded-full -z-10"
         style={{
-          background: 'radial-gradient(circle, rgba(0, 149, 246, 0.22) 0%, rgba(59, 130, 246, 0.08) 50%, transparent 80%)'
+          background: 'radial-gradient(ellipse, rgba(0,149,246,0.18) 0%, rgba(56,189,248,0.07) 45%, transparent 75%)'
         }}
       />
+      {/* Amber orb: Maths subject ring — bottom left */}
       <div 
-        className="glow-ambient absolute top-60 right-0 w-[450px] h-[450px] rounded-full -z-10"
+        className="glow-ambient absolute bottom-1/3 -left-24 w-[420px] h-[420px] rounded-full -z-10"
         style={{
-          background: 'radial-gradient(circle, rgba(168, 85, 247, 0.12) 0%, transparent 70%)'
+          background: 'radial-gradient(circle, rgba(245,158,11,0.08) 0%, transparent 65%)'
+        }}
+      />
+      {/* Purple orb: Faculty / Physics ring — right */}
+      <div 
+        className="glow-ambient absolute top-1/2 -right-20 w-[400px] h-[400px] rounded-full -z-10"
+        style={{
+          background: 'radial-gradient(circle, rgba(168,85,247,0.10) 0%, transparent 65%)'
+        }}
+      />
+      {/* Emerald orb: Labs ring — footer area */}
+      <div
+        className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[250px] rounded-full -z-10"
+        style={{
+          background: 'radial-gradient(ellipse, rgba(16,185,129,0.07) 0%, transparent 70%)'
         }}
       />
 
