@@ -4,47 +4,47 @@
 
 @layer base {
   :root {
-    --color-surface-bg: #fafafa;
-    --color-surface-sidebar: #fafafa;
-    --color-surface-card: #FFFFFF;
-    --color-surface-hover: #F5F5F5;
-    --color-surface-secondary: #EFEFEF;
-    --color-border-subtle: #DBDBDB;
-    --color-border-strong: #C7C7C7;
-    --color-text-title: #000000;
-    --color-text-body: #000000;
-    --color-text-muted: #737373;
-    --color-text-placeholder: #A8A8A8;
+    --color-surface-bg: #09090b;
+    --color-surface-sidebar: #09090b;
+    --color-surface-card: #111114;
+    --color-surface-hover: #17171c;
+    --color-surface-secondary: #141418;
+    --color-border-subtle: rgba(255, 255, 255, 0.08);
+    --color-border-strong: rgba(255, 255, 255, 0.16);
+    --color-text-title: #f4f4f6;
+    --color-text-body: #e4e4e7;
+    --color-text-muted: #8b8e96;
+    --color-text-placeholder: #52525b;
 
-    /* Instagram Action Blue */
-    --color-brand: #0095F6;
-    --color-brand-hover: #1877F2;
-    --color-brand-light: #E0F1FF;
-    --color-brand-text: #0095F6;
+    /* Landing-page Steel Accent (Professional, Non-Neon) */
+    --color-brand: #8ba9c4;
+    --color-brand-hover: #a5bdd2;
+    --color-brand-light: rgba(139, 169, 196, 0.12);
+    --color-brand-text: #8ba9c4;
 
-    /* Functional */
-    --color-success: #22c55e;
-    --color-error: #ED4956;
-    --color-warning: #f59e0b;
+    /* Functional - Sophisticated & Muted */
+    --color-success: #7fa88c;
+    --color-error: #b17d7d;
+    --color-warning: #b39a6d;
   }
 
   .dark {
     --color-surface-bg: #000000;
-    --color-surface-sidebar: #000000;
-    --color-surface-card: #121212;
-    --color-surface-hover: #1A1A1A;
-    --color-surface-secondary: #262626;
-    --color-border-subtle: #262626;
-    --color-border-strong: #363636;
-    --color-text-title: #F5F5F5;
-    --color-text-body: #E0E0E0;
-    --color-text-muted: #A8A8A8;
-    --color-text-placeholder: #737373;
+    --color-surface-sidebar: #050506;
+    --color-surface-card: #0a0a0c;
+    --color-surface-hover: #121216;
+    --color-surface-secondary: #0f0f13;
+    --color-border-subtle: rgba(255, 255, 255, 0.065);
+    --color-border-strong: rgba(255, 255, 255, 0.12);
+    --color-text-title: #f4f4f6;
+    --color-text-body: #d4d4d8;
+    --color-text-muted: #8a8d94;
+    --color-text-placeholder: #4b4e54;
 
-    --color-brand: #0095F6;
-    --color-brand-hover: #1877F2;
-    --color-brand-light: rgba(0, 149, 246, 0.15);
-    --color-brand-text: #0095F6;
+    --color-brand: #8ba9c4;
+    --color-brand-hover: #a5bdd2;
+    --color-brand-light: rgba(139, 169, 196, 0.12);
+    --color-brand-text: #8ba9c4;
   }
 
   * {
@@ -53,7 +53,7 @@
   }
 
   html {
-    color-scheme: light;
+    color-scheme: dark;
     background-color: var(--color-surface-bg);
     scroll-behavior: smooth;
   }
@@ -93,7 +93,7 @@
   input:focus, textarea:focus, select:focus {
     outline: none;
     border-color: var(--color-brand) !important;
-    box-shadow: 0 0 0 3px rgba(0, 149, 246, 0.15);
+    box-shadow: 0 0 0 3px rgba(139, 169, 196, 0.15);
   }
 }
 
@@ -121,7 +121,7 @@
   background: rgba(120, 120, 120, 0.5);
 }
 
-/* ── Button system — Instagram-inspired ── */
+/* ── Button system — Precision Landing-Theme Inspired ── */
 .btn-primary {
   display: inline-flex;
   align-items: center;
@@ -132,18 +132,18 @@
   font-weight: 600;
   border-radius: 0.5rem;
   background-color: var(--color-brand);
-  color: #FFFFFF;
+  color: #0a0a0b;
   border: 1.5px solid transparent;
   transition: background-color 0.15s ease, transform 0.1s ease, opacity 0.15s ease, box-shadow 0.15s ease;
   cursor: pointer;
   white-space: nowrap;
   letter-spacing: -0.01em;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.25);
 }
 
 .btn-primary:hover {
   background-color: var(--color-brand-hover);
-  box-shadow: 0 2px 8px rgba(0, 149, 246, 0.3);
+  box-shadow: 0 2px 10px rgba(139, 169, 196, 0.3);
 }
 
 .btn-primary:active {
@@ -341,5 +341,59 @@
 .glow-ambient {
   filter: blur(100px);
   pointer-events: none;
+}
+
+/* ============================================================
+   THEME SYNCHRONIZATION — Muted monochrome with steel accent
+   Eliminates neon blue / harsh contrast across the dashboard
+   ============================================================ */
+
+/* Unify legacy Instagram neon blue with Landing Page Steel Blue */
+[class*="text-[#0095F6]"] {
+  color: var(--color-brand) !important;
+}
+
+[class*="bg-[#0095F6]"] {
+  background-color: var(--color-brand) !important;
+}
+
+[class*="border-[#0095F6]"] {
+  border-color: var(--color-brand) !important;
+}
+
+[class*="hover:text-[#0095F6]"]:hover {
+  color: var(--color-brand-hover) !important;
+}
+
+[class*="hover:bg-[#0095F6]"]:hover {
+  background-color: var(--color-brand-hover) !important;
+}
+
+[class*="hover:border-[#0095F6]"]:hover {
+  border-color: var(--color-brand-hover) !important;
+}
+
+[class*="focus:border-[#0095F6]"]:focus {
+  border-color: var(--color-brand) !important;
+}
+
+/* Mute harsh neons to landing page sage, brick red, and warm amber */
+.text-emerald-500, .text-green-500, .text-emerald-400, .text-green-400 {
+  color: var(--color-success) !important;
+}
+.bg-emerald-500, .bg-green-500, .bg-emerald-600, .bg-green-600 {
+  background-color: var(--color-success) !important;
+}
+.text-rose-500, .text-red-500, .text-rose-400, .text-red-400 {
+  color: var(--color-error) !important;
+}
+.bg-rose-500, .bg-red-500, .bg-rose-600, .bg-red-600 {
+  background-color: var(--color-error) !important;
+}
+.text-amber-500, .text-yellow-500, .text-amber-400, .text-yellow-400 {
+  color: var(--color-warning) !important;
+}
+.bg-amber-500, .bg-yellow-500 {
+  background-color: var(--color-warning) !important;
 }
 

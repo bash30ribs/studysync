@@ -203,25 +203,36 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp }) => {
       }
 
       // Pinned Split
-      if (pinnedSplitRef.current && chaosCardRef.current && calmCardRef.current && window.innerWidth >= 900) {
-        const r = pinnedSplitRef.current.getBoundingClientRect();
-        const total = r.height - window.innerHeight;
-        const progress = Math.min(Math.max(-r.top / total, 0), 1);
-        const e = progress < 0.5 ? 4 * progress * progress * progress : 1 - Math.pow(-2 * progress + 2, 3) / 2;
-        const offset = (1 - e) * Math.min(window.innerWidth * 0.55, 600);
-        chaosCardRef.current.style.transform = `translateX(${-offset}px) rotate(${-e * 2}deg)`;
-        calmCardRef.current.style.transform = `translateX(${offset}px) rotate(${e * 2}deg)`;
-        chaosCardRef.current.style.opacity = String(0.3 + e * 0.7);
-        calmCardRef.current.style.opacity = String(0.3 + e * 0.7);
+      if (pinnedSplitRef.current && chaosCardRef.current && calmCardRef.current) {
+        if (window.innerWidth >= 768) {
+          const r = pinnedSplitRef.current.getBoundingClientRect();
+          const total = r.height - window.innerHeight;
+          const progress = Math.min(Math.max(-r.top / total, 0), 1);
+          const e = progress < 0.5 ? 4 * progress * progress * progress : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+          const offset = (1 - e) * Math.min(window.innerWidth * 0.45, 520);
+          chaosCardRef.current.style.transform = `translateX(${-offset}px) rotate(${-e * 2}deg)`;
+          calmCardRef.current.style.transform = `translateX(${offset}px) rotate(${e * 2}deg)`;
+          chaosCardRef.current.style.opacity = String(0.3 + e * 0.7);
+          calmCardRef.current.style.opacity = String(0.3 + e * 0.7);
+        } else {
+          chaosCardRef.current.style.transform = 'none';
+          calmCardRef.current.style.transform = 'none';
+          chaosCardRef.current.style.opacity = '1';
+          calmCardRef.current.style.opacity = '1';
+        }
       }
 
       // Horizontal architecture scroll
-      if (hSectionRef.current && hTrackRef.current && window.innerWidth >= 900) {
-        const r = hSectionRef.current.getBoundingClientRect();
-        const total = r.height - window.innerHeight;
-        const progress = Math.min(Math.max(-r.top / total, 0), 1);
-        const maxX = Math.max(0, hTrackRef.current.scrollWidth - window.innerWidth + 40);
-        hTrackRef.current.style.transform = `translate3d(${-progress * maxX}px, 0, 0)`;
+      if (hSectionRef.current && hTrackRef.current) {
+        if (window.innerWidth >= 768) {
+          const r = hSectionRef.current.getBoundingClientRect();
+          const total = r.height - window.innerHeight;
+          const progress = Math.min(Math.max(-r.top / total, 0), 1);
+          const maxX = Math.max(0, hTrackRef.current.scrollWidth - window.innerWidth + 120);
+          hTrackRef.current.style.transform = `translate3d(${-progress * maxX}px, 0, 0)`;
+        } else {
+          hTrackRef.current.style.transform = 'none';
+        }
       }
     };
 
@@ -447,7 +458,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp }) => {
   // ── Nudge Pending Click ──
   const handleNudgePendingClick = () => {
     setNudgeBtnText('Nudge sent');
-    showToast('20 students notified via EduTrack push', 'green');
+    showToast('20 students notified via precision broadcast', 'green');
     setTimeout(() => setNudgeBtnText('Nudge Pending'), 2400);
   };
 
@@ -631,7 +642,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp }) => {
     },
     {
       f: 'Figure 4.4',
-      t: 'EduTrack RFC Identity Engine',
+      t: 'Deterministic RFC Identity Engine',
       d: 'Deterministic STU- / EMP- UID generation with secure credentials. No email loops, no OTP delays, no password resets mid-lecture.',
       tag: 'Identity'
     },
@@ -666,7 +677,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp }) => {
   ];
 
   const marqueeItems = [
-    'Assignment Proof Ledger', '75% Attendance Radar', 'EduTrack RFC Identity',
+    'Assignment Proof Ledger', '75% Attendance Radar', 'RFC Student Identity',
     'Immutable Broadcasts', 'Consensus Polls', 'Academic Vault',
     'One-Click Nudges', 'Defaulter Alerts', 'Zero Password Onboarding',
     'Subject-wise CR Roles', 'Live Submission Counters', 'PYQ Library'
@@ -735,7 +746,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp }) => {
               <span className="pulse" />
               Precision Academic Platform
               <span style={{ color: 'var(--text-4)' }}>/</span>
-              EduTrack Integrated
+              RFC Identity Protocol
             </div>
 
             <h1>
@@ -846,7 +857,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp }) => {
                   <rect x="2" y="5" width="20" height="14" rx="2"/>
                   <path d="M7 15h.01M11 15h2M7 11h2M13 11h4"/>
                 </svg>
-                EduTrack Identity
+                RFC Student Identity
               </span>
             </div>
 
@@ -920,7 +931,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp }) => {
                       className={`mtab ${mockTab === 2 ? 'active' : ''}`}
                       onClick={() => setMockTab(2)}
                     >
-                      EduTrack Roster Slip<span className="bar" />
+                      Academic Roster Slip<span className="bar" />
                     </button>
                   </div>
 
@@ -1002,11 +1013,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp }) => {
                       </div>
                     </div>
 
-                    {/* Tab 2: EduTrack Roster Slip */}
+                    {/* Tab 2: RFC Identity Roster Slip */}
                     <div className={`mpane ${mockTab === 2 ? 'active' : ''}`}>
                       <div className="rfc">
                         <div className="rfc-head">
-                          <h4>EduTrack RFC Identity Slip</h4>
+                          <h4>RFC Academic Identity Slip</h4>
                           <span>RFC ENGINE</span>
                         </div>
                         <div className="rfc-grid">
@@ -1770,7 +1781,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp }) => {
                       <rect x="2" y="5" width="20" height="14" rx="2"/><path d="M7 15h.01M11 15h2M7 11h2M13 11h4"/>
                     </svg>
                   </span>
-                  <span><b>EduTrack RFC identity</b><span>Deterministic UIDs, no password storage</span></span>
+                  <span><b>RFC student identity</b><span>Deterministic UIDs, no password storage</span></span>
                 </div>
                 <div className="role-btn" style={{ cursor: 'default' }}>
                   <span className="persona-icon">

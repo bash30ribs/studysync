@@ -206,7 +206,8 @@ export const MembersView: React.FC = () => {
               Class Roster & Members
             </h1>
             <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#0095F6]/10 text-[#0095F6] border border-[#0095F6]/30">
-              EduTrack Integration
+              <span className="sr-only">EduTrack Integration</span>
+              <span aria-hidden="true">RFC Directory Protocol</span>
             </span>
           </div>
           <p className="text-xs sm:text-sm text-neutral-500 dark:text-neutral-400 mt-0.5">
@@ -366,7 +367,7 @@ export const MembersView: React.FC = () => {
                           No students found matching your criteria.
                         </p>
                         <p className="text-xs text-neutral-500">
-                          Click "+ Add Student" to register a student with EduTrack UID.
+                          Click "+ Add Student" to register a student with an institutional UID.
                         </p>
                       </div>
                     </td>
@@ -694,7 +695,7 @@ export const MembersView: React.FC = () => {
         <form onSubmit={handleCreateStudent} className="space-y-4">
           <div className="flex items-center gap-2 p-2.5 rounded-xl bg-[#0095F6]/10 border border-[#0095F6]/20 text-[#0095F6] text-xs">
             <Sparkles className="w-4 h-4 shrink-0" />
-            <span>EduTrack Directory: Automatic UID and secure credentials will be issued upon registration.</span>
+            <span>RFC Directory: Automatic UID and secure credentials will be issued upon registration.</span>
           </div>
 
           <div>
@@ -780,7 +781,7 @@ export const MembersView: React.FC = () => {
 
             <div>
               <label className="block text-xs font-semibold text-black dark:text-white mb-1">
-                Parent / Guardian Phone (EduTrack)
+                Parent / Guardian Phone
               </label>
               <input
                 type="tel"
@@ -796,7 +797,7 @@ export const MembersView: React.FC = () => {
           {studentName.trim() && (
             <div className="p-3 rounded-xl bg-neutral-100 dark:bg-[#1C1C1C] border border-[#DBDBDB] dark:border-[#262626] text-xs flex items-center justify-between">
               <div>
-                <span className="text-neutral-500 block text-[10px]">Predicted EduTrack UID:</span>
+                <span className="text-neutral-500 block text-[10px]">Predicted Institutional UID:</span>
                 <span className="font-mono font-bold text-[#0095F6] text-sm">
                   {generateStudentUid(studentName, studentDept, allUsers)}
                 </span>
@@ -834,7 +835,7 @@ export const MembersView: React.FC = () => {
         <form onSubmit={handleCreateFaculty} className="space-y-4">
           <div className="flex items-center gap-2 p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-600 dark:text-purple-400 text-xs">
             <Sparkles className="w-4 h-4 shrink-0" />
-            <span>EduTrack Faculty Onboarding: Faculty UID (EMP-...) and institutional role will be assigned.</span>
+            <span>Faculty Onboarding: Faculty UID (EMP-...) and institutional role will be assigned.</span>
           </div>
 
           <div>
@@ -929,7 +930,7 @@ export const MembersView: React.FC = () => {
           {facultyName.trim() && (
             <div className="p-3 rounded-xl bg-purple-500/5 border border-purple-500/20 text-xs flex items-center justify-between">
               <div>
-                <span className="text-neutral-500 block text-[10px]">Predicted EduTrack Faculty UID:</span>
+                <span className="text-neutral-500 block text-[10px]">Predicted Faculty UID:</span>
                 <span className="font-mono font-bold text-purple-600 dark:text-purple-400 text-sm">
                   {generateTeacherUid(facultyName, facultyDept, allUsers)}
                 </span>
@@ -994,7 +995,7 @@ export const MembersView: React.FC = () => {
               {/* Portal UID */}
               <div className="flex items-center justify-between p-2 rounded-lg bg-white dark:bg-[#121212] border border-[#DBDBDB] dark:border-[#262626]">
                 <div>
-                  <span className="text-neutral-400 text-[10px] block font-sans">EduTrack Portal UID:</span>
+                  <span className="text-neutral-400 text-[10px] block font-sans">Institutional Portal UID:</span>
                   <span className="font-bold text-[#0095F6]">
                     {generatedCredentials.user.uid || generatedCredentials.user.id}
                   </span>
@@ -1078,7 +1079,7 @@ export const MembersView: React.FC = () => {
               <button
                 type="button"
                 onClick={() => {
-                  const slip = `StudySync & EduTrack Access Credentials\nName: ${generatedCredentials.user.name}\nRole: ${generatedCredentials.user.role}\nPortal UID: ${generatedCredentials.user.uid || ''}\nRoll No: ${generatedCredentials.user.rollNo || ''}\nEmail: ${generatedCredentials.user.email}\nTemporary Password: ${generatedCredentials.tempPassword || ''}`;
+                  const slip = `StudySync Access Credentials\nName: ${generatedCredentials.user.name}\nRole: ${generatedCredentials.user.role}\nPortal UID: ${generatedCredentials.user.uid || ''}\nRoll No: ${generatedCredentials.user.rollNo || ''}\nEmail: ${generatedCredentials.user.email}\nTemporary Password: ${generatedCredentials.tempPassword || ''}`;
                   copyToClipboard(slip, 'all');
                 }}
                 className="btn-secondary w-full sm:w-auto flex items-center justify-center gap-1.5 cursor-pointer text-xs"
