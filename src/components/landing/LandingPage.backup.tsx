@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useStudySync } from '../../store';
 import {
   BookOpen,
@@ -18,24 +18,21 @@ import {
   GraduationCap,
   Sparkles,
   BellRing,
+  Shield,
   Activity,
-  FileCheck2,
-  Volume2,
-  VolumeX,
-  Headphones,
   Calendar,
-  Layers,
-  Sparkle
+  Lock,
+  Compass,
+  FileCheck2,
+  Check
 } from 'lucide-react';
 import { CreateClassModal, JoinClassModal } from '../onboarding/OnboardingModals';
 import { RolePortalsModal } from '../auth/RolePortalsModal';
-import { StudySyncThreeScene } from './StudySyncThreeScene';
-import { soundscapes } from '../../utils/soundscapes';
 import { UserRole } from '../../types';
 
 // Feature pill shown in the "Why StudySync" section
 const FeatureRow: React.FC<{ icon: React.ReactNode; title: string; desc: string }> = ({ icon, title, desc }) => (
-  <div className="flex items-start gap-4 py-5 border-b border-[#1A1A1A] last:border-0 group hover:bg-white/[0.02] transition-colors rounded-xl px-2.5 -mx-2.5">
+  <div className="flex items-start gap-4 py-5 border-b border-[#1A1A1A] last:border-0 group hover:bg-white/[0.01] transition-colors rounded-xl px-2 -mx-2">
     <div className="w-10 h-10 rounded-xl bg-[#0E0E0E] border border-[#222] group-hover:border-[#0095F6]/40 flex items-center justify-center shrink-0 text-white transition-colors shadow-xs">
       {icon}
     </div>
@@ -46,7 +43,7 @@ const FeatureRow: React.FC<{ icon: React.ReactNode; title: string; desc: string 
   </div>
 );
 
-// Interactive 3D Animated Live Mockup Card (Figure 4.1 in Academic Synopsis)
+// Interactive and animated live mockup card for CR Dashboard preview
 const AnimatedCRDashboardMockup: React.FC<{ onEnterApp: () => void }> = ({ onEnterApp }) => {
   const [activeMockupTab, setActiveMockupTab] = useState<'assignments' | 'attendance' | 'directory'>('assignments');
   const [step, setStep] = useState<1 | 2 | 3>(1);
@@ -57,28 +54,6 @@ const AnimatedCRDashboardMockup: React.FC<{ onEnterApp: () => void }> = ({ onEnt
   const [isNudgeSent, setIsNudgeSent] = useState(false);
   const [isNudgePulsing, setIsNudgePulsing] = useState(false);
 
-  // 3D Tilt State
-  const cardRef = useRef<HTMLDivElement>(null);
-  const [tilt, setTilt] = useState({ x: 0, y: 0 });
-
-  const handleCardMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-    // Subtle tilt: max 6 degrees
-    setTilt({
-      x: ((y - centerY) / centerY) * -5,
-      y: ((x - centerX) / centerX) * 5
-    });
-  };
-
-  const handleCardMouseLeave = () => {
-    setTilt({ x: 0, y: 0 });
-  };
-
   useEffect(() => {
     let t1: ReturnType<typeof setTimeout>;
     let t2: ReturnType<typeof setTimeout>;
@@ -87,6 +62,7 @@ const AnimatedCRDashboardMockup: React.FC<{ onEnterApp: () => void }> = ({ onEnt
     let animFrame: number;
 
     const runCycle = () => {
+      // Step 1: 0 - 4s (Counters count up: 0->10, 0->20)
       setStep(1);
       setIsNudgeSent(false);
       setIsNudgePulsing(false);
@@ -107,12 +83,14 @@ const AnimatedCRDashboardMockup: React.FC<{ onEnterApp: () => void }> = ({ onEnt
       };
       animFrame = requestAnimationFrame(animateCounters);
 
+      // Step 2: 4s - 8s (Progress bar fills 40% -> 60% with green flash)
       t1 = setTimeout(() => {
         setStep(2);
         setProgressPct(60);
         setIsGreenFlash(true);
         t2 = setTimeout(() => setIsGreenFlash(false), 900);
 
+        // Step 3: 8s - 12s (Nudge button pulses blue, shows "✓ Sent!" for 1.5s, resets)
         t3 = setTimeout(() => {
           setStep(3);
           setIsNudgePulsing(true);
@@ -141,21 +119,9 @@ const AnimatedCRDashboardMockup: React.FC<{ onEnterApp: () => void }> = ({ onEnt
   }, []);
 
   return (
-    <div
-      ref={cardRef}
-      onMouseMove={handleCardMouseMove}
-      onMouseLeave={handleCardMouseLeave}
-      style={{
-        transform: `perspective(1000px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
-        transition: 'transform 0.15s ease-out'
-      }}
-      className="rounded-2xl border border-white/15 overflow-hidden bg-[#0A0A0A]/95 shadow-[0_0_50px_-10px_rgba(0,149,246,0.3)] relative backdrop-blur-xl group"
-    >
-      {/* Glossy top border light */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#0095F6]/70 to-transparent pointer-events-none" />
-
+    <div className="rounded-2xl border border-white/10 overflow-hidden bg-[#0A0A0A] shadow-[0_0_50px_-15px_rgba(0,149,246,0.25)] relative backdrop-blur-md">
       {/* Mockup Header Bar */}
-      <div className="px-4 py-3 bg-[#0E0E0E]/90 border-b border-[#1A1A1A] flex items-center justify-between">
+      <div className="px-4 py-3 bg-[#0E0E0E] border-b border-[#1A1A1A] flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1.5 mr-2">
             <span className="w-2.5 h-2.5 rounded-full bg-red-500/80" />
@@ -164,12 +130,12 @@ const AnimatedCRDashboardMockup: React.FC<{ onEnterApp: () => void }> = ({ onEnt
           </div>
           <span className="text-xs font-bold text-white tracking-tight flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            Figure 4.1: CR Command Center
+            Live Preview — CR Command Center
           </span>
         </div>
         <div className="flex items-center gap-1.5">
           <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#1A1A1A] text-[#A8A8A8] border border-[#262626]">
-            Step {step}/3 {step === 1 ? '· Metric Counters' : step === 2 ? '· Submissions' : '· Nudge Dispatch'}
+            Step {step}/3 {step === 1 ? '· Metric Counters' : step === 2 ? '· Submissions' : '· Instant Nudges'}
           </span>
         </div>
       </div>
@@ -419,26 +385,6 @@ export const LandingPage: React.FC<{ onEnterApp: () => void }> = ({ onEnterApp }
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [portalRole, setPortalRole] = useState<UserRole>('Faculty');
 
-  // Ambient sound state for landing page
-  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
-  const [activeSoundPreset, setActiveSoundPreset] = useState<'rain' | 'brown' | 'binaural'>('rain');
-
-  const toggleFocusAudio = () => {
-    if (isAudioPlaying) {
-      soundscapes.stop();
-      setIsAudioPlaying(false);
-    } else {
-      soundscapes.play(activeSoundPreset, 0.4);
-      setIsAudioPlaying(true);
-    }
-  };
-
-  useEffect(() => {
-    return () => {
-      soundscapes.stop();
-    };
-  }, []);
-
   const facultyUser = allUsers.find(u => u.role === 'Faculty') || { id: 'user-fac-1', name: 'Dr. Meenakshi Sundaram' };
   const crUser = allUsers.find(u => u.role === 'CR') || { id: 'user-cr-1', name: 'Ribhav Sharma (CR)' };
   const studentUser = allUsers.find(u => u.role === 'Student') || { id: 'user-stu-1', name: 'Aaditya Verma' };
@@ -460,11 +406,8 @@ export const LandingPage: React.FC<{ onEnterApp: () => void }> = ({ onEnterApp }
 
   return (
     <div className="min-h-screen bg-[#000000] text-[#FFFFFF] flex flex-col relative overflow-hidden selection:bg-[#0095F6]/30 selection:text-white">
-      {/* ── 3D THREE.JS CANVAS BACKGROUND (Interactive Constellation & Academic Sync Core) ── */}
-      <StudySyncThreeScene primaryColor="#0095F6" particleCount={95} className="opacity-75 z-0" />
-
       {/* Background Ambient Mesh & Grids */}
-      <div className="absolute inset-0 bg-grid-pattern opacity-30 pointer-events-none -z-10 [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_80%)]" />
+      <div className="absolute inset-0 bg-grid-pattern opacity-40 pointer-events-none -z-10 [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_80%)]" />
 
       {/* Layered glowing orbs */}
       <div 
@@ -534,14 +477,14 @@ export const LandingPage: React.FC<{ onEnterApp: () => void }> = ({ onEnterApp }
         </div>
       </header>
 
-      <main className="flex-1 relative z-10">
+      <main className="flex-1">
         {/* ── HERO SECTION (FIGURE 4.1 IN SYNOPSIS) ── */}
         <section className="max-w-6xl mx-auto px-5 lg:px-8 pt-10 pb-16 lg:pt-16 lg:pb-24">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-14 items-center">
             {/* Left: Copy with Staggered Entrance */}
             <div className="space-y-6">
               {/* Stagger 1: Precision badge */}
-              <div className="hero-stagger-1 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#0E0E0E]/90 border border-white/10 text-xs font-semibold text-white shadow-sm backdrop-blur-md">
+              <div className="hero-stagger-1 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#0E0E0E] border border-white/10 text-xs font-semibold text-white shadow-sm backdrop-blur-sm">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                 <span className="text-neutral-300">Precision Academic Platform · EduTrack Integrated</span>
               </div>
@@ -642,16 +585,16 @@ export const LandingPage: React.FC<{ onEnterApp: () => void }> = ({ onEnterApp }
 
               {/* Stagger 6: 4 Pill Badges below CTA */}
               <div className="hero-stagger-6 flex flex-wrap items-center gap-2 pt-1">
-                <span className="px-3 py-1.5 rounded-full bg-[#0E0E0E]/90 border border-[#1A1A1A] text-xs font-medium text-[#E0E0E0] shadow-xs">
+                <span className="px-3 py-1.5 rounded-full bg-[#0E0E0E] border border-[#1A1A1A] text-xs font-medium text-[#E0E0E0] shadow-xs">
                   📊 Submission Tracking
                 </span>
-                <span className="px-3 py-1.5 rounded-full bg-[#0E0E0E]/90 border border-[#1A1A1A] text-xs font-medium text-[#E0E0E0] shadow-xs">
+                <span className="px-3 py-1.5 rounded-full bg-[#0E0E0E] border border-[#1A1A1A] text-xs font-medium text-[#E0E0E0] shadow-xs">
                   🔔 1-Click Nudges
                 </span>
-                <span className="px-3 py-1.5 rounded-full bg-[#0E0E0E]/90 border border-[#1A1A1A] text-xs font-medium text-[#E0E0E0] shadow-xs">
+                <span className="px-3 py-1.5 rounded-full bg-[#0E0E0E] border border-[#1A1A1A] text-xs font-medium text-[#E0E0E0] shadow-xs">
                   🗳️ Live Class Polls
                 </span>
-                <span className="px-3 py-1.5 rounded-full bg-[#0E0E0E]/90 border border-[#1A1A1A] text-xs font-medium text-[#0095F6] shadow-xs">
+                <span className="px-3 py-1.5 rounded-full bg-[#0E0E0E] border border-[#1A1A1A] text-xs font-medium text-[#0095F6] shadow-xs">
                   🛡️ EduTrack Identity Engine
                 </span>
               </div>
@@ -684,7 +627,7 @@ export const LandingPage: React.FC<{ onEnterApp: () => void }> = ({ onEnterApp }
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div className="p-5 rounded-2xl bg-[#0A0A0A]/90 border border-[#1A1A1A] hover:border-[#0095F6]/40 transition-all group backdrop-blur-sm">
+            <div className="p-5 rounded-2xl bg-[#0A0A0A] border border-[#1A1A1A] hover:border-[#0095F6]/40 transition-all group">
               <div className="w-10 h-10 rounded-xl bg-[#0095F6]/10 text-[#0095F6] flex items-center justify-center mb-3">
                 <FileCheck2 className="w-5 h-5" />
               </div>
@@ -696,7 +639,7 @@ export const LandingPage: React.FC<{ onEnterApp: () => void }> = ({ onEnterApp }
               </p>
             </div>
 
-            <div className="p-5 rounded-2xl bg-[#0A0A0A]/90 border border-[#1A1A1A] hover:border-rose-500/40 transition-all group backdrop-blur-sm">
+            <div className="p-5 rounded-2xl bg-[#0A0A0A] border border-[#1A1A1A] hover:border-rose-500/40 transition-all group">
               <div className="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-500 flex items-center justify-center mb-3">
                 <Activity className="w-5 h-5" />
               </div>
@@ -708,7 +651,7 @@ export const LandingPage: React.FC<{ onEnterApp: () => void }> = ({ onEnterApp }
               </p>
             </div>
 
-            <div className="p-5 rounded-2xl bg-[#0A0A0A]/90 border border-[#1A1A1A] hover:border-purple-500/40 transition-all group backdrop-blur-sm">
+            <div className="p-5 rounded-2xl bg-[#0A0A0A] border border-[#1A1A1A] hover:border-purple-500/40 transition-all group">
               <div className="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center mb-3">
                 <GraduationCap className="w-5 h-5" />
               </div>
@@ -720,7 +663,7 @@ export const LandingPage: React.FC<{ onEnterApp: () => void }> = ({ onEnterApp }
               </p>
             </div>
 
-            <div className="p-5 rounded-2xl bg-[#0A0A0A]/90 border border-[#1A1A1A] hover:border-amber-500/40 transition-all group backdrop-blur-sm">
+            <div className="p-5 rounded-2xl bg-[#0A0A0A] border border-[#1A1A1A] hover:border-amber-500/40 transition-all group">
               <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center mb-3">
                 <Megaphone className="w-5 h-5" />
               </div>
@@ -732,7 +675,7 @@ export const LandingPage: React.FC<{ onEnterApp: () => void }> = ({ onEnterApp }
               </p>
             </div>
 
-            <div className="p-5 rounded-2xl bg-[#0A0A0A]/90 border border-[#1A1A1A] hover:border-emerald-500/40 transition-all group backdrop-blur-sm">
+            <div className="p-5 rounded-2xl bg-[#0A0A0A] border border-[#1A1A1A] hover:border-emerald-500/40 transition-all group">
               <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-3">
                 <BarChart2 className="w-5 h-5" />
               </div>
@@ -744,7 +687,7 @@ export const LandingPage: React.FC<{ onEnterApp: () => void }> = ({ onEnterApp }
               </p>
             </div>
 
-            <div className="p-5 rounded-2xl bg-[#0A0A0A]/90 border border-[#1A1A1A] hover:border-cyan-500/40 transition-all group backdrop-blur-sm">
+            <div className="p-5 rounded-2xl bg-[#0A0A0A] border border-[#1A1A1A] hover:border-cyan-500/40 transition-all group">
               <div className="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center mb-3">
                 <Folder className="w-5 h-5" />
               </div>
@@ -883,33 +826,8 @@ export const LandingPage: React.FC<{ onEnterApp: () => void }> = ({ onEnterApp }
         </section>
       </main>
 
-      {/* ── FLOATING AMBIENT FOCUS AUDIO PILL ── */}
-      <div className="fixed bottom-5 right-5 z-40">
-        <button
-          onClick={toggleFocusAudio}
-          title="Toggle ambient study audio"
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-full border shadow-xl backdrop-blur-md text-xs font-semibold transition-all cursor-pointer ${
-            isAudioPlaying
-              ? 'bg-[#0095F6] border-[#0095F6] text-white shadow-[0_0_20px_rgba(0,149,246,0.5)] scale-105'
-              : 'bg-[#0E0E0E]/90 border-white/15 text-neutral-300 hover:text-white hover:border-white/30'
-          }`}
-        >
-          {isAudioPlaying ? (
-            <>
-              <Volume2 className="w-4 h-4 animate-pulse" />
-              <span>Ambient Sound: Playing</span>
-            </>
-          ) : (
-            <>
-              <Headphones className="w-4 h-4 text-[#0095F6]" />
-              <span>🎧 Focus Soundscapes</span>
-            </>
-          )}
-        </button>
-      </div>
-
       {/* ── FOOTER ── */}
-      <footer className="border-t border-[#1A1A1A] bg-[#000000] relative z-10">
+      <footer className="border-t border-[#1A1A1A] bg-[#000000]">
         <div className="max-w-6xl mx-auto px-5 lg:px-8 py-7 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2.5">
             <div className="w-6 h-6 rounded-md bg-white flex items-center justify-center shadow-xs">
