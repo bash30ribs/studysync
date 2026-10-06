@@ -123,5 +123,46 @@ describe('Workspace HTML Feature Suite', () => {
     expect(publicHtml).toContain('data-sound="noise"');
     expect(publicHtml).toContain('data-sound="mute"');
   });
+
+  it('verifies Role-Driven Tri-View Architecture (Student, CR, Faculty)', () => {
+    // Header role pill
+    expect(publicHtml).toContain('id="rolePill"');
+    expect(publicHtml).toContain('id="rolePillLabel"');
+    expect(publicHtml).toContain('data-role="CR"');
+
+    // Tri-role Navigation mapping
+    expect(publicHtml).toContain('const ROLE_NAV = {');
+    expect(publicHtml).toContain("My Station");
+    expect(publicHtml).toContain("Command Center");
+    expect(publicHtml).toContain("Executive Dashboard");
+
+    // Datasets
+    expect(publicHtml).toContain('const COHORTS = [');
+    expect(publicHtml).toContain('AIML 2026 · Division A');
+    expect(publicHtml).toContain('CSE 2026 · Division B');
+    expect(publicHtml).toContain('const CLASS_REPS = [');
+    expect(publicHtml).toContain('Ribhav Sharma');
+
+    // Student Views
+    expect(publicHtml).toContain('function renderStudentStation()');
+    expect(publicHtml).toContain('function renderStudentAssignments()');
+    expect(publicHtml).toContain('function renderStudentAttendance()');
+    expect(publicHtml).toContain('function renderStudentReceipts()');
+
+    // CR Views & Ledger
+    expect(publicHtml).toContain('function renderCRCommandCenter()');
+    expect(publicHtml).toContain('function renderCRSubmissionsLedger()');
+
+    // Faculty Views & Approval Queue
+    expect(publicHtml).toContain('function renderFacultyExecutive()');
+    expect(publicHtml).toContain('function renderFacultyCohorts()');
+    expect(publicHtml).toContain('function renderFacultyApprovals()');
+    expect(publicHtml).toContain('function renderFacultyClassReps()');
+    expect(publicHtml).toContain('function renderFacultyDefaulterWatch()');
+
+    // Action handlers for approval queue
+    expect(publicHtml).toContain("case 'approve-broadcast':");
+    expect(publicHtml).toContain("case 'reject-broadcast':");
+  });
 });
 

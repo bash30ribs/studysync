@@ -35,6 +35,8 @@
   --green:#7fa88c;
   --amber:#b39a6d;
   --red:#b17d7d;
+  --violet:#9b8fc4;
+  --teal:#7fa8a8;
 
   --ease:cubic-bezier(.16,1,.3,1);
   --ease-out:cubic-bezier(.2,.8,.2,1);
@@ -2405,6 +2407,33 @@ input[type=range]::-moz-range-thumb{
 .audio-dock.playing .eq i:nth-child(4){animation-delay:.45s}
 @keyframes eqBar{0%,100%{height:4px}50%{height:13px}}
 
+
+/* Role Pill & Faculty Tri-View Styles */
+.role-pill{display:flex;align-items:center;gap:8px;padding:5px 11px;border-radius:9px;background:var(--accent-soft);border:1px solid var(--accent-border);font-size:11.5px;font-weight:600;letter-spacing:.06em;color:var(--accent-2);flex-shrink:0;text-transform:uppercase}
+.role-pill i{width:6px;height:6px;border-radius:50%;background:currentColor}
+.role-pill[data-role="FACULTY"]{background:rgba(155,143,196,.1);border-color:rgba(155,143,196,.24);color:var(--violet)}
+.role-pill[data-role="STUDENT"]{background:rgba(127,168,168,.1);border-color:rgba(127,168,168,.24);color:var(--teal)}
+.role-pill[data-role="CR"]{background:var(--accent-soft);border-color:var(--accent-border);color:var(--accent-2)}
+
+.cohort-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:24px}
+@media(max-width:760px){.cohort-grid{grid-template-columns:1fr}}
+.cohort-card{border-radius:14px;background:linear-gradient(180deg,#0a0a0c,#08080a);border:1px solid var(--border);padding:20px;transition:border-color .3s,transform .3s var(--ease)}
+.cohort-card:hover{border-color:var(--border-2);transform:translateY(-2px)}
+.cohort-card-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
+.cohort-card-title{font-size:14px;font-weight:600;color:var(--text)}
+.cohort-card-meta{font-size:11px;color:var(--text-4);font-family:'JetBrains Mono',monospace;margin-top:2px}
+
+.approval-card{border-radius:13px;background:linear-gradient(180deg,#0a0a0c,#08080a);border:1px solid var(--border);padding:18px;margin-bottom:12px;position:relative}
+.approval-card.pending{border-color:rgba(155,143,196,.25);background:linear-gradient(180deg,rgba(155,143,196,.04),#08080a)}
+.approval-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:12px}
+.approval-body{font-size:13px;line-height:1.6;color:var(--text-2);margin-bottom:14px}
+.approval-actions{display:flex;gap:8px;align-items:center}
+.btn-violet{background:var(--violet);color:#0a0a0b;font-weight:600}
+.btn-violet:hover{background:#b2a7dc}
+
+
+.nav-link .nav-badge.violet{background:rgba(155,143,196,.14);color:var(--violet)}
+.nav-link .nav-badge.danger{background:rgba(177,125,125,.12);color:var(--red)}
 </style>
 </head>
 <body>
@@ -2976,7 +3005,7 @@ input[type=range]::-moz-range-thumb{
        HEADER
        ================================================== -->
   <header class="header">
-    <button class="brand" id="brandBtn" title="Back to landing">
+    <button class="brand ws-brand" id="brandBtn" title="Back to landing">
       <span class="brand-mark">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
@@ -2985,6 +3014,8 @@ input[type=range]::-moz-range-thumb{
       </span>
       <span class="brand-text"><b>StudySync</b><span>Hub</span></span>
     </button>
+
+    <div class="role-pill" id="rolePill" data-role="CR"><i></i><span id="rolePillLabel">CR</span></div>
 
     <div class="class-pill" id="classPill" role="button" tabindex="0" title="Class Join Code: CS2026 · Click for details and invite options" style="cursor:pointer">
       <span class="label">AIML 2026</span>
@@ -3284,6 +3315,11 @@ function showWorkspace(user) {
   }
   if ($('#mainScroll')) {
     $('#mainScroll').scrollTo({ top: 0, behavior: 'instant' });
+  }
+  updateRolePill();
+  const validItems = (typeof ROLE_NAV !== 'undefined' && ROLE_NAV[state.activeRole]) ? ROLE_NAV[state.activeRole] : NAV_ITEMS;
+  if (!validItems.find(it => it.id === state.activeTab)) {
+    state.activeTab = 'dashboard';
   }
   toast(`Entered workspace as ${USER_PROFILES[state.activeUser]?.name || 'Ribhav Sharma'}`, 'blue');
 }
@@ -4251,11 +4287,89 @@ function saveResources() {
 }
 
 const BROADCASTS = [
+  { id: 'b5', author: 'Ribhav Sharma', role: 'CR', code: 'CS21532', text: 'Reminder: fee payment window closes this Friday. Please check your portal.', time: '15m ago', pinned: false, reactions: 0, status: 'pending' },
+  { id: 'b6', author: 'Ribhav Sharma', role: 'CR', code: 'CS21532', text: 'Requesting department to reschedule Wednesday lab — conflicts with mid-term review.', time: '30m ago', pinned: false, reactions: 0, status: 'pending' },
   { id: 'b1', author: 'Ribhav Sharma', role: 'CR', code: 'CS21532', text: 'Fluid Mechanics Lab 4 submission portal closes tomorrow at 5:00 PM. 34 of 48 submitted. Check the Assignment Tracker for real-time status.', time: '2h ago', pinned: true, reactions: 12 },
   { id: 'b2', author: 'Ribhav Sharma', role: 'CR', code: 'CS21532', text: 'Viva dates for Fluid Mechanics will be decided via poll. Please vote by tonight — anonymous, one vote per student.', time: '5h ago', pinned: true, reactions: 24 },
   { id: 'b3', author: 'Dr. M. Sundaram', role: 'Faculty', code: 'EMP-AIML-004', text: 'Unit 3 notes uploaded to the Academic Vault. Lab manual revision is available for download.', time: '1d ago', pinned: false, reactions: 18 },
   { id: 'b4', author: 'Ribhav Sharma', role: 'CR', code: 'CS21532', text: 'Attendance radar updated after Monday sessions. 4 defaulters flagged below 75% — check your personal radar.', time: '2d ago', pinned: false, reactions: 9 }
 ];
+
+
+/* ============================================================
+   TRI-ROLE DATA & ROUTING
+   ============================================================ */
+const USER_MAP = USER_PROFILES;
+const ROLE_LABELS = { CR: 'CR', STUDENT: 'Student', FACULTY: 'HOD' };
+const ROLE_COLORS = { CR: 'accent', STUDENT: 'teal', FACULTY: 'violet' };
+
+const COHORTS = [
+  { id: 'aiml26', name: 'AIML 2026 · Division A', code: 'CS2026', students: 48, attendance: 81.4, defaulters: 4, assignments: 3, cr: 'Ribhav Sharma' },
+  { id: 'cse26', name: 'CSE 2026 · Division B', code: 'CS2027', students: 52, attendance: 76.8, defaulters: 7, assignments: 2, cr: 'Priya Menon' },
+  { id: 'ece26', name: 'ECE 2026 · Division A', code: 'EC2026', students: 46, attendance: 84.2, defaulters: 2, assignments: 4, cr: 'Arjun Rao' },
+  { id: 'mech26', name: 'MECH 2026 · Division A', code: 'ME2026', students: 50, attendance: 79.1, defaulters: 1, assignments: 2, cr: 'Vikram Singh' }
+];
+
+const CLASS_REPS = [
+  { id: 'cr1', name: 'Ribhav Sharma', code: 'CS21532', cohort: 'AIML 2026', cohortId: 'aiml26', email: 'ribhav.s@college.edu', status: 'active', approvals: 12, nudges: 34 },
+  { id: 'cr2', name: 'Priya Menon', code: 'CS21590', cohort: 'CSE 2026', cohortId: 'cse26', email: 'priya.m@college.edu', status: 'active', approvals: 9, nudges: 28 },
+  { id: 'cr3', name: 'Arjun Rao', code: 'EC21530', cohort: 'ECE 2026', cohortId: 'ece26', email: 'arjun.r@college.edu', status: 'active', approvals: 15, nudges: 40 },
+  { id: 'cr4', name: 'Vikram Singh', code: 'ME21544', cohort: 'MECH 2026', cohortId: 'mech26', email: 'vikram.s@college.edu', status: 'active', approvals: 7, nudges: 22 }
+];
+
+const ROLE_NAV = {
+  STUDENT: [
+    { id: 'dashboard', label: 'My Station', icon: 'home', section: 'Personal' },
+    { id: 'my-assignments', label: 'My Assignments', icon: 'file', section: 'Personal' },
+    { id: 'my-attendance', label: 'My Attendance', icon: 'radar', section: 'Personal' },
+    { id: 'my-submissions', label: 'My Receipts', icon: 'shield', section: 'Personal' },
+    { id: 'my-growth', label: 'Growth Portfolio', icon: 'sparkle', section: 'Personal' },
+    { id: 'calendar', label: 'Timetable', icon: 'calendar', section: 'Class' },
+    { id: 'resources', label: 'Academic Vault', icon: 'book', section: 'Class' },
+    { id: 'polls', label: 'Live Polls', icon: 'vote', section: 'Class', badge: '2' },
+    { id: 'broadcasts', label: 'Class Feed', icon: 'megaphone', section: 'Class' },
+    { id: 'messages', label: 'Messages', icon: 'message', section: 'Class' },
+    { id: 'subjects', label: 'My Subjects', icon: 'layers', section: 'Class' },
+    { id: 'settings', label: 'Settings', icon: 'cog', section: 'Account' }
+  ],
+  CR: [
+    { id: 'dashboard', label: 'Command Center', icon: 'home', section: 'Cohort Control' },
+    { id: 'assignments', label: 'Assignment Tracker', icon: 'file', section: 'Cohort Control', badge: '3' },
+    { id: 'attendance', label: 'Attendance Radar', icon: 'radar', section: 'Cohort Control', badge: '4', badgeType: 'danger' },
+    { id: 'submissions', label: 'Submission Ledger', icon: 'shield', section: 'Cohort Control' },
+    { id: 'broadcasts', label: 'Broadcasts', icon: 'megaphone', section: 'Cohort Control' },
+    { id: 'polls', label: 'Polls', icon: 'vote', section: 'Cohort Control', badge: '2' },
+    { id: 'members', label: 'Class Roster', icon: 'users', section: 'Cohort', badge: '48' },
+    { id: 'subjects', label: 'Subjects', icon: 'layers', section: 'Cohort' },
+    { id: 'analytics', label: 'Analytics', icon: 'chart', section: 'Cohort' },
+    { id: 'resources', label: 'Academic Vault', icon: 'book', section: 'Shared' },
+    { id: 'calendar', label: 'Timetable', icon: 'calendar', section: 'Shared' },
+    { id: 'messages', label: 'Messages', icon: 'message', section: 'Shared' },
+    { id: 'settings', label: 'Settings', icon: 'cog', section: 'Account' }
+  ],
+  FACULTY: [
+    { id: 'dashboard', label: 'Executive Dashboard', icon: 'home', section: 'Oversight' },
+    { id: 'cohorts', label: 'All Cohorts', icon: 'layers', section: 'Oversight', badge: '4', badgeType: 'violet' },
+    { id: 'approvals', label: 'Approval Queue', icon: 'shield', section: 'Oversight', badge: '2', badgeType: 'violet' },
+    { id: 'classreps', label: 'Class Reps', icon: 'users', section: 'Oversight' },
+    { id: 'faculty-broadcasts', label: 'Department Feed', icon: 'megaphone', section: 'Oversight' },
+    { id: 'oversight', label: 'Defaulter Watch', icon: 'alert', section: 'Analytics' },
+    { id: 'analytics', label: 'Trends', icon: 'chart', section: 'Analytics' },
+    { id: 'reports', label: 'Reports', icon: 'file', section: 'Analytics' },
+    { id: 'resources', label: 'Resource Library', icon: 'book', section: 'Shared' },
+    { id: 'messages', label: 'Messages', icon: 'message', section: 'Shared' },
+    { id: 'settings', label: 'Settings', icon: 'cog', section: 'Account' }
+  ]
+};
+
+function updateRolePill() {
+  const pill = $('#rolePill');
+  const label = $('#rolePillLabel');
+  if (!pill) return;
+  pill.setAttribute('data-role', state.activeRole);
+  const textMap = { CR: 'CR', STUDENT: 'Student', FACULTY: 'HOD' };
+  if (label) label.textContent = textMap[state.activeRole] || state.activeRole;
+}
 
 const NAV_ITEMS = [
   { id: 'dashboard', label: 'Dashboard', icon: 'home', section: 'Workspace' },
@@ -4352,8 +4466,10 @@ function updateCursor() {
    ============================================================ */
 function renderNav() {
   const container = $('#navScroll');
+  if (!container) return;
+  const navList = (typeof ROLE_NAV !== 'undefined' && ROLE_NAV[state.activeRole]) ? ROLE_NAV[state.activeRole] : NAV_ITEMS;
   const sections = {};
-  NAV_ITEMS.forEach(item => {
+  navList.forEach(item => {
     if (item.roleOnly && state.activeRole !== item.roleOnly) return;
     if (!sections[item.section]) sections[item.section] = [];
     sections[item.section].push(item);
@@ -4399,24 +4515,46 @@ function setTab(tab) {
 
 function renderView() {
   const container = $('#mainInner');
+  if (!container) return;
   const tab = state.activeTab;
   const role = state.activeRole;
 
   let html = '';
   switch (tab) {
-    case 'dashboard': html = role === 'STUDENT' ? renderStudentDashboard() : renderCRDashboard(); break;
+    case 'dashboard':
+      if (role === 'STUDENT') html = renderStudentStation();
+      else if (role === 'FACULTY') html = renderFacultyExecutive();
+      else html = renderCRCommandCenter();
+      break;
+    /* Student specific */
+    case 'my-assignments': html = renderStudentAssignments(); break;
+    case 'my-attendance': html = renderStudentAttendance(); break;
+    case 'my-submissions': html = renderStudentReceipts(); break;
+    case 'my-growth': html = renderStudentGrowth(); break;
+
+    /* CR specific */
     case 'assignments': html = renderAssignments(); break;
     case 'attendance': html = renderAttendance(); break;
-    case 'calendar': html = renderCalendar(); break;
-    case 'resources': html = renderResources(); break;
-    case 'polls': html = renderPolls(); break;
+    case 'submissions': html = renderCRSubmissionsLedger(); break;
     case 'broadcasts': html = renderBroadcasts(); break;
-    case 'messages': html = renderMessages(); break;
+    case 'polls': html = role === 'STUDENT' ? renderStudentPolls() : renderPolls(); break;
     case 'members': html = renderMembers(); break;
-    case 'subjects': html = renderSubjects(); break;
-    case 'analytics': html = renderAnalytics(); break;
-    case 'growth': html = renderGrowth(); break;
-    case 'oversight': html = renderOversight(); break;
+    case 'subjects': html = role === 'STUDENT' ? renderStudentSubjects() : renderSubjects(); break;
+    case 'analytics': html = role === 'FACULTY' ? renderFacultyAnalytics() : renderAnalytics(); break;
+
+    /* Faculty specific */
+    case 'cohorts': html = renderFacultyCohorts(); break;
+    case 'approvals': html = renderFacultyApprovals(); break;
+    case 'classreps': html = renderFacultyClassReps(); break;
+    case 'faculty-broadcasts': html = renderFacultyBroadcasts(); break;
+    case 'oversight': html = renderFacultyDefaulterWatch(); break;
+    case 'reports': html = renderFacultyReports(); break;
+
+    /* Shared */
+    case 'resources': html = renderResources(); break;
+    case 'calendar': html = renderCalendar(); break;
+    case 'messages': html = renderMessages(); break;
+    case 'growth': html = renderStudentGrowth(); break;
     case 'settings': html = renderSettings(); break;
     default: html = `<div class="empty-state"><h3>Coming soon</h3><p>This module is being prepared.</p></div>`;
   }
@@ -4574,7 +4712,34 @@ function renderCRDashboard() {
     </div>
     <style>
       @media(max-width:1100px){.dash-grid{grid-template-columns:1fr !important}}
-    </style>
+    
+/* Role Pill & Faculty Tri-View Styles */
+.role-pill{display:flex;align-items:center;gap:8px;padding:5px 11px;border-radius:9px;background:var(--accent-soft);border:1px solid var(--accent-border);font-size:11.5px;font-weight:600;letter-spacing:.06em;color:var(--accent-2);flex-shrink:0;text-transform:uppercase}
+.role-pill i{width:6px;height:6px;border-radius:50%;background:currentColor}
+.role-pill[data-role="FACULTY"]{background:rgba(155,143,196,.1);border-color:rgba(155,143,196,.24);color:var(--violet)}
+.role-pill[data-role="STUDENT"]{background:rgba(127,168,168,.1);border-color:rgba(127,168,168,.24);color:var(--teal)}
+.role-pill[data-role="CR"]{background:var(--accent-soft);border-color:var(--accent-border);color:var(--accent-2)}
+
+.cohort-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:24px}
+@media(max-width:760px){.cohort-grid{grid-template-columns:1fr}}
+.cohort-card{border-radius:14px;background:linear-gradient(180deg,#0a0a0c,#08080a);border:1px solid var(--border);padding:20px;transition:border-color .3s,transform .3s var(--ease)}
+.cohort-card:hover{border-color:var(--border-2);transform:translateY(-2px)}
+.cohort-card-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
+.cohort-card-title{font-size:14px;font-weight:600;color:var(--text)}
+.cohort-card-meta{font-size:11px;color:var(--text-4);font-family:'JetBrains Mono',monospace;margin-top:2px}
+
+.approval-card{border-radius:13px;background:linear-gradient(180deg,#0a0a0c,#08080a);border:1px solid var(--border);padding:18px;margin-bottom:12px;position:relative}
+.approval-card.pending{border-color:rgba(155,143,196,.25);background:linear-gradient(180deg,rgba(155,143,196,.04),#08080a)}
+.approval-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:12px}
+.approval-body{font-size:13px;line-height:1.6;color:var(--text-2);margin-bottom:14px}
+.approval-actions{display:flex;gap:8px;align-items:center}
+.btn-violet{background:var(--violet);color:#0a0a0b;font-weight:600}
+.btn-violet:hover{background:#b2a7dc}
+
+
+.nav-link .nav-badge.violet{background:rgba(155,143,196,.14);color:var(--violet)}
+.nav-link .nav-badge.danger{background:rgba(177,125,125,.12);color:var(--red)}
+</style>
   `;
 }
 
@@ -5658,8 +5823,923 @@ function exportJSON() {
 /* ============================================================
    ACTION HANDLER
    ============================================================ */
+
+/* ============================================================
+   ROLE-DRIVEN VIEWS (STUDENT, CR, FACULTY)
+   ============================================================ */
+
+/* STUDENT: Station */
+function renderStudentStation() {
+  const me = STUDENTS[1]; // Aaditya Verma
+  const safe = Math.max(0, Math.floor((4 / 3) * me.sessions - me.total));
+  const pending = ASSIGNMENTS.filter(a => a.status === 'active');
+  const myReceipts = SUBMISSIONS.filter(s => s.code === me.code);
+
+  return `
+    <div class="view active">
+      <div class="view-head">
+        <div class="view-title-group">
+          <div class="view-eyebrow teal">Student Station</div>
+          <h1 class="view-title">Good to see you, ${me.name.split(' ')[0]}.</h1>
+          <p class="view-sub">Your personal attendance radar, pending submissions, and cryptographic receipts — always in sync. This is your private record.</p>
+        </div>
+      </div>
+
+      <div class="metric-grid">
+        <div class="metric">
+          <div class="metric-head"><span class="metric-label">My Attendance</span><span class="metric-icon green"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span></div>
+          <div class="metric-value"><span data-counter="${me.att}" data-decimals="1">0</span><small>%</small></div>
+          <div class="metric-foot"><span class="metric-delta up">Safe to miss ${safe}</span></div>
+        </div>
+        <div class="metric">
+          <div class="metric-head"><span class="metric-label">Sessions Attended</span><span class="metric-icon accent"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span></div>
+          <div class="metric-value"><span data-counter="${me.sessions}">0</span><small>/ ${me.total}</small></div>
+          <div class="metric-foot">${me.total - me.sessions} sessions remaining</div>
+        </div>
+        <div class="metric">
+          <div class="metric-head"><span class="metric-label">Pending Tasks</span><span class="metric-icon warn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></span></div>
+          <div class="metric-value"><span data-counter="${pending.length}">0</span><small>active</small></div>
+          <div class="metric-foot">1 closes tomorrow</div>
+        </div>
+        <div class="metric">
+          <div class="metric-head"><span class="metric-label">My Receipts</span><span class="metric-icon green"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span></div>
+          <div class="metric-value"><span data-counter="${myReceipts.length}">0</span><small>verified</small></div>
+          <div class="metric-foot">All hashed</div>
+        </div>
+      </div>
+
+      <div class="action-bar" style="grid-template-columns:repeat(3,1fr)">
+        <button class="action-tile" data-action="submit-assignment">
+          <span class="tile-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8l-5-5-5 5M12 3v12"/><path d="M3 15v4a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4"/></svg></span>
+          <span class="tile-meta"><b>Submit Assignment</b><span>Generate receipt</span></span>
+        </button>
+        <button class="action-tile" data-action="check-attendance">
+          <span class="tile-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></span>
+          <span class="tile-meta"><b>Check My Attendance</b><span>Bunk radar</span></span>
+        </button>
+        <button class="action-tile" data-action="vote-poll">
+          <span class="tile-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>
+          <span class="tile-meta"><b>Vote in Live Poll</b><span>2 active</span></span>
+        </button>
+      </div>
+
+      <div class="section-head"><div class="section-title">My Pending Submissions <span class="count-chip">${pending.length}</span></div></div>
+      <div class="card card-pad" style="margin-bottom:24px">
+        ${pending.map(a => `
+          <div class="feed-item">
+            <div class="feed-icon amber"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></div>
+            <div class="feed-meta">
+              <div class="feed-title">${a.title}</div>
+              <div class="feed-sub"><span>${a.subject}</span><span class="dot"></span><span style="color:var(--amber)">${a.due}</span></div>
+            </div>
+            <button class="btn btn-accent btn-sm" data-action="submit-assignment" data-id="${a.id}">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8l-5-5-5 5M12 3v12"/></svg>
+              Submit
+            </button>
+          </div>
+        `).join('')}
+      </div>
+
+      <div class="section-head"><div class="section-title">My Recent Receipts <span class="count-chip">${myReceipts.length}</span></div>
+        <div class="section-actions"><button class="btn btn-quiet btn-sm" data-tab-jump="my-submissions">View all</button></div>
+      </div>
+      <div class="card card-pad">
+        ${myReceipts.length === 0 ? '<div class="empty-hint">No receipts yet. Submit an assignment to generate one.</div>' : myReceipts.map(sub => `
+          <div class="feed-item">
+            <div class="feed-icon green"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></div>
+            <div class="feed-meta">
+              <div class="feed-title">${sub.assignment} <span class="hash">${sub.hash.slice(0, 12)}…</span></div>
+              <div class="feed-sub"><span>Verified · Immutable</span><span class="dot"></span><span class="mono">${sub.ts}</span></div>
+            </div>
+            <button class="btn btn-ghost btn-sm" data-copy="${sub.hash}"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+/* STUDENT: Assignments */
+function renderStudentAssignments() {
+  const pending = ASSIGNMENTS.filter(a => a.status === 'active');
+  const done = ASSIGNMENTS.filter(a => a.status === 'closed');
+  return `
+    <div class="view active">
+      <div class="view-head">
+        <div class="view-title-group">
+          <div class="view-eyebrow teal">My Assignments</div>
+          <h1 class="view-title">Personal task list</h1>
+          <p class="view-sub">Every assignment that concerns you — deadlines, submission status, and generated receipts.</p>
+        </div>
+      </div>
+
+      <div class="section-head"><div class="section-title">Open · ${pending.length}</div></div>
+      <div class="card" style="margin-bottom:24px">
+        ${pending.map(a => `
+          <div style="padding:20px;border-bottom:1px solid var(--border)">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:14px;flex-wrap:wrap">
+              <div style="min-width:0">
+                <div style="font-size:14.5px;font-weight:500;letter-spacing:-.01em;margin-bottom:6px">${a.title}</div>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;font-size:11.5px;color:var(--text-3)">
+                  <span>${a.subject}</span><span style="color:var(--text-4)">·</span>
+                  <span>Due: <b style="color:var(--amber);font-weight:500">${a.due}</b></span>
+                </div>
+              </div>
+              <button class="btn btn-accent btn-sm" data-action="submit-assignment" data-id="${a.id}">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8l-5-5-5 5M12 3v12"/></svg>
+                Submit
+              </button>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-3);margin-bottom:8px">
+                <span>Class submission rate (anonymous)</span>
+                <span style="font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--text)">${a.submitted} / ${a.total}</span>
+              </div>
+              <div class="progress-track"><div class="progress-fill" data-width="${(a.submitted / a.total) * 100}"></div></div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+
+      <div class="section-head"><div class="section-title">Submitted · ${done.length}</div></div>
+      <div class="card card-pad">
+        ${done.map(a => `
+          <div class="feed-item">
+            <div class="feed-icon green"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+            <div class="feed-meta">
+              <div class="feed-title">${a.title}</div>
+              <div class="feed-sub"><span>${a.subject}</span><span class="dot"></span><span>Submitted · verified</span></div>
+            </div>
+            <span class="status-chip green"><i></i>Done</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+/* STUDENT: Attendance */
+function renderStudentAttendance() {
+  const me = STUDENTS[1];
+  const safe = Math.max(0, Math.floor((4 / 3) * me.sessions - me.total));
+  const history = [
+    { date: 'Mon · Fluid Mechanics', status: 'present' },
+    { date: 'Mon · Engineering Maths', status: 'present' },
+    { date: 'Tue · Compiler Design', status: 'absent' },
+    { date: 'Tue · DSA Lab', status: 'present' },
+    { date: 'Wed · AI Lecture', status: 'present' }
+  ];
+  return `
+    <div class="view active">
+      <div class="view-head">
+        <div class="view-title-group">
+          <div class="view-eyebrow teal">My Attendance</div>
+          <h1 class="view-title">Personal 75% radar</h1>
+          <p class="view-sub">Your own attendance percentage and the safe-to-miss calculation. Nobody else sees this page.</p>
+        </div>
+      </div>
+
+      <div class="metric-grid" style="grid-template-columns:repeat(3,1fr)">
+        <div class="metric">
+          <div class="metric-head"><span class="metric-label">My Percentage</span><span class="metric-icon green"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></span></div>
+          <div class="metric-value"><span data-counter="${me.att}" data-decimals="1">0</span><small>%</small></div>
+          <div class="metric-foot"><span class="metric-delta up">Safe zone</span></div>
+        </div>
+        <div class="metric">
+          <div class="metric-head"><span class="metric-label">Safe to Miss</span><span class="metric-icon accent"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span></div>
+          <div class="metric-value"><span data-counter="${safe}">0</span><small>lectures</small></div>
+          <div class="metric-foot">Before dropping under 75%</div>
+        </div>
+        <div class="metric">
+          <div class="metric-head"><span class="metric-label">Sessions Attended</span><span class="metric-icon accent"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span></div>
+          <div class="metric-value"><span data-counter="${me.sessions}">0</span><small>/ ${me.total}</small></div>
+          <div class="metric-foot">${me.total - me.sessions} sessions left</div>
+        </div>
+      </div>
+
+      <div class="section-head"><div class="section-title">Recent sessions</div></div>
+      <div class="card card-pad">
+        ${history.map(h => `
+          <div class="feed-item">
+            <div class="feed-icon ${h.status === 'present' ? 'green' : 'red'}">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${h.status === 'present' ? '<path d="M20 6 9 17l-5-5"/>' : '<path d="M18 6 6 18M6 6l12 12"/>'}</svg>
+            </div>
+            <div class="feed-meta"><div class="feed-title">${h.date}</div></div>
+            <span class="status-chip ${h.status === 'present' ? 'green' : 'red'}"><i></i>${h.status === 'present' ? 'Present' : 'Absent'}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+/* STUDENT: Receipts */
+function renderStudentReceipts() {
+  const me = STUDENTS[1];
+  const myReceipts = SUBMISSIONS.filter(s => s.code === me.code);
+  return `
+    <div class="view active">
+      <div class="view-head">
+        <div class="view-title-group">
+          <div class="view-eyebrow teal">My Receipts</div>
+          <h1 class="view-title">Submission ledger</h1>
+          <p class="view-sub">Every submission you've made with its SHA-256 proof. Immutable, timestamped, verifiable by anyone.</p>
+        </div>
+      </div>
+
+      <div class="section-head"><div class="section-title">Verified submissions <span class="count-chip">${myReceipts.length}</span></div></div>
+      <div class="card card-pad">
+        ${myReceipts.length === 0 ? '<div class="empty-hint">No submissions yet.</div>' : myReceipts.map(sub => `
+          <div class="feed-item">
+            <div class="feed-icon green"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></div>
+            <div class="feed-meta">
+              <div class="feed-title">${sub.assignment} <span class="hash">${sub.hash.slice(0, 20)}…</span></div>
+              <div class="feed-sub"><span>Submitted ${sub.ts}</span><span class="dot"></span><span>Immutable</span></div>
+            </div>
+            <button class="btn btn-ghost btn-sm" data-copy="${sub.hash}"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy hash</button>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+/* STUDENT: Polls */
+function renderStudentPolls() {
+  return `
+    <div class="view active">
+      <div class="view-head">
+        <div class="view-title-group">
+          <div class="view-eyebrow teal">Live Polls</div>
+          <h1 class="view-title">Vote in class decisions</h1>
+          <p class="view-sub">Your vote is anonymous — one vote per student. Results update live.</p>
+        </div>
+      </div>
+      <div class="poll-list">
+        ${state.polls.map(p => `
+          <div class="card poll-card">
+            <div class="poll-head">
+              <div class="poll-title">${p.title}</div>
+              <span class="status-chip ${p.voted ? 'green' : 'accent'}"><i></i>${p.voted ? 'Voted' : 'Live'}</span>
+            </div>
+            <div class="poll-desc">${p.desc}</div>
+            <div class="poll-meta">
+              <span class="tag live"><i style="width:5px;height:5px;border-radius:50%;background:currentColor"></i>Closes in ${p.closes}</span>
+              <span class="tag">${p.total} responses</span>
+              <span class="tag">Anonymous</span>
+            </div>
+            <div class="poll-options">
+              ${p.options.map(o => {
+                const pct = p.total > 0 ? (o.votes / p.total) * 100 : 0;
+                const voted = p.voted === o.id;
+                return `
+                  <button class="poll-option ${voted ? 'voted' : ''}" data-poll="${p.id}" data-option="${o.id}">
+                    <div class="poll-option-bar" style="width:${p.voted ? pct : 0}%"></div>
+                    <div class="poll-option-content">
+                      <span class="poll-radio"></span>
+                      <span class="poll-label">${o.label}</span>
+                      ${p.voted ? `<span class="poll-count">${o.votes} · ${pct.toFixed(0)}%</span>` : ''}
+                    </div>
+                  </button>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+/* STUDENT: Subjects */
+function renderStudentSubjects() {
+  const subjects = [
+    { name: 'Fluid Mechanics', code: 'ME301', teacher: 'Dr. M. Sundaram', myAtt: 88, assignments: 1 },
+    { name: 'Engineering Maths', code: 'MA302', teacher: 'Prof. S. Iyer', myAtt: 82, assignments: 1 },
+    { name: 'Data Structures', code: 'CS303', teacher: 'Prof. R. Rao', myAtt: 90, assignments: 1 },
+    { name: 'Operating Systems', code: 'CS304', teacher: 'Prof. K. Nair', myAtt: 79, assignments: 0 },
+    { name: 'Compiler Design', code: 'CS305', teacher: 'Dr. A. Menon', myAtt: 85, assignments: 0 },
+    { name: 'Artificial Intelligence', code: 'AI306', teacher: 'Dr. P. Krishnan', myAtt: 91, assignments: 0 }
+  ];
+  return `
+    <div class="view active">
+      <div class="view-head">
+        <div class="view-title-group">
+          <div class="view-eyebrow teal">My Subjects</div>
+          <h1 class="view-title">Per-subject breakdown</h1>
+          <p class="view-sub">Your attendance per subject — the same number the radar uses.</p>
+        </div>
+      </div>
+      <div class="res-grid">
+        ${subjects.map(s => `
+          <div class="res-card">
+            <div class="res-head">
+              <div class="res-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 10 6-10 6L2 8z"/><path d="m2 16 10 6 10-6M2 12l10 6 10-6"/></svg></div>
+              <span class="res-type">${s.code}</span>
+            </div>
+            <div class="res-title">${s.name}</div>
+            <div class="res-meta"><span>${s.teacher}</span></div>
+            <div style="margin-top:14px;padding-top:12px;border-top:1px dashed var(--border)">
+              <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-3);margin-bottom:6px">
+                <span>My attendance</span>
+                <span style="font-family:'JetBrains Mono',monospace;font-weight:600;color:${s.myAtt >= 85 ? 'var(--green)' : s.myAtt >= 75 ? 'var(--amber)' : 'var(--red)'}">${s.myAtt}%</span>
+              </div>
+              <div class="progress-track"><div class="progress-fill ${s.myAtt >= 85 ? 'green' : s.myAtt >= 75 ? 'amber' : 'red'}" data-width="${s.myAtt}"></div></div>
+              ${s.assignments > 0 ? `<div style="margin-top:10px"><span class="status-chip accent"><i></i>${s.assignments} open</span></div>` : ''}
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+/* CR: Command Center */
+function renderCRCommandCenter() {
+  const defaulters = STUDENTS.filter(s => s.att < 75);
+  const avgAtt = (STUDENTS.reduce((a, s) => a + s.att, 0) / STUDENTS.length).toFixed(1);
+  const pendingBroadcasts = BROADCASTS.filter(b => b.status === 'pending').length;
+
+  return `
+    <div class="view active">
+      <div class="view-head">
+        <div class="view-title-group">
+          <div class="view-eyebrow">Command Center</div>
+          <h1 class="view-title">Welcome back, Ribhav.</h1>
+          <p class="view-sub">You manage one cohort — 48 students across 6 subjects. Track submissions, flag defaulters, dispatch nudges, curate the feed.</p>
+        </div>
+        <div class="view-actions">
+          <button class="btn btn-ghost" data-action="export">Export CSV</button>
+          <button class="btn btn-accent" data-action="new-assignment">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            New Assignment
+          </button>
+        </div>
+      </div>
+
+      <div class="metric-grid">
+        <div class="metric">
+          <div class="metric-head"><span class="metric-label">My Cohort</span><span class="metric-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span></div>
+          <div class="metric-value"><span data-counter="48">0</span><small>students</small></div>
+          <div class="metric-foot"><span class="metric-delta up">+2 this week</span></div>
+        </div>
+        <div class="metric">
+          <div class="metric-head"><span class="metric-label">Cohort Attendance</span><span class="metric-icon green"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></span></div>
+          <div class="metric-value"><span data-counter="${avgAtt}" data-decimals="1">0</span><small>%</small></div>
+          <div class="metric-foot"><span class="metric-delta up">+3.2% MoM</span></div>
+        </div>
+        <div class="metric">
+          <div class="metric-head"><span class="metric-label">Pending Broadcasts</span><span class="metric-icon warn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg></span></div>
+          <div class="metric-value"><span data-counter="${pendingBroadcasts}">0</span><small>awaiting</small></div>
+          <div class="metric-foot">HOD approval required</div>
+        </div>
+        <div class="metric">
+          <div class="metric-head"><span class="metric-label">Defaulters · &lt;75%</span><span class="metric-icon danger"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.3 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.3a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></span></div>
+          <div class="metric-value"><span data-counter="${defaulters.length}">0</span><small>flagged</small></div>
+          <div class="metric-foot"><span class="metric-delta down">Needs nudge</span></div>
+        </div>
+      </div>
+
+      <div class="action-bar">
+        <button class="action-tile" data-action="new-assignment">
+          <span class="tile-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span>
+          <span class="tile-meta"><b>New Assignment</b><span>Post with due date</span></span>
+        </button>
+        <button class="action-tile" data-action="take-attendance">
+          <span class="tile-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>
+          <span class="tile-meta"><b>Take Attendance</b><span>1-click session</span></span>
+        </button>
+        <button class="action-tile" data-action="broadcast">
+          <span class="tile-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg></span>
+          <span class="tile-meta"><b>Broadcast Notice</b><span>Sent to HOD</span></span>
+        </button>
+        <button class="action-tile" data-action="nudge-defaulters">
+          <span class="tile-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></span>
+          <span class="tile-meta"><b>Nudge Defaulters</b><span>${defaulters.length} students</span></span>
+        </button>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1.6fr 1fr;gap:20px" class="dash-grid">
+        <div>
+          <div class="section-head"><div class="section-title">Live Submission Feed <span class="count-chip">${SUBMISSIONS.length} today</span></div>
+            <div class="section-actions"><button class="btn btn-quiet btn-sm" data-tab-jump="submissions">View ledger</button></div>
+          </div>
+          <div class="card card-pad">
+            ${SUBMISSIONS.slice(0, 6).map(sub => `
+              <div class="feed-item">
+                <div class="feed-icon accent"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></div>
+                <div class="feed-meta">
+                  <div class="feed-title">${sub.student} <span class="hash">${sub.hash.slice(0, 12)}…</span></div>
+                  <div class="feed-sub"><span>${sub.assignment}</span><span class="dot"></span><span class="mono">${sub.code}</span></div>
+                </div>
+                <div class="feed-time">${sub.ts}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        <div>
+          <div class="section-head"><div class="section-title">Defaulter Watch</div>
+            <div class="section-actions"><button class="btn btn-quiet btn-sm" data-tab-jump="attendance">Radar</button></div>
+          </div>
+          <div class="card card-pad">
+            ${defaulters.map(s => `
+              <div class="feed-item">
+                <div class="feed-icon red"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.3 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.3a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></div>
+                <div class="feed-meta">
+                  <div class="feed-title">${s.name}</div>
+                  <div class="feed-sub"><span class="mono">${s.code}</span><span class="dot"></span><span>Needs ${neededSessions(s)} sessions</span></div>
+                </div>
+                <div class="feed-time" style="color:var(--red);font-weight:600;font-family:'JetBrains Mono',monospace">${s.att.toFixed(1)}%</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+/* CR: Submissions Ledger */
+function renderCRSubmissionsLedger() {
+  return `
+    <div class="view active">
+      <div class="view-head">
+        <div class="view-title-group">
+          <div class="view-eyebrow">Cryptographic Ledger</div>
+          <h1 class="view-title">Submission ledger</h1>
+          <p class="view-sub">Every student submission stamped with a SHA-256 block hash. Tamper-evident, verified receipts.</p>
+        </div>
+        <div class="view-actions">
+          <button class="btn btn-ghost" data-action="export" data-type="assignments">Export CSV</button>
+          <button class="btn btn-accent" data-action="export-json">Backup JSON</button>
+        </div>
+      </div>
+
+      <div class="card card-pad" style="margin-bottom:24px">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+          <div>
+            <div style="font-size:14px;font-weight:600">Verification Engine Status</div>
+            <div style="font-size:12px;color:var(--text-3);margin-top:2px">All block hashes verified against local client root · 0 disputes</div>
+          </div>
+          <span class="status-chip green"><i></i>SHA-256 Engine Online</span>
+        </div>
+      </div>
+
+      <div class="section-head"><div class="section-title">Verified Cohort Submissions <span class="count-chip">${SUBMISSIONS.length}</span></div></div>
+      <div class="card card-pad">
+        ${SUBMISSIONS.map(sub => `
+          <div class="feed-item">
+            <div class="feed-icon green"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></div>
+            <div class="feed-meta">
+              <div class="feed-title">${sub.student} · <span class="mono">${sub.code}</span> <span class="hash">${sub.hash.slice(0, 16)}…</span></div>
+              <div class="feed-sub"><span>${sub.assignment}</span><span class="dot"></span><span>${sub.ts}</span></div>
+            </div>
+            <button class="btn btn-ghost btn-sm" data-copy="${sub.hash}">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Copy hash
+            </button>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+/* FACULTY: Executive Dashboard */
+function renderFacultyExecutive() {
+  const pendingApprovals = BROADCASTS.filter(b => b.status === 'pending');
+  const totalStudents = COHORTS.reduce((sum, c) => sum + c.students, 0);
+  const avgAtt = (COHORTS.reduce((sum, c) => sum + c.attendance, 0) / COHORTS.length).toFixed(1);
+  const totalDefaulters = COHORTS.reduce((sum, c) => sum + c.defaulters, 0);
+
+  return `
+    <div class="view active">
+      <div class="view-head">
+        <div class="view-title-group">
+          <div class="view-eyebrow violet">Executive Academic Oversight</div>
+          <h1 class="view-title">Welcome, Dr. Sundaram.</h1>
+          <p class="view-sub">Department Head Oversight · AI &amp; Data Engineering. 4 cohorts, ${totalStudents} students. Review CR broadcasts, monitor attendance compliance, export reports.</p>
+        </div>
+        <div class="view-actions">
+          <button class="btn btn-ghost" data-tab-jump="reports">Academic Reports</button>
+          <button class="btn btn-violet" data-action="broadcast">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>
+            Broadcast Dept Notice
+          </button>
+        </div>
+      </div>
+
+      <div class="metric-grid">
+        <div class="metric">
+          <div class="metric-head"><span class="metric-label">All Cohorts</span><span class="metric-icon violet"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 10 6-10 6L2 8z"/><path d="m2 16 10 6 10-6M2 12l10 6 10-6"/></svg></span></div>
+          <div class="metric-value"><span data-counter="${COHORTS.length}">0</span><small>cohorts</small></div>
+          <div class="metric-foot">${totalStudents} enrolled across department</div>
+        </div>
+        <div class="metric">
+          <div class="metric-head"><span class="metric-label">Dept Attendance</span><span class="metric-icon green"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></span></div>
+          <div class="metric-value"><span data-counter="${avgAtt}" data-decimals="1">0</span><small>%</small></div>
+          <div class="metric-foot"><span class="metric-delta up">Compliant &gt; 75%</span></div>
+        </div>
+        <div class="metric">
+          <div class="metric-head"><span class="metric-label">Approval Queue</span><span class="metric-icon warn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></span></div>
+          <div class="metric-value"><span data-counter="${pendingApprovals.length}">0</span><small>pending</small></div>
+          <div class="metric-foot">Broadcast signoff required</div>
+        </div>
+        <div class="metric">
+          <div class="metric-head"><span class="metric-label">Total Defaulters</span><span class="metric-icon danger"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.3 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.3a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></span></div>
+          <div class="metric-value"><span data-counter="${totalDefaulters}">0</span><small>students</small></div>
+          <div class="metric-foot"><span class="metric-delta down">Across 4 cohorts</span></div>
+        </div>
+      </div>
+
+      <div class="action-bar">
+        <button class="action-tile" data-tab-jump="approvals">
+          <span class="tile-icon" style="background:rgba(155,143,196,.14);color:var(--violet)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></span>
+          <span class="tile-meta"><b>Review Approvals</b><span>${pendingApprovals.length} pending</span></span>
+        </button>
+        <button class="action-tile" data-tab-jump="oversight">
+          <span class="tile-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.3 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.3a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></span>
+          <span class="tile-meta"><b>Defaulter Watch</b><span>${totalDefaulters} flagged</span></span>
+        </button>
+        <button class="action-tile" data-tab-jump="classreps">
+          <span class="tile-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+          <span class="tile-meta"><b>Class Reps</b><span>${CLASS_REPS.length} active</span></span>
+        </button>
+        <button class="action-tile" data-tab-jump="reports">
+          <span class="tile-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></span>
+          <span class="tile-meta"><b>Compliance Reports</b><span>NAAC/NBA Export</span></span>
+        </button>
+      </div>
+
+      <div class="section-head"><div class="section-title">Cohort Overview <span class="count-chip">${COHORTS.length} divisions</span></div>
+        <div class="section-actions"><button class="btn btn-quiet btn-sm" data-tab-jump="cohorts">View all cohorts</button></div>
+      </div>
+      <div class="cohort-grid">
+        ${COHORTS.map(c => `
+          <div class="cohort-card">
+            <div class="cohort-card-head">
+              <div>
+                <div class="cohort-card-title">${c.name}</div>
+                <div class="cohort-card-meta">CR: ${c.cr} · Code: ${c.code}</div>
+              </div>
+              <span class="status-chip ${c.attendance >= 80 ? 'green' : 'amber'}"><i></i>${c.attendance}%</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0">
+              <div class="mini"><span>Students</span><b>${c.students}</b></div>
+              <div class="mini"><span>Defaulters</span><b style="color:${c.defaulters > 3 ? 'var(--red)' : 'var(--text)'}">${c.defaulters}</b></div>
+              <div class="mini"><span>Tasks</span><b>${c.assignments}</b></div>
+            </div>
+            <div class="progress-track"><div class="progress-fill ${c.attendance >= 80 ? 'green' : 'amber'}" data-width="${c.attendance}"></div></div>
+          </div>
+        `).join('')}
+      </div>
+
+      <div class="section-head"><div class="section-title">Pending Approvals <span class="count-chip">${pendingApprovals.length}</span></div>
+        <div class="section-actions"><button class="btn btn-quiet btn-sm" data-tab-jump="approvals">Open queue</button></div>
+      </div>
+      <div class="card card-pad">
+        ${pendingApprovals.length === 0 ? '<div class="empty-hint">All CR broadcasts have been reviewed and approved.</div>' : pendingApprovals.map(b => `
+          <div class="approval-card pending">
+            <div class="approval-head">
+              <div>
+                <b style="font-size:13px">${b.author} (CR) · <span class="mono" style="color:var(--accent)">${b.code}</span></b>
+                <div style="font-size:11px;color:var(--text-4);margin-top:2px">AIML 2026 · Submitted ${b.time}</div>
+              </div>
+              <span class="status-chip amber"><i></i>Pending Signoff</span>
+            </div>
+            <div class="approval-body">${escapeHtml(b.text)}</div>
+            <div class="approval-actions">
+              <button class="btn btn-accent btn-sm" data-action="approve-broadcast" data-id="${b.id}">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                Approve Broadcast
+              </button>
+              <button class="btn btn-ghost btn-sm" data-action="reject-broadcast" data-id="${b.id}">Reject</button>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+/* FACULTY: All Cohorts */
+function renderFacultyCohorts() {
+  return `
+    <div class="view active">
+      <div class="view-head">
+        <div class="view-title-group">
+          <div class="view-eyebrow violet">All Cohorts</div>
+          <h1 class="view-title">Cohort Directory</h1>
+          <p class="view-sub">Active engineering divisions under Dr. Sundaram. Attendance tracking and CR contacts.</p>
+        </div>
+      </div>
+
+      <div class="cohort-grid">
+        ${COHORTS.map(c => `
+          <div class="cohort-card">
+            <div class="cohort-card-head">
+              <div>
+                <div class="cohort-card-title">${c.name}</div>
+                <div class="cohort-card-meta">Class Code: ${c.code} · CR: ${c.cr}</div>
+              </div>
+              <span class="status-chip ${c.attendance >= 80 ? 'green' : 'amber'}"><i></i>${c.attendance}% avg</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0">
+              <div class="mini"><span>Enrolled</span><b>${c.students}</b></div>
+              <div class="mini"><span>Defaulters</span><b style="color:${c.defaulters > 3 ? 'var(--red)' : 'var(--text)'}">${c.defaulters}</b></div>
+              <div class="mini"><span>Assignments</span><b>${c.assignments}</b></div>
+            </div>
+            <div style="margin-top:12px">
+              <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-3);margin-bottom:6px">
+                <span>Eligibility rate</span>
+                <span class="mono">${c.attendance}%</span>
+              </div>
+              <div class="progress-track"><div class="progress-fill ${c.attendance >= 80 ? 'green' : 'amber'}" data-width="${c.attendance}"></div></div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+/* FACULTY: Approval Queue */
+function renderFacultyApprovals() {
+  const pendingApprovals = BROADCASTS.filter(b => b.status === 'pending');
+  const approved = BROADCASTS.filter(b => b.status === 'approved');
+
+  return `
+    <div class="view active">
+      <div class="view-head">
+        <div class="view-title-group">
+          <div class="view-eyebrow violet">Official Signoff</div>
+          <h1 class="view-title">Broadcast Approval Queue</h1>
+          <p class="view-sub">Review announcements submitted by Class Representatives before they are published to cohort feeds.</p>
+        </div>
+      </div>
+
+      <div class="section-head"><div class="section-title">Awaiting Approval <span class="count-chip">${pendingApprovals.length}</span></div></div>
+      <div class="card card-pad" style="margin-bottom:24px">
+        ${pendingApprovals.length === 0 ? '<div class="empty-hint">No broadcasts pending review. All drafts have been acted on.</div>' : pendingApprovals.map(b => `
+          <div class="approval-card pending">
+            <div class="approval-head">
+              <div>
+                <b style="font-size:13px">${b.author} · <span class="mono" style="color:var(--accent)">${b.code}</span></b>
+                <div style="font-size:11px;color:var(--text-4);margin-top:2px">Submitted ${b.time}</div>
+              </div>
+              <span class="status-chip amber"><i></i>Pending Signoff</span>
+            </div>
+            <div class="approval-body">${escapeHtml(b.text)}</div>
+            <div class="approval-actions">
+              <button class="btn btn-accent btn-sm" data-action="approve-broadcast" data-id="${b.id}">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                Approve Broadcast
+              </button>
+              <button class="btn btn-ghost btn-sm" data-action="reject-broadcast" data-id="${b.id}">Reject</button>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+
+      <div class="section-head"><div class="section-title">Recently Approved <span class="count-chip">${approved.length}</span></div></div>
+      <div class="card card-pad">
+        ${approved.map(b => `
+          <div class="feed-item">
+            <div class="feed-icon green"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+            <div class="feed-meta">
+              <div class="feed-title">${escapeHtml(b.text.slice(0, 70))}…</div>
+              <div class="feed-sub"><span>${b.author} (${b.role})</span><span class="dot"></span><span>${b.time}</span></div>
+            </div>
+            <span class="status-chip green"><i></i>Approved</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+/* FACULTY: Class Reps */
+function renderFacultyClassReps() {
+  return `
+    <div class="view active">
+      <div class="view-head">
+        <div class="view-title-group">
+          <div class="view-eyebrow violet">Cohort Leadership</div>
+          <h1 class="view-title">Class Representatives Directory</h1>
+          <p class="view-sub">Student leaders delegated with attendance coordination, assignment tracking, and cohort broadcasts.</p>
+        </div>
+      </div>
+
+      <div class="card card-pad">
+        ${CLASS_REPS.map(cr => `
+          <div class="feed-item">
+            <div class="feed-icon accent"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+            <div class="feed-meta">
+              <div class="feed-title">${cr.name} · <span class="mono">${cr.code}</span> <span class="status-chip green" style="margin-left:6px"><i></i>${cr.status}</span></div>
+              <div class="feed-sub"><span>${cr.cohort}</span><span class="dot"></span><span>${cr.email}</span><span class="dot"></span><span>${cr.approvals} notices</span><span class="dot"></span><span>${cr.nudges} nudges</span></div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+/* FACULTY: Broadcasts */
+function renderFacultyBroadcasts() {
+  return `
+    <div class="view active">
+      <div class="view-head">
+        <div class="view-title-group">
+          <div class="view-eyebrow violet">Department Feed</div>
+          <h1 class="view-title">Official Announcements</h1>
+          <p class="view-sub">Official notifications broadcast to all cohorts across the department.</p>
+        </div>
+        <div class="view-actions">
+          <button class="btn btn-violet" data-action="broadcast">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>
+            Broadcast Notice
+          </button>
+        </div>
+      </div>
+
+      <div class="card card-pad">
+        ${BROADCASTS.filter(b => b.status === 'approved').map(b => `
+          <div class="bc-card ${b.pinned ? 'pinned' : ''}">
+            <div class="bc-head">
+              <span class="bc-avatar">${b.author.split(' ').map(x => x[0]).join('')}</span>
+              <div class="bc-meta">
+                <b>${b.author}</b>
+                <span>${b.role} · ${b.code} · ${b.time}</span>
+              </div>
+            </div>
+            <div class="bc-content">${escapeHtml(b.text)}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+/* FACULTY: Defaulter Watch */
+function renderFacultyDefaulterWatch() {
+  const defaulters = STUDENTS.filter(s => s.att < 75);
+  return `
+    <div class="view active">
+      <div class="view-head">
+        <div class="view-title-group">
+          <div class="view-eyebrow violet">Department Defaulter Watch</div>
+          <h1 class="view-title">Multi-Cohort Defaulter Matrix</h1>
+          <p class="view-sub">Real-time radar of students tracking below the mandatory 75% university eligibility threshold across all divisions.</p>
+        </div>
+        <div class="view-actions">
+          <button class="btn btn-ghost" data-action="export">Export Defaulters</button>
+          <button class="btn btn-danger" data-action="nudge-defaulters">Bulk Academic Warning</button>
+        </div>
+      </div>
+
+      <div class="defaulter-banner" style="margin-bottom:20px">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.3 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.3a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>
+        ${defaulters.length} students currently ineligible for term-end examination in AIML 2026.
+      </div>
+
+      <div class="card card-pad">
+        ${defaulters.map(s => `
+          <div class="feed-item">
+            <div class="feed-icon red"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.3 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.3a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></div>
+            <div class="feed-meta">
+              <div class="feed-title">${s.name} · <span class="mono">${s.code}</span></div>
+              <div class="feed-sub"><span>${s.rfc}</span><span class="dot"></span><span>${s.sessions} / ${s.total} sessions</span><span class="dot"></span><span style="color:var(--red)">Needs ${neededSessions(s)} sessions</span></div>
+            </div>
+            <div class="feed-time" style="color:var(--red);font-weight:600;font-family:'JetBrains Mono',monospace">${s.att.toFixed(1)}%</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+/* FACULTY: Analytics */
+function renderFacultyAnalytics() {
+  return `
+    <div class="view active">
+      <div class="view-head">
+        <div class="view-title-group">
+          <div class="view-eyebrow violet">Department Analytics</div>
+          <h1 class="view-title">Cross-Cohort Performance Trends</h1>
+          <p class="view-sub">Comparative attendance trajectories and assignment completion velocities across all four engineering cohorts.</p>
+        </div>
+      </div>
+
+      <div class="metric-grid" style="grid-template-columns:repeat(3,1fr)">
+        <div class="metric">
+          <div class="metric-head"><span class="metric-label">Dept Pass Projection</span><span class="metric-icon green"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span></div>
+          <div class="metric-value"><span data-counter="92.8" data-decimals="1">0</span><small>%</small></div>
+          <div class="metric-foot"><span class="metric-delta up">+1.4% vs last term</span></div>
+        </div>
+        <div class="metric">
+          <div class="metric-head"><span class="metric-label">Avg Submission Speed</span><span class="metric-icon accent"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span></div>
+          <div class="metric-value"><span data-counter="18.4" data-decimals="1">0</span><small>hours</small></div>
+          <div class="metric-foot">Before deadline</div>
+        </div>
+        <div class="metric">
+          <div class="metric-head"><span class="metric-label">Defaulter Recovery</span><span class="metric-icon warn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 9-5 5-4-4-3 3"/></svg></span></div>
+          <div class="metric-value"><span data-counter="78">0</span><small>%</small></div>
+          <div class="metric-foot">After CR nudges</div>
+        </div>
+      </div>
+
+      <div class="card card-pad-lg">
+        <div style="font-size:13.5px;font-weight:600;margin-bottom:16px">Cohort Attendance Comparison</div>
+        ${COHORTS.map(c => `
+          <div style="margin-bottom:14px">
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px">
+              <b>${c.name}</b>
+              <span class="mono" style="color:${c.attendance >= 80 ? 'var(--green)' : 'var(--amber)'}">${c.attendance}%</span>
+            </div>
+            <div class="progress-track"><div class="progress-fill ${c.attendance >= 80 ? 'green' : 'amber'}" data-width="${c.attendance}"></div></div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+/* FACULTY: Reports */
+function renderFacultyReports() {
+  const reports = [
+    { title: 'NAAC SSR Criterion 2: Teaching-Learning & Attendance Ledger (AY 2025-26)', format: 'CSV / JSON', pages: 'Full Cohort', date: 'Generated today' },
+    { title: 'NBA Tier-1 Student Attendance & Lab Experiment Verification Audit', format: 'CSV', pages: 'Department Wide', date: 'Updated 2h ago' },
+    { title: 'Mid-Term Examination Eligibility & Defaulter List', format: 'CSV', pages: '4 Cohorts', date: 'Real-time' },
+    { title: 'Class Representative Broadcast & Nudge Dispatch Audit Log', format: 'JSON', pages: 'Audit Trail', date: 'Continuous' }
+  ];
+
+  return `
+    <div class="view active">
+      <div class="view-head">
+        <div class="view-title-group">
+          <div class="view-eyebrow violet">Accreditation &amp; Audits</div>
+          <h1 class="view-title">Academic Compliance Reports</h1>
+          <p class="view-sub">Download university-compliant ledgers for NAAC, NBA, and term-end examination eligibility verification.</p>
+        </div>
+      </div>
+
+      <div class="card card-pad">
+        ${reports.map(r => `
+          <div class="feed-item">
+            <div class="feed-icon violet"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></div>
+            <div class="feed-meta">
+              <div class="feed-title">${r.title}</div>
+              <div class="feed-sub"><span>Format: ${r.format}</span><span class="dot"></span><span>${r.pages}</span><span class="dot"></span><span>${r.date}</span></div>
+            </div>
+            <button class="btn btn-ghost btn-sm" data-action="export">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5M12 15V3"/></svg>
+              Download
+            </button>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+
 function handleAction(action, el) {
   switch (action) {
+    case 'approve-broadcast': {
+      const id = el.dataset.id;
+      const b = BROADCASTS.find(x => x.id === id);
+      if (b) {
+        b.status = 'approved';
+        toast('Broadcast approved and published to cohort feed', 'green');
+        renderView();
+        renderNotifications();
+      }
+      break;
+    }
+    case 'reject-broadcast': {
+      const id = el.dataset.id;
+      const idx = BROADCASTS.findIndex(x => x.id === id);
+      if (idx !== -1) {
+        BROADCASTS.splice(idx, 1);
+        toast('Broadcast draft rejected', 'amber');
+        renderView();
+      }
+      break;
+    }
+    case 'submit-assignment': {
+      handleAction('submit', el);
+      break;
+    }
+    case 'check-attendance': {
+      setTab(state.activeRole === 'STUDENT' ? 'my-attendance' : 'attendance');
+      break;
+    }
+    case 'vote-poll': {
+      setTab('polls');
+      break;
+    }
+
     case 'new-assignment':
       openModal(`
         <h3>New assignment</h3>
@@ -6614,11 +7694,16 @@ function setupUserSwitch() {
       $('#userRole').textContent = u.role;
       $('#userAvatar').textContent = u.initials;
       state.activeRole = u.roleKey;
-      // Update active state in menu
       $$('.role-menu-item').forEach(i => i.classList.toggle('active', i === item));
-      // Re-render nav (role-only items) and view
+      updateRolePill();
+      const validItems = (typeof ROLE_NAV !== 'undefined' && ROLE_NAV[state.activeRole]) ? ROLE_NAV[state.activeRole] : NAV_ITEMS;
+      if (!validItems.find(it => it.id === state.activeTab)) {
+        state.activeTab = 'dashboard';
+      }
       renderNav();
       renderView();
+      renderSchedule();
+      renderNotifications();
       menu.classList.remove('open');
       toast(`Switched to ${u.name}`, 'blue');
     });
