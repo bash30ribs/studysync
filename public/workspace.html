@@ -1,0 +1,3819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>StudySync — Workspace</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   TOKENS — identical to the landing page
+   ============================================================ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#000000;
+  --surface:#0a0a0b;
+  --surface-2:#0e0e10;
+  --surface-3:#141416;
+
+  --border:rgba(255,255,255,.055);
+  --border-2:rgba(255,255,255,.09);
+  --border-3:rgba(255,255,255,.15);
+
+  --text:#e6e7e9;
+  --text-2:#a0a3a8;
+  --text-3:#73767c;
+  --text-4:#4d5055;
+
+  --accent:#8ba9c4;
+  --accent-2:#a5bdd2;
+  --accent-soft:rgba(139,169,196,.09);
+  --accent-border:rgba(139,169,196,.20);
+
+  --green:#7fa88c;
+  --amber:#b39a6d;
+  --red:#b17d7d;
+
+  --ease:cubic-bezier(.16,1,.3,1);
+  --ease-out:cubic-bezier(.2,.8,.2,1);
+
+  --header-h:60px;
+  --left-w:240px;
+  --right-w:308px;
+}
+html,body{height:100%;overflow:hidden;-webkit-text-size-adjust:100%}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  font-feature-settings:'cv11','ss01','ss03';
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  line-height:1.5;
+}
+::selection{background:var(--accent);color:#0a0a0b}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#1a1a1d;border-radius:99px;border:2px solid #000}
+::-webkit-scrollbar-thumb:hover{background:#26262a}
+
+button,input,select,textarea{font:inherit;color:inherit;background:none;border:none;outline:none}
+button{cursor:pointer}
+a{color:inherit;text-decoration:none}
+svg{display:block}
+.mono{font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;font-variant-numeric:tabular-nums}
+
+/* ============================================================
+   CUSTOM CURSOR (same as landing)
+   ============================================================ */
+@media (pointer: fine){
+  html, body, a, button, input, select, textarea { cursor: none; }
+}
+.cursor-dot, .cursor-ring{
+  position:fixed;left:0;top:0;
+  pointer-events:none;z-index:9999;
+  transform:translate3d(-100px,-100px,0);
+  opacity:0;
+  transition:opacity .35s var(--ease), width .3s var(--ease), height .3s var(--ease), border-color .3s var(--ease), background .3s var(--ease);
+}
+.cursor-dot{
+  width:5px;height:5px;border-radius:50%;
+  background:#fff;mix-blend-mode:difference;
+  margin:-2.5px 0 0 -2.5px;
+}
+.cursor-ring{
+  width:32px;height:32px;border-radius:50%;
+  border:1px solid rgba(255,255,255,.35);
+  margin:-16px 0 0 -16px;
+}
+.cursor-ring.hover{
+  width:56px;height:56px;margin:-28px 0 0 -28px;
+  border-color:rgba(255,255,255,.7);
+  background:rgba(255,255,255,.04);
+}
+.cursor-ring.down{
+  width:22px;height:22px;margin:-11px 0 0 -11px;
+  border-color:rgba(255,255,255,.9);
+  background:rgba(255,255,255,.1);
+}
+body.pointer-on .cursor-dot,
+body.pointer-on .cursor-ring{opacity:1}
+@media (pointer: coarse){
+  .cursor-dot, .cursor-ring{display:none}
+}
+
+/* Grain */
+.grain{
+  position:fixed;inset:0;z-index:80;pointer-events:none;opacity:.028;
+  mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ============================================================
+   APP SHELL
+   ============================================================ */
+.app{
+  display:flex;flex-direction:column;
+  height:100vh;width:100vw;
+  background:var(--bg);
+  overflow:hidden;
+}
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+.header{
+  height:var(--header-h);
+  flex-shrink:0;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;
+  padding:0 18px;
+  gap:16px;
+  background:rgba(0,0,0,.72);
+  backdrop-filter:blur(18px) saturate(160%);
+  -webkit-backdrop-filter:blur(18px) saturate(160%);
+  position:relative;
+  z-index:20;
+}
+.brand{
+  display:flex;align-items:center;gap:10px;
+  padding:6px 10px 6px 6px;
+  border-radius:10px;
+  transition:background .25s var(--ease);
+  flex-shrink:0;
+}
+.brand:hover{background:rgba(255,255,255,.04)}
+.brand-mark{
+  width:30px;height:30px;border-radius:8px;
+  display:grid;place-items:center;
+  background:#e6e7e9;color:#0a0a0b;
+  transition:transform .5s var(--ease);
+}
+.brand:hover .brand-mark{transform:rotate(-6deg)}
+.brand-text{display:flex;flex-direction:column;align-items:flex-start;line-height:1.05}
+.brand-text b{font-size:13.5px;font-weight:600;letter-spacing:-.02em}
+.brand-text span{font-size:8.5px;font-weight:600;letter-spacing:.14em;color:var(--accent);text-transform:uppercase;margin-top:1px}
+
+.class-pill{
+  display:flex;align-items:center;gap:8px;
+  padding:6px 12px;border-radius:9px;
+  background:rgba(255,255,255,.03);
+  border:1px solid var(--border);
+  font-size:12px;font-weight:500;
+  transition:background .25s, border-color .25s;
+  flex-shrink:0;
+}
+.class-pill:hover{background:rgba(255,255,255,.05);border-color:var(--border-2)}
+.class-pill .label{color:var(--text-3)}
+.class-pill b{color:var(--text);font-weight:500}
+.class-pill .code{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;font-weight:500;
+  color:var(--accent-2);
+  letter-spacing:.04em;
+  padding:2px 6px;border-radius:5px;
+  background:var(--accent-soft);
+  transition:background .25s, color .25s;
+  min-width:52px;text-align:center;
+}
+.class-pill .code.revealed{background:rgba(139,169,196,.16)}
+
+.live-pill{
+  display:flex;align-items:center;gap:7px;
+  padding:5px 11px 5px 9px;border-radius:99px;
+  background:rgba(127,168,140,.06);
+  border:1px solid rgba(127,168,140,.18);
+  font-size:11px;font-weight:600;letter-spacing:.02em;
+  color:var(--green);
+  flex-shrink:0;
+}
+.live-pill i{
+  width:5px;height:5px;border-radius:50%;background:var(--green);
+  position:relative;
+}
+.live-pill i::before{
+  content:'';position:absolute;inset:-3px;border-radius:50%;
+  border:1px solid rgba(127,168,140,.5);
+  animation:pulseRing 2.4s var(--ease) infinite;
+}
+@keyframes pulseRing{
+  0%{transform:scale(.6);opacity:.9}
+  80%,100%{transform:scale(1.8);opacity:0}
+}
+.live-pill.offline{
+  color:var(--text-3);
+  background:rgba(255,255,255,.03);
+  border-color:var(--border);
+}
+.live-pill.offline i{background:var(--text-3)}
+.live-pill.offline i::before{display:none}
+
+.header-spacer{flex:1}
+
+.icon-btn{
+  width:34px;height:34px;border-radius:9px;
+  display:grid;place-items:center;
+  color:var(--text-3);
+  transition:background .22s, color .22s, transform .3s var(--ease);
+  position:relative;
+  flex-shrink:0;
+}
+.icon-btn:hover{background:rgba(255,255,255,.05);color:var(--text)}
+.icon-btn .dot-badge{
+  position:absolute;top:6px;right:6px;
+  width:6px;height:6px;border-radius:50%;
+  background:var(--accent);
+  border:1.5px solid #000;
+}
+.icon-btn .count-badge{
+  position:absolute;top:3px;right:3px;
+  min-width:14px;height:14px;padding:0 3px;
+  border-radius:99px;
+  background:var(--red);color:#fff;
+  font-size:8.5px;font-weight:700;
+  display:grid;place-items:center;
+  border:1.5px solid #000;
+  font-family:'JetBrains Mono',monospace;
+  line-height:1;
+}
+
+.user-switch{
+  display:flex;align-items:center;gap:10px;
+  padding:5px 10px 5px 5px;border-radius:99px;
+  background:rgba(255,255,255,.03);
+  border:1px solid var(--border);
+  transition:background .25s, border-color .25s;
+  flex-shrink:0;
+}
+.user-switch:hover{background:rgba(255,255,255,.05);border-color:var(--border-2)}
+.user-avatar{
+  width:26px;height:26px;border-radius:50%;
+  background:#18181b;color:#d4d4d8;
+  display:grid;place-items:center;
+  font-size:10px;font-weight:600;
+  font-family:'JetBrains Mono',monospace;
+  letter-spacing:.02em;
+  border:1px solid var(--border-2);
+  flex-shrink:0;
+}
+.user-info{display:flex;flex-direction:column;align-items:flex-start;line-height:1.1}
+.user-info b{font-size:11.5px;font-weight:500;letter-spacing:-.005em}
+.user-info span{font-size:9.5px;color:var(--text-4);font-weight:500;letter-spacing:.04em;text-transform:uppercase;margin-top:1px}
+
+.role-menu{
+  position:absolute;top:calc(var(--header-h) - 4px);right:18px;
+  width:280px;padding:6px;
+  background:rgba(10,10,12,.96);
+  backdrop-filter:blur(20px) saturate(160%);
+  -webkit-backdrop-filter:blur(20px) saturate(160%);
+  border:1px solid var(--border-2);
+  border-radius:14px;
+  box-shadow:0 30px 60px -25px rgba(0,0,0,1);
+  opacity:0;transform:translate3d(0,-8px,0) scale(.98);
+  pointer-events:none;
+  transition:all .3s var(--ease);
+  transform-origin:top right;
+  z-index:30;
+}
+.role-menu.open{opacity:1;transform:translate3d(0,0,0) scale(1);pointer-events:auto}
+.role-menu-item{
+  display:flex;align-items:center;gap:11px;
+  padding:10px 12px;border-radius:10px;
+  text-align:left;width:100%;
+  transition:background .2s;
+}
+.role-menu-item:hover{background:rgba(255,255,255,.05)}
+.role-menu-item.active{background:var(--accent-soft)}
+.role-menu-item .avatar{
+  width:30px;height:30px;border-radius:50%;
+  background:#18181b;color:#d4d4d8;
+  display:grid;place-items:center;
+  font-size:10.5px;font-weight:600;
+  font-family:'JetBrains Mono',monospace;
+  border:1px solid var(--border-2);
+  flex-shrink:0;
+}
+.role-menu-item .meta{display:flex;flex-direction:column;line-height:1.25}
+.role-menu-item .meta b{font-size:12.5px;font-weight:500;letter-spacing:-.005em}
+.role-menu-item .meta span{font-size:10.5px;color:var(--text-4);margin-top:1px}
+.role-menu-item .role-chip{
+  margin-left:auto;
+  font-size:9px;font-weight:600;letter-spacing:.08em;
+  padding:3px 7px;border-radius:5px;
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--border-2);
+  color:var(--text-3);
+}
+.role-menu-item.active .role-chip{background:var(--accent-soft);border-color:var(--accent-border);color:var(--accent-2)}
+
+/* Notification dropdown */
+.notif-menu{
+  position:absolute;top:calc(var(--header-h) - 4px);right:200px;
+  width:340px;padding:6px;
+  background:rgba(10,10,12,.96);
+  backdrop-filter:blur(20px) saturate(160%);
+  -webkit-backdrop-filter:blur(20px) saturate(160%);
+  border:1px solid var(--border-2);
+  border-radius:14px;
+  box-shadow:0 30px 60px -25px rgba(0,0,0,1);
+  opacity:0;transform:translate3d(0,-8px,0) scale(.98);
+  pointer-events:none;
+  transition:all .3s var(--ease);
+  transform-origin:top right;
+  z-index:30;
+}
+.notif-menu.open{opacity:1;transform:translate3d(0,0,0) scale(1);pointer-events:auto}
+.notif-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 12px 8px;
+  border-bottom:1px solid var(--border);
+}
+.notif-head b{font-size:12.5px;font-weight:500}
+.notif-head button{
+  font-size:11px;color:var(--accent-2);font-weight:500;
+  padding:3px 6px;border-radius:5px;
+  transition:background .2s;
+}
+.notif-head button:hover{background:rgba(255,255,255,.05)}
+.notif-list{max-height:340px;overflow-y:auto;padding:4px}
+.notif-item{
+  display:flex;gap:11px;padding:11px 12px;border-radius:10px;
+  transition:background .2s;
+  cursor:pointer;
+}
+.notif-item:hover{background:rgba(255,255,255,.04)}
+.notif-item.unread{background:rgba(139,169,196,.05)}
+.notif-item.unread::after{
+  content:'';width:6px;height:6px;border-radius:50%;
+  background:var(--accent);
+  align-self:center;flex-shrink:0;
+}
+.notif-icon{
+  width:30px;height:30px;border-radius:8px;
+  display:grid;place-items:center;flex-shrink:0;
+  background:rgba(255,255,255,.04);
+  color:var(--text-2);
+}
+.notif-icon.accent{background:var(--accent-soft);color:var(--accent-2)}
+.notif-icon.warn{background:rgba(179,154,109,.08);color:var(--amber)}
+.notif-icon.danger{background:rgba(177,125,125,.08);color:var(--red)}
+.notif-meta{flex:1;min-width:0}
+.notif-meta b{display:block;font-size:12px;font-weight:500;letter-spacing:-.005em}
+.notif-meta span{display:block;font-size:11px;color:var(--text-4);margin-top:2px;line-height:1.4}
+.notif-time{
+  font-size:10px;color:var(--text-4);
+  font-family:'JetBrains Mono',monospace;
+  flex-shrink:0;
+  margin-top:2px;
+}
+
+/* ============================================================
+   BODY (3 columns)
+   ============================================================ */
+.app-body{
+  flex:1;display:flex;overflow:hidden;
+  position:relative;
+}
+
+/* ============================================================
+   LEFT PANEL
+   ============================================================ */
+.left-panel{
+  width:var(--left-w);flex-shrink:0;
+  border-right:1px solid var(--border);
+  background:rgba(0,0,0,.4);
+  display:flex;flex-direction:column;
+  overflow:hidden;
+  transition:width .4s var(--ease);
+}
+.left-panel.collapsed{width:0;border-right-width:0}
+
+.left-scroll{
+  flex:1;overflow-y:auto;
+  padding:14px 12px 20px;
+}
+.left-scroll::-webkit-scrollbar{width:0}
+
+.nav-section{margin-bottom:22px}
+.nav-section-label{
+  font-size:9.5px;font-weight:600;
+  letter-spacing:.14em;text-transform:uppercase;
+  color:var(--text-4);
+  padding:0 10px 8px;
+  display:flex;align-items:center;gap:8px;
+}
+.nav-section-label::after{
+  content:'';flex:1;height:1px;
+  background:linear-gradient(90deg,var(--border),transparent);
+}
+.nav-link{
+  width:100%;display:flex;align-items:center;gap:11px;
+  padding:8px 10px;border-radius:9px;
+  font-size:12.5px;font-weight:500;letter-spacing:-.005em;
+  color:var(--text-3);
+  transition:background .2s, color .2s;
+  text-align:left;
+  position:relative;
+}
+.nav-link:hover{background:rgba(255,255,255,.04);color:var(--text-2)}
+.nav-link.active{
+  background:var(--accent-soft);
+  color:var(--accent-2);
+}
+.nav-link.active::before{
+  content:'';position:absolute;left:0;top:9px;bottom:9px;
+  width:2px;border-radius:2px;
+  background:var(--accent);
+}
+.nav-link svg{flex-shrink:0;color:currentColor;opacity:.85}
+.nav-link .nav-badge{
+  margin-left:auto;
+  font-size:10px;font-weight:600;
+  font-family:'JetBrains Mono',monospace;
+  padding:1.5px 6px;border-radius:99px;
+  background:rgba(255,255,255,.05);
+  color:var(--text-3);
+  min-width:20px;text-align:center;
+}
+.nav-link.active .nav-badge{background:rgba(139,169,196,.18);color:var(--accent-2)}
+.nav-link .nav-badge.danger{background:rgba(177,125,125,.12);color:var(--red)}
+.nav-link.active .nav-badge.danger{background:rgba(177,125,125,.16);color:var(--red)}
+
+/* Left panel footer */
+.left-foot{
+  padding:12px;
+  border-top:1px solid var(--border);
+  flex-shrink:0;
+}
+.storage-widget{
+  padding:11px;border-radius:10px;
+  background:rgba(255,255,255,.02);
+  border:1px solid var(--border);
+}
+.storage-top{
+  display:flex;align-items:center;justify-content:space-between;
+  font-size:10.5px;color:var(--text-3);
+  margin-bottom:8px;
+}
+.storage-top b{font-size:10.5px;color:var(--text-2);font-weight:500;font-family:'JetBrains Mono',monospace}
+.storage-bar{
+  height:3px;border-radius:99px;
+  background:rgba(255,255,255,.05);
+  overflow:hidden;
+}
+.storage-bar i{
+  display:block;height:100%;width:62%;
+  background:linear-gradient(90deg,var(--accent),var(--accent-2));
+  border-radius:99px;
+}
+
+/* ============================================================
+   MAIN CONTENT
+   ============================================================ */
+.main{
+  flex:1;overflow-y:auto;
+  position:relative;
+  background:var(--bg);
+  scroll-behavior:smooth;
+}
+.main::-webkit-scrollbar{width:8px}
+.main-inner{
+  max-width:1080px;margin:0 auto;
+  padding:32px 32px 60px;
+}
+
+.view{
+  display:none;
+  animation:viewEnter .6s var(--ease);
+}
+.view.active{display:block}
+@keyframes viewEnter{
+  from{opacity:0;transform:translate3d(0,16px,0);filter:blur(6px)}
+  to{opacity:1;transform:translate3d(0,0,0);filter:blur(0)}
+}
+
+/* View header */
+.view-head{
+  display:flex;align-items:flex-end;justify-content:space-between;
+  gap:24px;margin-bottom:26px;
+  flex-wrap:wrap;
+}
+.view-title-group{min-width:0}
+.view-eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:10.5px;font-weight:600;
+  letter-spacing:.14em;text-transform:uppercase;
+  color:var(--accent-2);margin-bottom:10px;
+}
+.view-eyebrow::before{
+  content:'';width:16px;height:1px;
+  background:linear-gradient(90deg,transparent,var(--accent));
+}
+.view-title{
+  font-size:clamp(1.6rem,2.6vw,2.1rem);
+  font-weight:600;letter-spacing:-.035em;
+  line-height:1.12;
+}
+.view-sub{
+  margin-top:10px;
+  font-size:13.5px;line-height:1.65;
+  color:var(--text-2);
+  max-width:560px;
+  letter-spacing:-.005em;
+}
+.view-actions{display:flex;gap:8px;flex-wrap:wrap;flex-shrink:0}
+
+/* Buttons */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  font-size:12.5px;font-weight:500;letter-spacing:-.005em;
+  padding:8px 14px;border-radius:9px;white-space:nowrap;
+  transition:transform .25s var(--ease), background .25s, color .25s, border-color .25s, box-shadow .3s;
+  position:relative;overflow:hidden;isolation:isolate;
+}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:#e6e7e9;color:#0a0a0b}
+.btn-primary:hover{background:#fff}
+.btn-accent{background:var(--accent);color:#0a0a0b;font-weight:600}
+.btn-accent:hover{background:var(--accent-2)}
+.btn-ghost{border:1px solid var(--border-2);color:var(--text);background:transparent}
+.btn-ghost:hover{background:rgba(255,255,255,.04);border-color:var(--border-3)}
+.btn-quiet{color:var(--text-3);background:transparent}
+.btn-quiet:hover{color:var(--text);background:rgba(255,255,255,.04)}
+.btn-sm{padding:6px 11px;font-size:11.5px;border-radius:8px}
+.btn-lg{padding:11px 18px;font-size:13.5px;border-radius:10px}
+.btn svg{flex-shrink:0}
+
+.ripple{
+  position:absolute;border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle,rgba(255,255,255,.2),transparent 70%);
+  transform:translate(-50%,-50%) scale(0);
+  animation:rippleAnim .65s var(--ease-out);
+  z-index:0;
+}
+.btn-primary .ripple, .btn-accent .ripple{
+  background:radial-gradient(circle,rgba(0,0,0,.15),transparent 70%);
+}
+@keyframes rippleAnim{
+  to{transform:translate(-50%,-50%) scale(1);opacity:0}
+}
+
+/* Cards */
+.card{
+  background:linear-gradient(180deg,#0a0a0c,#08080a);
+  border:1px solid var(--border);
+  border-radius:14px;
+  position:relative;
+  overflow:hidden;
+}
+.card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.09),transparent);
+}
+.card-pad{padding:20px}
+.card-pad-lg{padding:26px}
+
+/* Metric grid */
+.metric-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:10px;margin-bottom:26px;
+}
+@media(max-width:980px){.metric-grid{grid-template-columns:repeat(2,1fr)}}
+.metric{
+  padding:16px 18px;
+  border-radius:13px;
+  background:linear-gradient(180deg,#0a0a0c,#08080a);
+  border:1px solid var(--border);
+  position:relative;overflow:hidden;
+  transition:border-color .3s, transform .4s var(--ease);
+}
+.metric:hover{border-color:var(--border-2);transform:translateY(-2px)}
+.metric-head{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:14px;
+}
+.metric-label{
+  font-size:10px;font-weight:600;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--text-4);
+}
+.metric-icon{
+  width:26px;height:26px;border-radius:8px;
+  display:grid;place-items:center;
+  background:rgba(255,255,255,.03);
+  color:var(--text-3);
+}
+.metric-icon.accent{background:var(--accent-soft);color:var(--accent-2)}
+.metric-icon.green{background:rgba(127,168,140,.08);color:var(--green)}
+.metric-icon.warn{background:rgba(179,154,109,.08);color:var(--amber)}
+.metric-icon.danger{background:rgba(177,125,125,.08);color:var(--red)}
+.metric-value{
+  font-size:26px;font-weight:600;letter-spacing:-.04em;
+  line-height:1;font-variant-numeric:tabular-nums;
+  display:flex;align-items:baseline;gap:6px;
+}
+.metric-value small{
+  font-size:12px;font-weight:500;
+  color:var(--text-3);letter-spacing:-.01em;
+}
+.metric-foot{
+  margin-top:10px;
+  font-size:11px;color:var(--text-3);
+  display:flex;align-items:center;gap:6px;
+}
+.metric-delta{
+  display:inline-flex;align-items:center;gap:3px;
+  padding:1.5px 6px;border-radius:5px;
+  font-size:10px;font-weight:600;
+  font-family:'JetBrains Mono',monospace;
+}
+.metric-delta.up{background:rgba(127,168,140,.1);color:var(--green)}
+.metric-delta.down{background:rgba(177,125,125,.1);color:var(--red)}
+
+/* Section head */
+.section-head{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:16px;gap:16px;
+  flex-wrap:wrap;
+}
+.section-title{
+  font-size:15px;font-weight:600;
+  letter-spacing:-.02em;
+  display:flex;align-items:center;gap:10px;
+}
+.section-title .count-chip{
+  font-size:10px;font-weight:600;
+  padding:2px 7px;border-radius:99px;
+  background:rgba(255,255,255,.05);
+  color:var(--text-3);
+  font-family:'JetBrains Mono',monospace;
+  letter-spacing:.02em;
+}
+.section-actions{display:flex;gap:6px;align-items:center}
+
+/* Action bar */
+.action-bar{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:8px;margin-bottom:26px;
+}
+@media(max-width:980px){.action-bar{grid-template-columns:repeat(2,1fr)}}
+.action-tile{
+  display:flex;align-items:center;gap:11px;
+  padding:13px 14px;border-radius:12px;
+  background:rgba(255,255,255,.02);
+  border:1px solid var(--border);
+  text-align:left;
+  transition:background .25s, border-color .25s, transform .3s var(--ease);
+}
+.action-tile:hover{
+  background:rgba(255,255,255,.045);
+  border-color:var(--border-2);
+  transform:translateY(-2px);
+}
+.action-tile .tile-icon{
+  width:32px;height:32px;border-radius:9px;
+  display:grid;place-items:center;flex-shrink:0;
+  background:var(--accent-soft);
+  color:var(--accent-2);
+  transition:transform .4s var(--ease);
+}
+.action-tile:hover .tile-icon{transform:scale(1.08) rotate(-4deg)}
+.action-tile .tile-meta{display:flex;flex-direction:column;line-height:1.3;min-width:0}
+.action-tile .tile-meta b{font-size:12.5px;font-weight:500;letter-spacing:-.005em}
+.action-tile .tile-meta span{font-size:10.5px;color:var(--text-4);margin-top:2px}
+
+/* Data table */
+.data-table{
+  border:1px solid var(--border);
+  border-radius:13px;
+  overflow:hidden;
+  background:linear-gradient(180deg,#0a0a0c,#08080a);
+}
+.data-row{
+  display:grid;
+  grid-template-columns:2fr 1.4fr 1fr 1fr 0.6fr;
+  gap:16px;
+  padding:14px 18px;
+  align-items:center;
+  border-bottom:1px solid var(--border);
+  font-size:12.5px;
+  transition:background .2s;
+}
+.data-row:last-child{border-bottom:none}
+.data-row.head{
+  background:rgba(255,255,255,.02);
+  font-size:10px;font-weight:600;
+  letter-spacing:.12em;text-transform:uppercase;
+  color:var(--text-4);
+}
+.data-row:not(.head):hover{background:rgba(255,255,255,.02)}
+.data-cell{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.data-cell.name{
+  display:flex;align-items:center;gap:10px;
+  font-weight:500;color:var(--text);
+}
+.data-cell.name .avatar-sm{
+  width:26px;height:26px;border-radius:7px;
+  background:#18181b;color:#d4d4d8;
+  display:grid;place-items:center;flex-shrink:0;
+  font-size:9.5px;font-weight:600;
+  font-family:'JetBrains Mono',monospace;
+  border:1px solid var(--border-2);
+}
+.data-cell.muted{color:var(--text-3)}
+.data-cell.right{text-align:right;justify-self:end}
+.status-chip{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:10.5px;font-weight:600;
+  padding:3px 8px;border-radius:99px;
+  letter-spacing:.01em;
+}
+.status-chip.green{background:rgba(127,168,140,.1);color:var(--green)}
+.status-chip.amber{background:rgba(179,154,109,.1);color:var(--amber)}
+.status-chip.red{background:rgba(177,125,125,.1);color:var(--red)}
+.status-chip.neutral{background:rgba(255,255,255,.05);color:var(--text-3)}
+.status-chip i{width:5px;height:5px;border-radius:50%;background:currentColor}
+
+/* Activity feed */
+.feed-item{
+  display:flex;gap:12px;
+  padding:13px 0;
+  border-bottom:1px dashed rgba(255,255,255,.05);
+}
+.feed-item:last-child{border-bottom:none}
+.feed-icon{
+  width:32px;height:32px;border-radius:99px;
+  display:grid;place-items:center;flex-shrink:0;
+  background:rgba(255,255,255,.03);
+  border:1px solid var(--border);
+  color:var(--text-2);
+}
+.feed-icon.accent{background:var(--accent-soft);border-color:var(--accent-border);color:var(--accent-2)}
+.feed-icon.green{background:rgba(127,168,140,.08);border-color:rgba(127,168,140,.2);color:var(--green)}
+.feed-icon.amber{background:rgba(179,154,109,.08);border-color:rgba(179,154,109,.2);color:var(--amber)}
+.feed-icon.red{background:rgba(177,125,125,.08);border-color:rgba(177,125,125,.2);color:var(--red)}
+.feed-meta{flex:1;min-width:0}
+.feed-title{
+  font-size:12.5px;font-weight:500;letter-spacing:-.005em;
+  color:var(--text);
+  display:flex;align-items:center;gap:8px;
+  flex-wrap:wrap;
+}
+.feed-title .hash{
+  font-size:10.5px;color:var(--accent-2);
+  font-family:'JetBrains Mono',monospace;
+  background:var(--accent-soft);
+  padding:1.5px 6px;border-radius:4px;
+  letter-spacing:.02em;
+}
+.feed-sub{
+  font-size:11px;color:var(--text-4);margin-top:3px;
+  display:flex;align-items:center;gap:8px;
+}
+.feed-sub .dot{width:3px;height:3px;border-radius:50%;background:var(--text-4)}
+.feed-time{
+  font-size:10.5px;color:var(--text-4);
+  font-family:'JetBrains Mono',monospace;
+  flex-shrink:0;
+  margin-top:2px;
+}
+
+/* Progress bars */
+.progress-track{
+  height:4px;border-radius:99px;
+  background:rgba(255,255,255,.05);
+  overflow:hidden;
+}
+.progress-fill{
+  height:100%;border-radius:99px;
+  background:linear-gradient(90deg,var(--accent),var(--accent-2));
+  transition:width 1.6s var(--ease);
+  position:relative;
+}
+.progress-fill::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent);
+  animation:progSweep 3s linear infinite;
+}
+@keyframes progSweep{
+  0%{transform:translateX(-100%)}
+  100%{transform:translateX(200%)}
+}
+.progress-fill.green{background:linear-gradient(90deg,rgba(127,168,140,.7),rgba(127,168,140,1))}
+.progress-fill.amber{background:linear-gradient(90deg,rgba(179,154,109,.7),rgba(179,154,109,1))}
+.progress-fill.red{background:linear-gradient(90deg,rgba(177,125,125,.7),rgba(177,125,125,1))}
+
+/* Attendance row */
+.attn-row{
+  display:grid;
+  grid-template-columns:1.4fr 2fr 0.8fr 0.9fr;
+  align-items:center;
+  gap:16px;
+  padding:14px 18px;
+  border-bottom:1px solid var(--border);
+  font-size:12.5px;
+  transition:background .2s;
+}
+.attn-row:last-child{border-bottom:none}
+.attn-row:hover{background:rgba(255,255,255,.02)}
+.attn-name{
+  display:flex;align-items:center;gap:11px;
+  font-weight:500;
+}
+.attn-name .avatar-sm{
+  width:28px;height:28px;border-radius:8px;
+  background:#18181b;color:#d4d4d8;
+  display:grid;place-items:center;flex-shrink:0;
+  font-size:10px;font-weight:600;
+  font-family:'JetBrains Mono',monospace;
+  border:1px solid var(--border-2);
+}
+.attn-name-meta{display:flex;flex-direction:column;line-height:1.25;min-width:0}
+.attn-name-meta b{font-size:12.5px;font-weight:500;letter-spacing:-.005em}
+.attn-name-meta span{font-size:10px;color:var(--text-4);font-family:'JetBrains Mono',monospace;margin-top:1px}
+.attn-bar-wrap{display:flex;flex-direction:column;gap:6px}
+.attn-bar-top{
+  display:flex;justify-content:space-between;
+  font-size:10.5px;color:var(--text-3);font-weight:500;
+}
+.attn-bar-top b{
+  font-family:'JetBrains Mono',monospace;
+  font-weight:600;color:var(--text);
+  font-size:11px;
+}
+.attn-pct{
+  font-family:'JetBrains Mono',monospace;
+  font-size:13px;font-weight:600;
+  text-align:right;
+}
+.attn-pct.good{color:var(--green)}
+.attn-pct.warn{color:var(--amber)}
+.attn-pct.bad{color:var(--red)}
+.attn-status{display:flex;justify-content:flex-end}
+
+/* Resource grid */
+.res-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:12px;
+}
+@media(max-width:980px){.res-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.res-grid{grid-template-columns:1fr}}
+.res-card{
+  padding:18px;
+  border-radius:13px;
+  background:linear-gradient(180deg,#0a0a0c,#08080a);
+  border:1px solid var(--border);
+  transition:border-color .3s, transform .4s var(--ease), background .3s;
+  cursor:pointer;
+  position:relative;overflow:hidden;
+}
+.res-card:hover{
+  border-color:var(--border-3);
+  background:linear-gradient(180deg,#0d0d10,#0a0a0c);
+  transform:translateY(-3px);
+}
+.res-head{
+  display:flex;align-items:flex-start;justify-content:space-between;
+  margin-bottom:16px;
+}
+.res-icon{
+  width:36px;height:36px;border-radius:10px;
+  display:grid;place-items:center;
+  background:rgba(255,255,255,.03);
+  border:1px solid var(--border-2);
+  color:var(--text-2);
+  transition:transform .5s var(--ease);
+}
+.res-card:hover .res-icon{transform:scale(1.06) rotate(-4deg);color:var(--accent-2)}
+.res-type{
+  font-size:9.5px;font-weight:600;
+  letter-spacing:.12em;text-transform:uppercase;
+  padding:3px 7px;border-radius:5px;
+  background:rgba(255,255,255,.04);
+  color:var(--text-3);
+  font-family:'JetBrains Mono',monospace;
+}
+.res-title{
+  font-size:13.5px;font-weight:500;
+  letter-spacing:-.01em;line-height:1.35;
+  margin-bottom:8px;
+}
+.res-meta{
+  display:flex;align-items:center;gap:10px;
+  font-size:11px;color:var(--text-4);
+}
+.res-meta .dot{width:3px;height:3px;border-radius:50%;background:var(--text-4)}
+
+/* Poll card */
+.poll-list{display:flex;flex-direction:column;gap:12px}
+.poll-card{padding:20px}
+.poll-head{
+  display:flex;align-items:flex-start;justify-content:space-between;
+  gap:16px;margin-bottom:6px;flex-wrap:wrap;
+}
+.poll-title{
+  font-size:14.5px;font-weight:500;
+  letter-spacing:-.015em;line-height:1.35;
+}
+.poll-desc{
+  font-size:12px;color:var(--text-3);line-height:1.55;
+  margin-bottom:16px;
+}
+.poll-meta{
+  display:flex;align-items:center;gap:12px;
+  font-size:11px;color:var(--text-4);margin-bottom:16px;
+  flex-wrap:wrap;
+}
+.poll-meta .tag{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:3px 8px;border-radius:6px;
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--border);
+  font-size:10.5px;
+  font-weight:500;
+}
+.poll-meta .tag.live{background:rgba(127,168,140,.08);border-color:rgba(127,168,140,.2);color:var(--green)}
+.poll-options{display:flex;flex-direction:column;gap:8px}
+.poll-option{
+  display:flex;align-items:center;gap:12px;
+  padding:11px 14px;border-radius:10px;
+  border:1px solid var(--border);
+  background:rgba(255,255,255,.015);
+  text-align:left;width:100%;
+  transition:all .3s var(--ease);
+  position:relative;overflow:hidden;
+}
+.poll-option:hover:not(.voted){background:rgba(255,255,255,.04);border-color:var(--border-2)}
+.poll-option.voted{border-color:var(--accent-border);background:var(--accent-soft)}
+.poll-option-bar{
+  position:absolute;left:0;top:0;bottom:0;
+  background:rgba(139,169,196,.08);
+  z-index:0;transition:width 1s var(--ease);
+}
+.poll-option.voted .poll-option-bar{background:rgba(139,169,196,.14)}
+.poll-option-content{
+  position:relative;z-index:1;
+  display:flex;align-items:center;gap:11px;width:100%;
+}
+.poll-radio{
+  width:16px;height:16px;border-radius:50%;
+  border:1.5px solid var(--border-3);
+  flex-shrink:0;
+  display:grid;place-items:center;
+  transition:border-color .25s;
+}
+.poll-radio::after{
+  content:'';width:7px;height:7px;border-radius:50%;
+  background:var(--accent);transform:scale(0);
+  transition:transform .25s var(--ease);
+}
+.poll-option.voted .poll-radio{border-color:var(--accent)}
+.poll-option.voted .poll-radio::after{transform:scale(1)}
+.poll-label{
+  font-size:12.5px;font-weight:500;letter-spacing:-.005em;
+  flex:1;
+}
+.poll-count{
+  font-size:11px;font-weight:600;
+  font-family:'JetBrains Mono',monospace;
+  color:var(--text-3);
+}
+.poll-option.voted .poll-count{color:var(--accent-2)}
+
+/* Broadcast card */
+.bc-card{
+  padding:20px;
+  border-radius:13px;
+  background:linear-gradient(180deg,#0a0a0c,#08080a);
+  border:1px solid var(--border);
+  position:relative;overflow:hidden;
+  margin-bottom:10px;
+}
+.bc-card.pinned{
+  border-color:var(--accent-border);
+  background:linear-gradient(180deg,rgba(139,169,196,.04),rgba(139,169,196,.01));
+}
+.bc-pin{
+  position:absolute;top:16px;right:16px;
+  width:24px;height:24px;border-radius:6px;
+  display:grid;place-items:center;
+  background:var(--accent-soft);color:var(--accent-2);
+}
+.bc-head{
+  display:flex;align-items:center;gap:11px;
+  margin-bottom:12px;
+}
+.bc-avatar{
+  width:32px;height:32px;border-radius:50%;
+  background:#18181b;color:#d4d4d8;
+  display:grid;place-items:center;
+  font-size:11px;font-weight:600;
+  font-family:'JetBrains Mono',monospace;
+  border:1px solid var(--border-2);
+}
+.bc-meta{display:flex;flex-direction:column;line-height:1.25}
+.bc-meta b{font-size:12.5px;font-weight:500}
+.bc-meta span{font-size:10.5px;color:var(--text-4);margin-top:1px;font-family:'JetBrains Mono',monospace}
+.bc-content{
+  font-size:13px;line-height:1.65;color:var(--text-2);
+  letter-spacing:-.005em;
+  padding-right:36px;
+}
+.bc-foot{
+  display:flex;align-items:center;gap:16px;
+  margin-top:16px;padding-top:14px;
+  border-top:1px dashed rgba(255,255,255,.06);
+  font-size:11.5px;color:var(--text-4);
+}
+.bc-foot .reaction{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:3px 8px;border-radius:99px;
+  background:rgba(255,255,255,.04);
+  cursor:pointer;
+  transition:background .2s, color .2s;
+  font-family:'JetBrains Mono',monospace;
+  font-size:10.5px;
+  font-weight:600;
+}
+.bc-foot .reaction:hover{background:rgba(255,255,255,.08);color:var(--text-2)}
+
+/* Calendar */
+.calendar-grid{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:1px;
+  background:var(--border);
+  border-radius:13px;
+  overflow:hidden;
+  border:1px solid var(--border);
+}
+.cal-cell{
+  background:#0a0a0c;
+  aspect-ratio:1;
+  padding:9px;
+  display:flex;flex-direction:column;
+  gap:4px;
+  transition:background .2s;
+  cursor:pointer;
+  position:relative;
+}
+.cal-cell:hover{background:#0f0f12}
+.cal-cell.head{
+  aspect-ratio:auto;
+  padding:10px 9px;
+  background:rgba(255,255,255,.02);
+  font-size:9.5px;font-weight:600;
+  letter-spacing:.12em;text-transform:uppercase;
+  color:var(--text-4);
+  cursor:default;
+}
+.cal-cell.head:hover{background:rgba(255,255,255,.02)}
+.cal-cell.other{opacity:.28}
+.cal-cell.today{background:rgba(139,169,196,.06)}
+.cal-cell.today .cal-num{color:var(--accent-2);font-weight:600}
+.cal-num{
+  font-size:11.5px;font-weight:500;
+  font-variant-numeric:tabular-nums;
+  color:var(--text-2);
+}
+.cal-events{display:flex;flex-direction:column;gap:2px}
+.cal-event{
+  font-size:9px;font-weight:500;
+  padding:2px 5px;border-radius:4px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.cal-event.accent{background:var(--accent-soft);color:var(--accent-2)}
+.cal-event.warn{background:rgba(179,154,109,.12);color:var(--amber)}
+.cal-event.red{background:rgba(177,125,125,.12);color:var(--red)}
+
+/* Settings */
+.settings-group{margin-bottom:24px}
+.settings-group h4{
+  font-size:11px;font-weight:600;
+  letter-spacing:.12em;text-transform:uppercase;
+  color:var(--text-4);margin-bottom:12px;
+}
+.settings-row{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:16px;padding:14px 16px;
+  border-bottom:1px solid var(--border);
+  transition:background .2s;
+}
+.settings-row:last-child{border-bottom:none}
+.settings-row:first-of-type{border-top:1px solid var(--border)}
+.settings-row:hover{background:rgba(255,255,255,.015)}
+.settings-row-meta{min-width:0}
+.settings-row-meta b{font-size:12.5px;font-weight:500;display:block}
+.settings-row-meta span{font-size:11px;color:var(--text-4);display:block;margin-top:2px}
+.settings-actions{display:flex;gap:6px;flex-shrink:0}
+
+.toggle{
+  width:34px;height:20px;border-radius:99px;
+  background:rgba(255,255,255,.08);
+  position:relative;
+  transition:background .3s var(--ease);
+  flex-shrink:0;
+}
+.toggle::after{
+  content:'';position:absolute;top:2px;left:2px;
+  width:16px;height:16px;border-radius:50%;
+  background:#e6e7e9;
+  transition:transform .3s var(--ease);
+}
+.toggle.on{background:var(--accent)}
+.toggle.on::after{transform:translateX(14px)}
+
+/* Empty state */
+.empty-state{
+  padding:60px 24px;text-align:center;
+  border-radius:13px;
+  background:linear-gradient(180deg,#0a0a0c,#08080a);
+  border:1px dashed var(--border-2);
+}
+.empty-state svg{color:var(--text-4);margin:0 auto 16px}
+.empty-state h3{font-size:14.5px;font-weight:500;letter-spacing:-.01em;margin-bottom:8px}
+.empty-state p{font-size:12.5px;color:var(--text-3);line-height:1.6;max-width:360px;margin:0 auto}
+
+/* ============================================================
+   RIGHT PANEL
+   ============================================================ */
+.right-panel{
+  width:var(--right-w);flex-shrink:0;
+  border-left:1px solid var(--border);
+  background:rgba(0,0,0,.4);
+  display:flex;flex-direction:column;
+  overflow:hidden;
+  transition:width .4s var(--ease);
+}
+.right-panel.collapsed{width:0;border-left-width:0}
+.right-scroll{
+  flex:1;overflow-y:auto;
+  padding:14px 14px 20px;
+  display:flex;flex-direction:column;gap:14px;
+}
+.right-scroll::-webkit-scrollbar{width:0}
+.widget{
+  padding:14px;
+  border-radius:12px;
+  background:linear-gradient(180deg,#0a0a0c,#08080a);
+  border:1px solid var(--border);
+}
+.widget-head{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:12px;
+}
+.widget-title{
+  font-size:11px;font-weight:600;
+  letter-spacing:.12em;text-transform:uppercase;
+  color:var(--text-4);
+  display:flex;align-items:center;gap:7px;
+}
+.widget-title svg{color:var(--text-3)}
+
+.schedule-list{display:flex;flex-direction:column;gap:8px}
+.schedule-item{
+  display:flex;align-items:center;gap:11px;
+  padding:10px 11px;border-radius:9px;
+  background:rgba(255,255,255,.015);
+  border:1px solid var(--border);
+  transition:background .25s, border-color .25s;
+}
+.schedule-item:hover{background:rgba(255,255,255,.035);border-color:var(--border-2)}
+.schedule-item.now{
+  border-color:var(--accent-border);
+  background:var(--accent-soft);
+}
+.schedule-time{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;font-weight:600;
+  color:var(--text-3);
+  flex-shrink:0;
+  min-width:44px;
+}
+.schedule-item.now .schedule-time{color:var(--accent-2)}
+.schedule-body{flex:1;min-width:0}
+.schedule-body b{font-size:12px;font-weight:500;display:block;letter-spacing:-.005em}
+.schedule-body span{font-size:10.5px;color:var(--text-4);display:block;margin-top:1px}
+.schedule-status{
+  font-size:9.5px;font-weight:600;
+  padding:2px 6px;border-radius:99px;
+  letter-spacing:.02em;
+}
+.schedule-status.live{background:rgba(127,168,140,.12);color:var(--green)}
+.schedule-status.next{background:rgba(255,255,255,.05);color:var(--text-3)}
+
+.scratchpad textarea{
+  width:100%;
+  min-height:130px;
+  padding:11px 12px;
+  border-radius:9px;
+  background:rgba(255,255,255,.02);
+  border:1px solid var(--border);
+  color:var(--text-2);
+  font-size:12px;
+  line-height:1.55;
+  font-family:inherit;
+  resize:vertical;
+  letter-spacing:-.005em;
+  transition:border-color .25s, background .25s;
+}
+.scratchpad textarea:focus{
+  outline:none;
+  border-color:var(--accent-border);
+  background:rgba(139,169,196,.03);
+}
+.scratchpad textarea::placeholder{color:var(--text-4)}
+.scratchpad-save{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-top:8px;
+  font-size:10px;color:var(--text-4);
+  font-family:'JetBrains Mono',monospace;
+}
+
+.verify-input{
+  width:100%;padding:9px 11px;border-radius:8px;
+  background:rgba(255,255,255,.02);
+  border:1px solid var(--border);
+  color:var(--text);
+  font-size:11.5px;
+  font-family:'JetBrains Mono',monospace;
+  transition:border-color .25s, background .25s;
+}
+.verify-input:focus{
+  outline:none;
+  border-color:var(--accent-border);
+  background:rgba(139,169,196,.03);
+}
+.verify-input::placeholder{color:var(--text-4);font-family:inherit}
+.verify-result{
+  margin-top:10px;
+  padding:10px 11px;border-radius:8px;
+  background:rgba(255,255,255,.02);
+  border:1px dashed var(--border-2);
+  font-size:11px;color:var(--text-3);
+  line-height:1.5;
+}
+.verify-result.valid{
+  background:rgba(127,168,140,.06);
+  border-color:rgba(127,168,140,.3);
+  color:var(--green);
+}
+.verify-result.invalid{
+  background:rgba(177,125,125,.06);
+  border-color:rgba(177,125,125,.3);
+  color:var(--red);
+}
+
+/* ============================================================
+   MOBILE NAV
+   ============================================================ */
+.mobile-nav{
+  display:none;
+  height:60px;
+  border-top:1px solid var(--border);
+  background:rgba(0,0,0,.85);
+  backdrop-filter:blur(20px) saturate(160%);
+  -webkit-backdrop-filter:blur(20px) saturate(160%);
+  padding:0 12px;
+  align-items:center;
+  justify-content:space-around;
+  flex-shrink:0;
+  position:relative;
+  z-index:20;
+}
+.mobile-nav-btn{
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:8px 12px;border-radius:9px;
+  color:var(--text-4);
+  transition:color .25s, background .25s;
+  flex:1;
+}
+.mobile-nav-btn:hover{background:rgba(255,255,255,.03);color:var(--text-2)}
+.mobile-nav-btn.active{color:var(--accent-2)}
+.mobile-nav-btn span{font-size:9.5px;font-weight:500;letter-spacing:.02em}
+
+@media(max-width:1180px){
+  :root{--left-w:220px;--right-w:280px}
+}
+@media(max-width:1020px){
+  .right-panel{display:none}
+}
+@media(max-width:860px){
+  .left-panel{position:absolute;left:0;top:0;bottom:0;z-index:15;background:rgba(0,0,0,.96);backdrop-filter:blur(20px)}
+  .left-panel:not(.collapsed){box-shadow:20px 0 60px -20px rgba(0,0,0,.9)}
+  .main-inner{padding:24px 20px 80px}
+  .mobile-nav{display:flex}
+  .header{padding:0 12px}
+  .class-pill, .live-pill{display:none}
+  .mobile-only{display:grid !important}
+}
+.mobile-only{display:none}
+
+/* ============================================================
+   MODAL
+   ============================================================ */
+.modal-back{
+  position:fixed;inset:0;z-index:200;
+  display:grid;place-items:center;padding:20px;
+  background:rgba(0,0,0,.72);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  opacity:0;pointer-events:none;
+  transition:opacity .3s;
+}
+.modal-back.open{opacity:1;pointer-events:auto}
+.modal{
+  width:min(480px,100%);
+  border-radius:18px;
+  padding:26px;
+  position:relative;
+  background:linear-gradient(180deg,#101013,#0a0a0c);
+  border:1px solid var(--border-2);
+  box-shadow:0 60px 120px -40px rgba(0,0,0,1);
+  transform:translate3d(0,16px,0) scale(.98);
+  transition:transform .4s var(--ease);
+  max-height:86vh;overflow-y:auto;
+}
+.modal-back.open .modal{transform:translate3d(0,0,0) scale(1)}
+.modal-x{
+  position:absolute;top:14px;right:14px;
+  width:30px;height:30px;border-radius:8px;
+  display:grid;place-items:center;
+  color:var(--text-3);
+  transition:background .2s,color .2s;
+}
+.modal-x:hover{background:rgba(255,255,255,.06);color:var(--text)}
+.modal h3{
+  font-size:17px;font-weight:600;
+  letter-spacing:-.025em;padding-right:34px;
+}
+.modal-sub{
+  font-size:12.5px;color:var(--text-3);
+  margin-top:8px;line-height:1.6;
+  letter-spacing:-.005em;
+}
+.form-row{margin-bottom:14px}
+.form-row:first-of-type{margin-top:22px}
+.form-row label{
+  display:block;font-size:10.5px;font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase;
+  color:var(--text-4);margin-bottom:8px;
+}
+.input, .select{
+  width:100%;padding:11px 13px;border-radius:9px;
+  font-size:13px;
+  background:rgba(255,255,255,.02);
+  border:1px solid var(--border);
+  color:var(--text);
+  transition:border-color .25s, background .25s, box-shadow .25s;
+  letter-spacing:-.005em;
+}
+.input::placeholder{color:var(--text-4)}
+.input:focus, .select:focus{
+  border-color:var(--accent-border);
+  background:rgba(139,169,196,.04);
+  box-shadow:0 0 0 3px rgba(139,169,196,.08);
+}
+.select option{background:#0c0c0e}
+
+/* Toast */
+.toast{
+  position:fixed;left:50%;bottom:28px;
+  transform:translate3d(-50%,24px,0);z-index:300;
+  display:flex;align-items:center;gap:11px;
+  padding:11px 17px;border-radius:12px;
+  font-size:12.5px;font-weight:500;
+  background:rgba(12,12,15,.95);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  border:1px solid var(--border-2);
+  box-shadow:0 30px 60px -20px rgba(0,0,0,1);
+  opacity:0;pointer-events:none;
+  transition:all .4s var(--ease);
+  max-width:90vw;letter-spacing:-.005em;
+}
+.toast.show{opacity:1;transform:translate3d(-50%,0,0)}
+.toast-icon{
+  width:19px;height:19px;border-radius:50%;
+  display:grid;place-items:center;flex-shrink:0;
+}
+
+/* Utility */
+.flex{display:flex}
+.items-center{align-items:center}
+.gap-2{gap:8px}
+.gap-3{gap:12px}
+.mt-3{margin-top:12px}
+.mt-4{margin-top:16px}
+.mt-5{margin-top:20px}
+.hidden{display:none}
+
+/* Signal rail for workspace (thinner, subtler) */
+.ws-rail{
+  position:fixed;right:0;top:var(--header-h);
+  bottom:0;
+  width:3px;
+  pointer-events:none;
+  z-index:10;
+  overflow:hidden;
+}
+.ws-rail-fill{
+  position:absolute;top:0;left:0;right:0;
+  background:linear-gradient(180deg,rgba(139,169,196,.6),rgba(139,169,196,.15));
+  height:0;
+  transition:height .1s linear;
+  box-shadow:0 0 12px rgba(139,169,196,.4);
+}
+</style>
+</head>
+<body>
+
+<!-- Custom cursor -->
+<div class="cursor-ring" id="cursorRing"></div>
+<div class="cursor-dot" id="cursorDot"></div>
+
+<!-- Grain -->
+<div class="grain"></div>
+
+<!-- Workspace rail (thin right progress) -->
+<div class="ws-rail" id="wsRail">
+  <div class="ws-rail-fill" id="wsRailFill"></div>
+</div>
+
+<div class="app">
+  <!-- ==================================================
+       HEADER
+       ================================================== -->
+  <header class="header">
+    <button class="brand" id="brandBtn" title="Back to landing">
+      <span class="brand-mark">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+        </svg>
+      </span>
+      <span class="brand-text"><b>StudySync</b><span>Hub</span></span>
+    </button>
+
+    <div class="class-pill" id="classPill" role="button" tabindex="0">
+      <span class="label">AIML 2026</span>
+      <b>·</b>
+      <span class="code mono" id="classCode" title="Click to reveal">••••••</span>
+    </div>
+
+    <div class="live-pill" id="livePill" role="button" tabindex="0">
+      <i></i>
+      <span id="liveLabel">Live Sync</span>
+    </div>
+
+    <button class="icon-btn mobile-only" id="menuBtn" title="Menu">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+        <path d="M3 6h18M3 12h18M3 18h18"/>
+      </svg>
+    </button>
+
+    <div class="header-spacer"></div>
+
+    <!-- Action dock -->
+    <button class="icon-btn" id="soundscapesBtn" title="Focus soundscapes">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 14v-2a9 9 0 0 1 18 0v2"/>
+        <rect x="1" y="14" width="6" height="8" rx="2"/>
+        <rect x="17" y="14" width="6" height="8" rx="2"/>
+      </svg>
+    </button>
+
+    <button class="icon-btn" id="achievementsBtn" title="Achievements">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="8" r="6"/>
+        <path d="m8.21 13.89-1.21 6L12 17l5 2.89-1.21-6"/>
+      </svg>
+      <span class="dot-badge"></span>
+    </button>
+
+    <button class="icon-btn" id="shortcutsBtn" title="Keyboard shortcuts">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="6" width="20" height="12" rx="2"/>
+        <path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M6 14h12"/>
+      </svg>
+    </button>
+
+    <button class="icon-btn" id="rolePortalsBtn" title="Switch role">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
+    </button>
+
+    <button class="icon-btn" id="notifBtn" title="Notifications">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/>
+        <path d="M13.7 21a2 2 0 0 1-3.4 0"/>
+      </svg>
+      <span class="count-badge" id="notifBadge">3</span>
+    </button>
+
+    <button class="user-switch" id="userSwitch">
+      <span class="user-avatar" id="userAvatar">RS</span>
+      <span class="user-info">
+        <b id="userName">Ribhav Sharma</b>
+        <span id="userRole">Class Rep</span>
+      </span>
+    </button>
+  </header>
+
+  <!-- Notification dropdown -->
+  <div class="notif-menu" id="notifMenu">
+    <div class="notif-head">
+      <b>Notifications</b>
+      <button id="markRead">Mark all read</button>
+    </div>
+    <div class="notif-list" id="notifList"></div>
+  </div>
+
+  <!-- Role switcher dropdown -->
+  <div class="role-menu" id="roleMenu">
+    <div class="notif-head" style="border-bottom:1px solid var(--border);padding:8px 12px 10px;">
+      <b>Switch identity</b>
+    </div>
+    <button class="role-menu-item active" data-user="ribhav">
+      <span class="avatar">RS</span>
+      <span class="meta"><b>Ribhav Sharma</b><span>CS21532 · AIML 2026</span></span>
+      <span class="role-chip">CR</span>
+    </button>
+    <button class="role-menu-item" data-user="aaditya">
+      <span class="avatar">AV</span>
+      <span class="meta"><b>Aaditya Verma</b><span>CS21571 · AIML 2026</span></span>
+      <span class="role-chip">STUDENT</span>
+    </button>
+    <button class="role-menu-item" data-user="sundaram">
+      <span class="avatar">MS</span>
+      <span class="meta"><b>Dr. M. Sundaram</b><span>Faculty · AIML Department</span></span>
+      <span class="role-chip">FACULTY</span>
+    </button>
+  </div>
+
+  <!-- ==================================================
+       BODY
+       ================================================== -->
+  <div class="app-body">
+    <!-- LEFT PANEL -->
+    <aside class="left-panel" id="leftPanel">
+      <div class="left-scroll" id="navScroll">
+        <!-- populated by JS -->
+      </div>
+      <div class="left-foot">
+        <div class="storage-widget">
+          <div class="storage-top">
+            <span>Offline cache</span>
+            <b>62%</b>
+          </div>
+          <div class="storage-bar"><i></i></div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main" id="mainScroll">
+      <div class="main-inner" id="mainInner">
+        <!-- views populated by JS -->
+      </div>
+    </main>
+
+    <!-- RIGHT PANEL -->
+    <aside class="right-panel" id="rightPanel">
+      <div class="right-scroll">
+        <!-- Schedule -->
+        <div class="widget">
+          <div class="widget-head">
+            <div class="widget-title">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 6v6l4 2"/>
+              </svg>
+              Today's Schedule
+            </div>
+          </div>
+          <div class="schedule-list" id="scheduleList"></div>
+        </div>
+
+        <!-- Verify submission -->
+        <div class="widget">
+          <div class="widget-head">
+            <div class="widget-title">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                <path d="m9 12 2 2 4-4"/>
+              </svg>
+              Verify Submission
+            </div>
+          </div>
+          <input class="verify-input" id="verifyInput" placeholder="Paste SHA-256 hash" />
+          <div class="verify-result" id="verifyResult">Enter a hash to verify it against the local ledger.</div>
+        </div>
+
+        <!-- Scratchpad -->
+        <div class="widget scratchpad">
+          <div class="widget-head">
+            <div class="widget-title">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 20h9"/>
+                <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>
+              </svg>
+              Scratchpad
+            </div>
+          </div>
+          <textarea id="scratch" placeholder="Notes persist locally…"></textarea>
+          <div class="scratchpad-save">
+            <span id="scratchStatus">Ready</span>
+            <span id="scratchSaved">—</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- MOBILE NAV -->
+  <nav class="mobile-nav" id="mobileNav">
+    <button class="mobile-nav-btn active" data-tab="dashboard">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+        <path d="M9 22V12h6v10"/>
+      </svg>
+      <span>Home</span>
+    </button>
+    <button class="mobile-nav-btn" data-tab="assignments">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <path d="M14 2v6h6"/>
+      </svg>
+      <span>Tasks</span>
+    </button>
+    <button class="mobile-nav-btn" data-tab="attendance">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 3v18h18"/>
+        <path d="m19 9-5 5-4-4-3 3"/>
+      </svg>
+      <span>Radar</span>
+    </button>
+    <button class="mobile-nav-btn" data-tab="resources">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+      </svg>
+      <span>Vault</span>
+    </button>
+    <button class="mobile-nav-btn" data-tab="more">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+        <circle cx="12" cy="12" r="1.5"/>
+        <circle cx="12" cy="5" r="1.5"/>
+        <circle cx="12" cy="19" r="1.5"/>
+      </svg>
+      <span>More</span>
+    </button>
+  </nav>
+</div>
+
+<!-- ==================================================
+     MODALS
+     ================================================== -->
+<div class="modal-back" id="modalBack">
+  <div class="modal" id="modal">
+    <button class="modal-x" id="modalX" aria-label="Close">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+        <path d="M18 6 6 18M6 6l12 12"/>
+      </svg>
+    </button>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span class="toast-icon" id="toastIcon"></span>
+  <span id="toastMsg">Done</span>
+</div>
+
+<script>
+/* ============================================================
+   HELPERS
+   ============================================================ */
+const $  = (s, c = document) => c.querySelector(s);
+const $$ = (s, c = document) => Array.from(c.querySelectorAll(s));
+const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+const lerp  = (a, b, t) => a + (b - a) * t;
+
+/* ============================================================
+   STATE
+   ============================================================ */
+const state = {
+  activeTab: 'dashboard',
+  activeUser: 'ribhav',
+  activeRole: 'CR',
+  liveOnline: true,
+  notifications: [
+    { id: 1, type: 'accent', icon: 'file', title: 'Fluid Mechanics Lab 4', sub: '28 students pending submission', time: '2m', unread: true },
+    { id: 2, type: 'warn', icon: 'alert', title: '4 defaulters flagged', sub: 'Below 75% threshold this week', time: '18m', unread: true },
+    { id: 3, type: 'accent', icon: 'megaphone', title: 'Broadcast pinned by CR', sub: 'Viva schedule released', time: '1h', unread: true },
+    { id: 4, type: 'default', icon: 'check', title: 'Aaditya Verma submitted', sub: 'Engineering Maths — Assignment 3', time: '2h', unread: false },
+    { id: 5, type: 'default', icon: 'user', title: 'New student joined', sub: 'Sneha Nair · CS21566', time: '5h', unread: false }
+  ],
+  polls: [
+    {
+      id: 'p1', title: 'Viva slot preference — Fluid Mechanics',
+      desc: 'Pick the slot that works best. Anonymous. One vote per student.',
+      total: 41, closes: '3h', voted: null,
+      options: [
+        { id: 'o1', label: 'Monday 10:00 AM', votes: 14 },
+        { id: 'o2', label: 'Tuesday 02:00 PM', votes: 19 },
+        { id: 'o3', label: 'Wednesday 11:00 AM', votes: 8 }
+      ]
+    },
+    {
+      id: 'p2', title: 'Elective selection — Semester 7',
+      desc: 'Which elective should we request as a cohort?',
+      total: 48, closes: '1d', voted: null,
+      options: [
+        { id: 'o1', label: 'Deep Learning (Prof. Ramesh)', votes: 22 },
+        { id: 'o2', label: 'Cloud Architecture (Prof. Nair)', votes: 17 },
+        { id: 'o3', label: 'Cyber Security (Prof. Rao)', votes: 9 }
+      ]
+    }
+  ],
+  scratchTimer: null,
+  cursor: { x: -100, y: -100, rx: -100, ry: -100, active: false, down: false },
+  raf: null,
+  lastY: 0
+};
+
+/* ============================================================
+   DATA — students, assignments, submissions, resources
+   ============================================================ */
+const STUDENTS = [
+  { id: 's1', name: 'Rohan Kulkarni', code: 'CS21554', rfc: 'STU-AIML26WIL054', att: 68.4, sessions: 25, total: 36 },
+  { id: 's2', name: 'Aaditya Verma', code: 'CS21571', rfc: 'STU-AIML26WIL071', att: 92.0, sessions: 33, total: 36 },
+  { id: 's3', name: 'Sneha Nair', code: 'CS21566', rfc: 'STU-AIML26WIL066', att: 88.1, sessions: 32, total: 36 },
+  { id: 's4', name: 'Karan Mehta', code: 'CS21542', rfc: 'STU-AIML26WIL042', att: 71.2, sessions: 26, total: 36 },
+  { id: 's5', name: 'Priya Desai', code: 'CS21538', rfc: 'STU-AIML26WIL038', att: 94.4, sessions: 34, total: 36 },
+  { id: 's6', name: 'Vivek Singh', code: 'CS21560', rfc: 'STU-AIML26WIL060', att: 79.6, sessions: 29, total: 36 },
+  { id: 's7', name: 'Ananya Iyer', code: 'CS21549', rfc: 'STU-AIML26WIL049', att: 86.1, sessions: 31, total: 36 },
+  { id: 's8', name: 'Sahil Khan', code: 'CS21545', rfc: 'STU-AIML26WIL045', att: 73.8, sessions: 27, total: 36 },
+  { id: 's9', name: 'Neha Reddy', code: 'CS21562', rfc: 'STU-AIML26WIL062', att: 90.2, sessions: 32, total: 36 },
+  { id: 's10', name: 'Arjun Nambiar', code: 'CS21577', rfc: 'STU-AIML26WIL077', att: 82.5, sessions: 30, total: 36 }
+];
+
+const SUBMISSIONS = [
+  { id: 'sub1', student: 'Aaditya Verma', code: 'CS21571', assignment: 'Fluid Mechanics — Lab 4', ts: '2 min ago', hash: '0x7f4a8d1c3e9b2a6f', status: 'verified' },
+  { id: 'sub2', student: 'Sneha Nair', code: 'CS21566', assignment: 'Fluid Mechanics — Lab 4', ts: '14 min ago', hash: '0x2c8e9f5b7a1d4e3c', status: 'verified' },
+  { id: 'sub3', student: 'Priya Desai', code: 'CS21538', assignment: 'Fluid Mechanics — Lab 4', ts: '32 min ago', hash: '0x9b3a7e2d5f8c1a4b', status: 'verified' },
+  { id: 'sub4', student: 'Vivek Singh', code: 'CS21560', assignment: 'Engineering Maths — A3', ts: '1h ago', hash: '0x4d8f2b9e6a3c7f1e', status: 'verified' },
+  { id: 'sub5', student: 'Ananya Iyer', code: 'CS21549', assignment: 'Engineering Maths — A3', ts: '1h 22m ago', hash: '0x1f6c9a4d2e7b8f3a', status: 'verified' },
+  { id: 'sub6', student: 'Rohan Kulkarni', code: 'CS21554', assignment: 'Fluid Mechanics — Lab 4', ts: '2h ago', hash: '0x5a2e9c7b4f1d8a3e', status: 'verified' },
+  { id: 'sub7', student: 'Neha Reddy', code: 'CS21562', assignment: 'Engineering Maths — A3', ts: '3h ago', hash: '0x8b1e4f7a3c9d2b5f', status: 'verified' },
+  { id: 'sub8', student: 'Sahil Khan', code: 'CS21545', assignment: 'Fluid Mechanics — Lab 4', ts: '4h ago', hash: '0x3c7f2e9a6d1b8c4e', status: 'verified' }
+];
+
+const ASSIGNMENTS = [
+  { id: 'a1', title: 'Fluid Mechanics — Lab Experiment 4', subject: 'Fluid Mechanics', due: 'Tomorrow · 5:00 PM', submitted: 34, total: 48, status: 'active', hash: '0x7f4a8d1c' },
+  { id: 'a2', title: 'Engineering Maths — Assignment 3', subject: 'Engineering Maths', due: 'Friday · 11:59 PM', submitted: 28, total: 48, status: 'active', hash: '0x2c8e9f5b' },
+  { id: 'a3', title: 'Data Structures — Viva Submission', subject: 'Data Structures', due: 'Next Monday', submitted: 12, total: 48, status: 'active', hash: '0x9b3a7e2d' },
+  { id: 'a4', title: 'Operating Systems — Case Study', subject: 'Operating Systems', due: 'Past — Closed', submitted: 48, total: 48, status: 'closed', hash: '0x4d8f2b9e' }
+];
+
+const RESOURCES = [
+  { id: 'r1', title: 'Bernoulli\'s Theorem — Unit 3 Notes', type: 'PDF', size: '2.4 MB', author: 'Dr. M. Sundaram', added: '2d ago' },
+  { id: 'r2', title: 'PYQ 2024 — Engineering Maths', type: 'PDF', size: '1.1 MB', author: 'CR Upload', added: '5d ago' },
+  { id: 'r3', title: 'Lab Manual — Fluid Mechanics', type: 'PDF', size: '4.8 MB', author: 'Department', added: '1w ago' },
+  { id: 'r4', title: 'Compiler Design Syllabus', type: 'PDF', size: '320 KB', author: 'Faculty', added: '2w ago' },
+  { id: 'r5', title: 'DSA Cheat Sheet (Viva)', type: 'PDF', size: '890 KB', author: 'Aaditya Verma', added: '3d ago' },
+  { id: 'r6', title: 'OS Case Study Reference', type: 'LINK', size: 'External', author: 'Prof. Nair', added: '4d ago' }
+];
+
+const BROADCASTS = [
+  { id: 'b1', author: 'Ribhav Sharma', role: 'CR', code: 'CS21532', text: 'Fluid Mechanics Lab 4 submission portal closes tomorrow at 5:00 PM. 34 of 48 submitted. Check the Assignment Tracker for real-time status.', time: '2h ago', pinned: true, reactions: 12 },
+  { id: 'b2', author: 'Ribhav Sharma', role: 'CR', code: 'CS21532', text: 'Viva dates for Fluid Mechanics will be decided via poll. Please vote by tonight — anonymous, one vote per student.', time: '5h ago', pinned: true, reactions: 24 },
+  { id: 'b3', author: 'Dr. M. Sundaram', role: 'Faculty', code: 'EMP-AIML-004', text: 'Unit 3 notes uploaded to the Academic Vault. Lab manual revision is available for download.', time: '1d ago', pinned: false, reactions: 18 },
+  { id: 'b4', author: 'Ribhav Sharma', role: 'CR', code: 'CS21532', text: 'Attendance radar updated after Monday sessions. 4 defaulters flagged below 75% — check your personal radar.', time: '2d ago', pinned: false, reactions: 9 }
+];
+
+const NAV_ITEMS = [
+  { id: 'dashboard', label: 'Dashboard', icon: 'home', section: 'Workspace' },
+  { id: 'assignments', label: 'Assignments', icon: 'file', section: 'Workspace', badge: '3' },
+  { id: 'attendance', label: 'Attendance Radar', icon: 'radar', section: 'Workspace', badge: '4', badgeType: 'danger' },
+  { id: 'calendar', label: 'Timetable', icon: 'calendar', section: 'Workspace' },
+  { id: 'resources', label: 'Academic Vault', icon: 'book', section: 'Study' },
+  { id: 'polls', label: 'Polls', icon: 'vote', section: 'Study', badge: '2' },
+  { id: 'broadcasts', label: 'Broadcasts', icon: 'megaphone', section: 'Study' },
+  { id: 'messages', label: 'Messages', icon: 'message', section: 'Study' },
+  { id: 'members', label: 'Class Roster', icon: 'users', section: 'Cohort', badge: '48' },
+  { id: 'subjects', label: 'Subjects', icon: 'layers', section: 'Cohort' },
+  { id: 'analytics', label: 'Analytics', icon: 'chart', section: 'Cohort' },
+  { id: 'growth', label: 'Growth Portfolio', icon: 'sparkle', section: 'Personal' },
+  { id: 'oversight', label: 'Faculty Oversight', icon: 'shield', section: 'Personal', roleOnly: 'FACULTY' },
+  { id: 'settings', label: 'Settings', icon: 'cog', section: 'Personal' }
+];
+
+const ICONS = {
+  home: '<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/>',
+  file: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/>',
+  radar: '<path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/>',
+  calendar: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+  book: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>',
+  vote: '<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>',
+  megaphone: '<path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/>',
+  message: '<path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.1A8.4 8.4 0 0 1 12 3a8.4 8.4 0 0 1 9 8.5z"/>',
+  users: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+  layers: '<path d="m12 2 10 6-10 6L2 8z"/><path d="m2 16 10 6 10-6M2 12l10 6 10-6"/>',
+  chart: '<path d="M3 3v18h18"/><path d="M7 14l3-3 3 3 4-6 4 4"/>',
+  sparkle: '<path d="m12 3 1.9 5.8L20 10l-6.1 1.2L12 17l-1.9-5.8L4 10l6.1-1.2z"/>',
+  shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+  cog: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 0 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 0 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
+  alert: '<path d="M10.3 3.3 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.3a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/>',
+  check: '<path d="M20 6 9 17l-5-5"/>',
+  user: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>',
+  play: '<path d="m5 3 14 9-14 9z"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  download: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5M12 15V3"/>',
+  upload: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5M12 3v12"/>',
+  pin: '<path d="M12 17v5M9 10.8V4h6v6.8l2.4 3.2H6.6z"/>',
+  copy: '<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>'
+};
+
+/* ============================================================
+   CURSOR
+   ============================================================ */
+const cursorEl = {
+  dot: $('#cursorDot'),
+  ring: $('#cursorRing')
+};
+function setupCursor() {
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  window.addEventListener('mousemove', e => {
+    state.cursor.x = e.clientX;
+    state.cursor.y = e.clientY;
+    if (!state.cursor.active) {
+      state.cursor.active = true;
+      state.cursor.rx = e.clientX;
+      state.cursor.ry = e.clientY;
+      document.body.classList.add('pointer-on');
+    }
+  }, { passive: true });
+  window.addEventListener('mouseleave', () => {
+    document.body.classList.remove('pointer-on');
+    state.cursor.active = false;
+  });
+  window.addEventListener('mousedown', () => {
+    state.cursor.down = true;
+    cursorEl.ring.classList.add('down');
+  });
+  window.addEventListener('mouseup', () => {
+    state.cursor.down = false;
+    cursorEl.ring.classList.remove('down');
+  });
+  const hoverSel = 'a, button, input, select, textarea, .nav-link, .action-tile, .metric, .res-card, .poll-option, .notif-item, .role-menu-item, .bc-card, .data-row, .attn-row, .schedule-item, .cal-cell';
+  document.addEventListener('mouseover', e => {
+    if (e.target.closest(hoverSel)) cursorEl.ring.classList.add('hover');
+  });
+  document.addEventListener('mouseout', e => {
+    if (e.target.closest(hoverSel)) cursorEl.ring.classList.remove('hover');
+  });
+}
+function updateCursor() {
+  if (!state.cursor.active) return;
+  cursorEl.dot.style.transform = `translate3d(${state.cursor.x}px, ${state.cursor.y}px, 0)`;
+  state.cursor.rx = lerp(state.cursor.rx, state.cursor.x, 0.18);
+  state.cursor.ry = lerp(state.cursor.ry, state.cursor.y, 0.18);
+  cursorEl.ring.style.transform = `translate3d(${state.cursor.rx}px, ${state.cursor.ry}px, 0)`;
+}
+
+/* ============================================================
+   NAV RENDER
+   ============================================================ */
+function renderNav() {
+  const container = $('#navScroll');
+  const sections = {};
+  NAV_ITEMS.forEach(item => {
+    if (item.roleOnly && state.activeRole !== item.roleOnly) return;
+    if (!sections[item.section]) sections[item.section] = [];
+    sections[item.section].push(item);
+  });
+
+  let html = '';
+  Object.entries(sections).forEach(([name, items]) => {
+    html += `
+      <div class="nav-section">
+        <div class="nav-section-label">${name}</div>
+        ${items.map(item => `
+          <button class="nav-link ${state.activeTab === item.id ? 'active' : ''}" data-tab="${item.id}">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS[item.icon] || ''}</svg>
+            <span>${item.label}</span>
+            ${item.badge ? `<span class="nav-badge ${item.badgeType === 'danger' ? 'danger' : ''}">${item.badge}</span>` : ''}
+          </button>
+        `).join('')}
+      </div>
+    `;
+  });
+  container.innerHTML = html;
+
+  $$('.nav-link', container).forEach(link => {
+    link.addEventListener('click', () => setTab(link.dataset.tab));
+  });
+}
+
+/* ============================================================
+   VIEW ROUTER
+   ============================================================ */
+function setTab(tab) {
+  if (state.activeTab === tab) return;
+  state.activeTab = tab;
+  renderNav();
+  renderView();
+  // Sync mobile nav
+  $$('.mobile-nav-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  // Scroll main to top
+  $('#mainScroll').scrollTo({ top: 0, behavior: 'smooth' });
+  // Close mobile left panel
+  if (window.innerWidth < 860) $('#leftPanel').classList.add('collapsed');
+}
+
+function renderView() {
+  const container = $('#mainInner');
+  const tab = state.activeTab;
+  const role = state.activeRole;
+
+  let html = '';
+  switch (tab) {
+    case 'dashboard': html = role === 'STUDENT' ? renderStudentDashboard() : renderCRDashboard(); break;
+    case 'assignments': html = renderAssignments(); break;
+    case 'attendance': html = renderAttendance(); break;
+    case 'calendar': html = renderCalendar(); break;
+    case 'resources': html = renderResources(); break;
+    case 'polls': html = renderPolls(); break;
+    case 'broadcasts': html = renderBroadcasts(); break;
+    case 'messages': html = renderMessages(); break;
+    case 'members': html = renderMembers(); break;
+    case 'subjects': html = renderSubjects(); break;
+    case 'analytics': html = renderAnalytics(); break;
+    case 'growth': html = renderGrowth(); break;
+    case 'oversight': html = renderOversight(); break;
+    case 'settings': html = renderSettings(); break;
+    default: html = `<div class="empty-state"><h3>Coming soon</h3><p>This module is being prepared.</p></div>`;
+  }
+  container.innerHTML = html;
+  wireView();
+  animateCounters();
+  animateProgress();
+}
+
+/* ============================================================
+   VIEW: CR Dashboard
+   ============================================================ */
+function renderCRDashboard() {
+  const defaulters = STUDENTS.filter(s => s.att < 75);
+  const avgAtt = (STUDENTS.reduce((a, s) => a + s.att, 0) / STUDENTS.length).toFixed(1);
+
+  return `
+    <div class="view active">
+      <div class="view-head">
+        <div class="view-title-group">
+          <div class="view-eyebrow">Command Center</div>
+          <h1 class="view-title">Welcome back, Ribhav.</h1>
+          <p class="view-sub">Everything your cohort needs, in one workspace. 48 students enrolled across 6 subjects — submission tracking, defaulter radar, and one-click nudges.</p>
+        </div>
+        <div class="view-actions">
+          <button class="btn btn-ghost magnetic" data-action="export">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5M12 15V3"/></svg>
+            Export CSV
+          </button>
+          <button class="btn btn-accent magnetic" data-action="new-assignment">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            New Assignment
+          </button>
+        </div>
+      </div>
+
+      <div class="metric-grid">
+        <div class="metric">
+          <div class="metric-head">
+            <span class="metric-label">Enrolled</span>
+            <span class="metric-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span>
+          </div>
+          <div class="metric-value"><span data-counter="48">0</span><small>students</small></div>
+          <div class="metric-foot"><span class="metric-delta up">+2 this week</span></div>
+        </div>
+
+        <div class="metric">
+          <div class="metric-head">
+            <span class="metric-label">Cohort Attendance</span>
+            <span class="metric-icon green"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></span>
+          </div>
+          <div class="metric-value"><span data-counter="${avgAtt}" data-decimals="1">0</span><small>%</small></div>
+          <div class="metric-foot"><span class="metric-delta up">+3.2% vs last month</span></div>
+        </div>
+
+        <div class="metric">
+          <div class="metric-head">
+            <span class="metric-label">Active Assignments</span>
+            <span class="metric-icon accent"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></span>
+          </div>
+          <div class="metric-value"><span data-counter="3">0</span><small>open</small></div>
+          <div class="metric-foot"><span class="metric-delta down">1 closes tomorrow</span></div>
+        </div>
+
+        <div class="metric">
+          <div class="metric-head">
+            <span class="metric-label">Defaulters · &lt;75%</span>
+            <span class="metric-icon danger"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.3 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.3a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></span>
+          </div>
+          <div class="metric-value"><span data-counter="${defaulters.length}">0</span><small>flagged</small></div>
+          <div class="metric-foot"><span class="metric-delta down">Needs nudge</span></div>
+        </div>
+      </div>
+
+      <div class="action-bar">
+        <button class="action-tile magnetic" data-action="new-assignment">
+          <span class="tile-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span>
+          <span class="tile-meta"><b>New Assignment</b><span>Post with due date</span></span>
+        </button>
+        <button class="action-tile magnetic" data-action="take-attendance">
+          <span class="tile-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>
+          <span class="tile-meta"><b>Take Attendance</b><span>1-click roster session</span></span>
+        </button>
+        <button class="action-tile magnetic" data-action="broadcast">
+          <span class="tile-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg></span>
+          <span class="tile-meta"><b>Broadcast Notice</b><span>Pin to class feed</span></span>
+        </button>
+        <button class="action-tile magnetic" data-action="nudge-defaulters">
+          <span class="tile-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></span>
+          <span class="tile-meta"><b>Nudge Defaulters</b><span>${defaulters.length} students</span></span>
+        </button>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1.6fr 1fr;gap:20px;" class="dash-grid">
+        <div>
+          <div class="section-head">
+            <div class="section-title">
+              Live Submission Feed
+              <span class="count-chip">${SUBMISSIONS.length} today</span>
+            </div>
+            <div class="section-actions">
+              <button class="btn btn-quiet btn-sm" data-action="view-all-submissions">View all</button>
+            </div>
+          </div>
+          <div class="card card-pad">
+            ${SUBMISSIONS.slice(0, 6).map(sub => `
+              <div class="feed-item">
+                <div class="feed-icon accent">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+                </div>
+                <div class="feed-meta">
+                  <div class="feed-title">
+                    ${sub.student}
+                    <span class="hash">${sub.hash.slice(0, 12)}…</span>
+                  </div>
+                  <div class="feed-sub">
+                    <span>${sub.assignment}</span>
+                    <span class="dot"></span>
+                    <span class="mono">${sub.code}</span>
+                  </div>
+                </div>
+                <div class="feed-time">${sub.ts}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <div>
+          <div class="section-head">
+            <div class="section-title">Defaulter Watch</div>
+            <div class="section-actions">
+              <button class="btn btn-quiet btn-sm" data-tab-jump="attendance">Radar</button>
+            </div>
+          </div>
+          <div class="card card-pad">
+            ${defaulters.map(s => `
+              <div class="feed-item">
+                <div class="feed-icon red">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.3 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.3a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>
+                </div>
+                <div class="feed-meta">
+                  <div class="feed-title">${s.name}</div>
+                  <div class="feed-sub">
+                    <span class="mono">${s.code}</span>
+                    <span class="dot"></span>
+                    <span>Needs ${neededSessions(s)} sessions</span>
+                  </div>
+                </div>
+                <div class="feed-time" style="color:var(--red)">${s.att.toFixed(1)}%</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+    </div>
+    <style>
+      @media(max-width:1100px){.dash-grid{grid-template-columns:1fr !important}}
+    </style>
+  `;
+}
+
+function neededSessions(s) {
+  return Math.max(0, Math.ceil((0.75 * s.total - s.sessions) / 0.25));
+}
+
+/* ============================================================
+   VIEW: Student Dashboard
+   ============================================================ */
+function renderStudentDashboard() {
+  const me = { att: 84.2, sessions: 30, total: 36 };
+  const safe = Math.max(0, Math.floor((4 / 3) * me.sessions - me.total));
+  const pending = ASSIGNMENTS.filter(a => a.status === 'active');
+
+  return `
+    <div class="view active">
+      <div class="view-head">
+        <div class="view-title-group">
+          <div class="view-eyebrow">Student Station</div>
+          <h1 class="view-title">Good to see you, Aaditya.</h1>
+          <p class="view-sub">Your personal attendance radar, pending submissions, and cryptographic receipts — always in sync.</p>
+        </div>
+      </div>
+
+      <div class="metric-grid">
+        <div class="metric">
+          <div class="metric-head">
+            <span class="metric-label">My Attendance</span>
+            <span class="metric-icon green"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
+          </div>
+          <div class="metric-value"><span data-counter="${me.att}" data-decimals="1">0</span><small>%</small></div>
+          <div class="metric-foot"><span class="metric-delta up">Safe to miss ${safe}</span></div>
+        </div>
+
+        <div class="metric">
+          <div class="metric-head">
+            <span class="metric-label">Sessions Attended</span>
+            <span class="metric-icon accent"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span>
+          </div>
+          <div class="metric-value"><span data-counter="${me.sessions}">0</span><small>/ ${me.total}</small></div>
+          <div class="metric-foot">6 sessions remaining this term</div>
+        </div>
+
+        <div class="metric">
+          <div class="metric-head">
+            <span class="metric-label">Pending Tasks</span>
+            <span class="metric-icon warn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></span>
+          </div>
+          <div class="metric-value"><span data-counter="${pending.length}">0</span><small>active</small></div>
+          <div class="metric-foot">1 closes tomorrow</div>
+        </div>
+
+        <div class="metric">
+          <div class="metric-head">
+            <span class="metric-label">Verified Submissions</span>
+            <span class="metric-icon green"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+          </div>
+          <div class="metric-value"><span data-counter="12">0</span><small>this term</small></div>
+          <div class="metric-foot">All hashed</div>
+        </div>
+      </div>
+
+      <div class="section-head">
+        <div class="section-title">Pending Submissions</div>
+      </div>
+      <div class="card card-pad" style="margin-bottom:26px">
+        ${pending.map(a => {
+          return `
+            <div class="feed-item">
+              <div class="feed-icon accent">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+              </div>
+              <div class="feed-meta">
+                <div class="feed-title">${a.title}</div>
+                <div class="feed-sub">
+                  <span>${a.due}</span>
+                  <span class="dot"></span>
+                  <span>${a.submitted} / ${a.total} submitted</span>
+                </div>
+              </div>
+              <button class="btn btn-accent btn-sm magnetic" data-action="submit" data-id="${a.id}">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8l-5-5-5 5M12 3v12"/></svg>
+                Submit
+              </button>
+            </div>
+          `;
+        }).join('')}
+      </div>
+
+      <div class="section-head">
+        <div class="section-title">My Submission Receipts <span class="count-chip">${SUBMISSIONS.slice(0,5).length}</span></div>
+      </div>
+      <div class="card card-pad">
+        ${SUBMISSIONS.slice(0, 5).map(sub => `
+          <div class="feed-item">
+            <div class="feed-icon green">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+            </div>
+            <div class="feed-meta">
+              <div class="feed-title">${sub.assignment} <span class="hash">${sub.hash.slice(0, 12)}…</span></div>
+              <div class="feed-sub"><span>Verified · Immutable</span><span class="dot"></span><span class="mono">${sub.ts}</span></div>
+            </div>
+            <button class="btn btn-ghost btn-sm magnetic" data-copy="${sub.hash}">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Copy
+            </button>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+/* ============================================================
+   VIEW: Assignments
+   ============================================================ */
+function renderAssignments() {
+  return `
+    <div class="view active">
+      <div class="view-head">
+        <div class="view-title-group">
+          <div class="view-eyebrow">Assignments</div>
+          <h1 class="view-title">Assignment tracker</h1>
+          <p class="view-sub">Every assignment, every submission, every SHA-256 hash. No more "I already submitted it, sir."</p>
+        </div>
+        <div class="view-actions">
+          <button class="btn btn-accent magnetic" data-action="new-assignment">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            New Assignment
+          </button>
+        </div>
+      </div>
+
+      <div class="section-head">
+        <div class="section-title">Active Assignments <span class="count-chip">${ASSIGNMENTS.filter(a => a.status === 'active').length}</span></div>
+      </div>
+      <div class="card" style="margin-bottom:26px">
+        ${ASSIGNMENTS.filter(a => a.status === 'active').map(a => {
+          const pct = (a.submitted / a.total) * 100;
+          return `
+            <div style="padding:20px;border-bottom:1px solid var(--border)">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:14px;flex-wrap:wrap">
+                <div>
+                  <div style="font-size:14.5px;font-weight:500;letter-spacing:-.01em;margin-bottom:6px">${a.title}</div>
+                  <div style="display:flex;gap:10px;flex-wrap:wrap;font-size:11.5px;color:var(--text-3)">
+                    <span>${a.subject}</span>
+                    <span style="color:var(--text-4)">·</span>
+                    <span>Due: <b style="color:var(--amber);font-weight:500">${a.due}</b></span>
+                    <span style="color:var(--text-4)">·</span>
+                    <span class="mono" style="color:var(--accent-2)">${a.hash}…</span>
+                  </div>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center">
+                  <button class="btn btn-ghost btn-sm magnetic" data-action="nudge" data-id="${a.id}">Nudge Pending</button>
+                  <button class="btn btn-primary btn-sm magnetic" data-action="view-submissions" data-id="${a.id}">View</button>
+                </div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-3);margin-bottom:8px">
+                  <span>Submission progress</span>
+                  <span style="font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--text)">${a.submitted} / ${a.total}</span>
+                </div>
+                <div class="progress-track">
+                  <div class="progress-fill" data-width="${pct}"></div>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+
+      <div class="section-head">
+        <div class="section-title">Recent submissions <span class="count-chip">${SUBMISSIONS.length}</span></div>
+      </div>
+      <div class="data-table">
+        <div class="data-row head">
+          <span>Student</span>
+          <span>Assignment</span>
+          <span>Hash</span>
+          <span>Time</span>
+          <span class="right">Status</span>
+        </div>
+        ${SUBMISSIONS.map(s => `
+          <div class="data-row">
+            <div class="data-cell name">
+              <span class="avatar-sm">${s.student.split(' ').map(n=>n[0]).join('')}</span>
+              ${s.student}
+            </div>
+            <div class="data-cell muted">${s.assignment}</div>
+            <div class="data-cell mono muted" style="font-size:11px">${s.hash}</div>
+            <div class="data-cell muted mono" style="font-size:11px">${s.ts}</div>
+            <div class="data-cell right">
+              <span class="status-chip green"><i></i>Verified</span>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+/* ============================================================
+   VIEW: Attendance
+   ============================================================ */
+function renderAttendance() {
+  const defaulters = STUDENTS.filter(s => s.att < 75).length;
+  const avg = (STUDENTS.reduce((a, s) => a + s.att, 0) / STUDENTS.length).toFixed(1);
+
+  return `
+    <div class="view active">
+      <div class="view-head">
+        <div class="view-title-group">
+          <div class="view-eyebrow">Attendance Radar</div>
+          <h1 class="view-title">75% defaulter radar</h1>
+          <p class="view-sub">Live percentage for every student, with the exact number of sessions needed to return to the safe zone.</p>
+        </div>
+        <div class="view-actions">
+          <button class="btn btn-ghost magnetic" data-action="export">Export CSV</button>
+          <button class="btn btn-accent magnetic" data-action="take-attendance">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            Take Attendance
+          </button>
+        </div>
+      </div>
+
+      <div class="metric-grid" style="grid-template-columns:repeat(3,1fr)">
+        <div class="metric">
+          <div class="metric-head">
+            <span class="metric-label">Cohort Average</span>
+            <span class="metric-icon green"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></span>
+          </div>
+          <div class="metric-value"><span data-counter="${avg}" data-decimals="1">0</span><small>%</small></div>
+          <div class="metric-foot"><span class="metric-delta up">Above threshold</span></div>
+        </div>
+        <div class="metric">
+          <div class="metric-head">
+            <span class="metric-label">Defaulters</span>
+            <span class="metric-icon danger"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.3 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.3a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></span>
+          </div>
+          <div class="metric-value"><span data-counter="${defaulters}">0</span><small>students</small></div>
+          <div class="metric-foot"><span class="metric-delta down">Below 75%</span></div>
+        </div>
+        <div class="metric">
+          <div class="metric-head">
+            <span class="metric-label">Sessions Recorded</span>
+            <span class="metric-icon accent"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
+          </div>
+          <div class="metric-value"><span data-counter="36">0</span><small>this term</small></div>
+          <div class="metric-foot">Last recorded 2h ago</div>
+        </div>
+      </div>
+
+      <div class="data-table">
+        <div class="attn-row" style="background:rgba(255,255,255,.02);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--text-4)">
+          <span>Student</span>
+          <span>Attendance</span>
+          <span class="right" style="justify-self:end;text-align:right">Status</span>
+          <span class="right" style="justify-self:end;text-align:right">Sessions</span>
+        </div>
+        ${STUDENTS.map(s => {
+          const pct = s.att;
+          const cls = pct >= 85 ? 'good' : pct >= 75 ? 'warn' : 'bad';
+          const barCls = pct >= 85 ? 'green' : pct >= 75 ? 'amber' : 'red';
+          const status = pct >= 85 ? 'Eligible' : pct >= 75 ? 'Edge' : 'Defaulter';
+          const statusCls = pct >= 85 ? 'green' : pct >= 75 ? 'amber' : 'red';
+          const needed = pct < 75 ? neededSessions(s) : 0;
+          return `
+            <div class="attn-row">
+              <div class="attn-name">
+                <span class="avatar-sm">${s.name.split(' ').map(n=>n[0]).join('')}</span>
+                <span class="attn-name-meta">
+                  <b>${s.name}</b>
+                  <span>${s.code} · ${s.rfc}</span>
+                </span>
+              </div>
+              <div class="attn-bar-wrap">
+                <div class="attn-bar-top">
+                  <span>${s.sessions} / ${s.total} sessions</span>
+                  <b>${pct.toFixed(1)}%</b>
+                </div>
+                <div class="progress-track">
+                  <div class="progress-fill ${barCls}" data-width="${pct}"></div>
+                </div>
+              </div>
+              <div class="attn-status">
+                <span class="status-chip ${statusCls}"><i></i>${status}</span>
+              </div>
+              <div class="attn-pct ${cls}" style="justify-self:end;text-align:right">
+                ${pct < 75 ? `+${needed} needed` : `Safe +${Math.max(0, Math.floor((4/3)*s.sessions - s.total))}`}
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    </div>
+  `;
+}
+
+/* ============================================================
+   VIEW: Calendar
+   ============================================================ */
+function renderCalendar() {
+  const days = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+  const today = new Date();
+  const year = today.getFullYear(), month = today.getMonth();
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  const events = {
+    5: [{ label: 'Lab 4 closes', type: 'red' }],
+    10: [{ label: 'Viva poll', type: 'accent' }],
+    14: [{ label: 'Maths A3 due', type: 'warn' }],
+    20: [{ label: 'DSA viva', type: 'accent' }],
+    24: [{ label: 'Unit test', type: 'warn' }],
+    28: [{ label: 'OS demo', type: 'accent' }]
+  };
+
+  let cells = '';
+  days.forEach(d => cells += `<div class="cal-cell head">${d}</div>`);
+
+  const prevDays = new Date(year, month, 0).getDate();
+  for (let i = firstDay - 1; i >= 0; i--) {
+    cells += `<div class="cal-cell other"><span class="cal-num">${prevDays - i}</span></div>`;
+  }
+  for (let d = 1; d <= daysInMonth; d++) {
+    const isToday = d === today.getDate();
+    const dayEvents = events[d] || [];
+    cells += `
+      <div class="cal-cell ${isToday ? 'today' : ''}">
+        <span class="cal-num">${d}</span>
+        <div class="cal-events">
+          ${dayEvents.map(e => `<span class="cal-event ${e.type}">${e.label}</span>`).join('')}
+        </div>
+      </div>
+    `;
+  }
+  const remaining = (7 - ((firstDay + daysInMonth) % 7)) % 7;
+  for (let i = 1; i <= remaining; i++) {
+    cells += `<div class="cal-cell other"><span class="cal-num">${i}</span></div>`;
+  }
+
+  return `
+    <div class="view active">
+      <div class="view-head">
+        <div class="view-title-group">
+          <div class="view-eyebrow">Timetable</div>
+          <h1 class="view-title">Calendar & deadlines</h1>
+          <p class="view-sub">Every assignment deadline, viva, and lab session in a single view.</p>
+        </div>
+        <div class="view-actions">
+          <button class="btn btn-ghost magnetic">Today</button>
+          <button class="btn btn-accent magnetic" data-action="new-assignment">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            Add event
+          </button>
+        </div>
+      </div>
+
+      <div class="calendar-grid">
+        ${cells}
+      </div>
+    </div>
+  `;
+}
+
+/* ============================================================
+   VIEW: Resources
+   ============================================================ */
+function renderResources() {
+  return `
+    <div class="view active">
+      <div class="view-head">
+        <div class="view-title-group">
+          <div class="view-eyebrow">Academic Vault</div>
+          <h1 class="view-title">Permanent notes & resources</h1>
+          <p class="view-sub">PYQs, lab manuals, syllabus PDFs — permanent, searchable, never lost in chat history.</p>
+        </div>
+        <div class="view-actions">
+          <button class="btn btn-accent magnetic" data-action="upload">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8l-5-5-5 5M12 3v12"/><path d="M3 15v4a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4"/></svg>
+            Upload
+          </button>
+        </div>
+      </div>
+
+      <div class="res-grid">
+        ${RESOURCES.map(r => `
+          <div class="res-card">
+            <div class="res-head">
+              <div class="res-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+              </div>
+              <span class="res-type">${r.type}</span>
+            </div>
+            <div class="res-title">${r.title}</div>
+            <div class="res-meta">
+              <span>${r.author}</span>
+              <span class="dot"></span>
+              <span>${r.size}</span>
+              <span class="dot"></span>
+              <span>${r.added}</span>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+/* ============================================================
+   VIEW: Polls
+   ============================================================ */
+function renderPolls() {
+  return `
+    <div class="view active">
+      <div class="view-head">
+        <div class="view-title-group">
+          <div class="view-eyebrow">Consensus Polls</div>
+          <h1 class="view-title">Anonymous class voting</h1>
+          <p class="view-sub">Viva slots, elective selection, and schedule changes — decided democratically.</p>
+        </div>
+        <div class="view-actions">
+          <button class="btn btn-accent magnetic" data-action="new-poll">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            New poll
+          </button>
+        </div>
+      </div>
+
+      <div class="poll-list">
+        ${state.polls.map(p => `
+          <div class="card poll-card">
+            <div class="poll-head">
+              <div class="poll-title">${p.title}</div>
+              <span class="status-chip ${p.voted ? 'green' : 'accent'}"><i></i>${p.voted ? 'Voted' : 'Live'}</span>
+            </div>
+            <div class="poll-desc">${p.desc}</div>
+            <div class="poll-meta">
+              <span class="tag live"><i style="width:5px;height:5px;border-radius:50%;background:currentColor"></i>Closes in ${p.closes}</span>
+              <span class="tag">${p.total} responses</span>
+              <span class="tag">Anonymous</span>
+            </div>
+            <div class="poll-options">
+              ${p.options.map(o => {
+                const pct = (o.votes / p.total) * 100;
+                const voted = p.voted === o.id;
+                return `
+                  <button class="poll-option ${voted ? 'voted' : ''}" data-poll="${p.id}" data-option="${o.id}">
+                    <div class="poll-option-bar" style="width:${p.voted ? pct : 0}%"></div>
+                    <div class="poll-option-content">
+                      <span class="poll-radio"></span>
+                      <span class="poll-label">${o.label}</span>
+                      ${p.voted ? `<span class="poll-count">${o.votes} · ${pct.toFixed(0)}%</span>` : ''}
+                    </div>
+                  </button>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+/* ============================================================
+   VIEW: Broadcasts
+   ============================================================ */
+function renderBroadcasts() {
+  return `
+    <div class="view active">
+      <div class="view-head">
+        <div class="view-title-group">
+          <div class="view-eyebrow">Broadcasts</div>
+          <h1 class="view-title">Immutable class feed</h1>
+          <p class="view-sub">Pinned announcements that never get buried under chat. Every notice, permanent.</p>
+        </div>
+        <div class="view-actions">
+          <button class="btn btn-accent magnetic" data-action="broadcast">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>
+            New broadcast
+          </button>
+        </div>
+      </div>
+
+      <div>
+        ${BROADCASTS.map(b => `
+          <div class="bc-card ${b.pinned ? 'pinned' : ''}">
+            ${b.pinned ? `<div class="bc-pin"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5M9 10.8V4h6v6.8l2.4 3.2H6.6z"/></svg></div>` : ''}
+            <div class="bc-head">
+              <span class="bc-avatar">${b.author.split(' ').map(n=>n[0]).join('')}</span>
+              <span class="bc-meta">
+                <b>${b.author} <span style="font-size:9.5px;font-weight:600;color:var(--accent-2);background:var(--accent-soft);padding:1.5px 5px;border-radius:4px;margin-left:6px;letter-spacing:.06em">${b.role}</span></b>
+                <span>${b.code} · ${b.time}</span>
+              </span>
+            </div>
+            <div class="bc-content">${b.text}</div>
+            <div class="bc-foot">
+              <span class="reaction">✦ ${b.reactions}</span>
+              <span class="reaction">✓ Seen by 42</span>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+/* ============================================================
+   VIEW: Messages
+   ============================================================ */
+function renderMessages() {
+  return `
+    <div class="view active">
+      <div class="view-head">
+        <div class="view-title-group">
+          <div class="view-eyebrow">Direct Messages</div>
+          <h1 class="view-title">Peer communications</h1>
+          <p class="view-sub">Direct, structured messages with your cohort — outside of the chaos.</p>
+        </div>
+      </div>
+      <div class="empty-state">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.1A8.4 8.4 0 0 1 12 3a8.4 8.4 0 0 1 9 8.5z"/>
+        </svg>
+        <h3>No conversations yet</h3>
+        <p>Start a direct message with any cohort member. Messages are private, structured, and never lost in a group chat.</p>
+      </div>
+    </div>
+  `;
+}
+
+/* ============================================================
+   VIEW: Members
+   ============================================================ */
+function renderMembers() {
+  return `
+    <div class="view active">
+      <div class="view-head">
+        <div class="view-title-group">
+          <div class="view-eyebrow">Class Roster</div>
+          <h1 class="view-title">RFC student directory</h1>
+          <p class="view-sub">Every enrolled student with their deterministic RFC academic identity.</p>
+        </div>
+        <div class="view-actions">
+          <button class="btn btn-ghost magnetic" data-action="export">Export CSV</button>
+        </div>
+      </div>
+
+      <div class="data-table">
+        <div class="data-row head" style="grid-template-columns:1.6fr 1fr 1.2fr 1fr 0.6fr">
+          <span>Student</span>
+          <span>Roll No.</span>
+          <span>RFC ID</span>
+          <span>Attendance</span>
+          <span class="right">Status</span>
+        </div>
+        ${STUDENTS.map(s => {
+          const status = s.att >= 85 ? 'green' : s.att >= 75 ? 'amber' : 'red';
+          const label = s.att >= 85 ? 'Eligible' : s.att >= 75 ? 'Edge' : 'Defaulter';
+          return `
+            <div class="data-row" style="grid-template-columns:1.6fr 1fr 1.2fr 1fr 0.6fr">
+              <div class="data-cell name">
+                <span class="avatar-sm">${s.name.split(' ').map(n=>n[0]).join('')}</span>
+                ${s.name}
+              </div>
+              <div class="data-cell mono muted">${s.code}</div>
+              <div class="data-cell mono muted" style="font-size:11px">${s.rfc}</div>
+              <div class="data-cell mono">${s.att.toFixed(1)}%</div>
+              <div class="data-cell right">
+                <span class="status-chip ${status}"><i></i>${label}</span>
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    </div>
+  `;
+}
+
+/* ============================================================
+   VIEW: Subjects
+   ============================================================ */
+function renderSubjects() {
+  const subjects = [
+    { name: 'Fluid Mechanics', code: 'ME301', teacher: 'Dr. M. Sundaram', assignments: 1, students: 48, color: 'accent' },
+    { name: 'Engineering Maths', code: 'MA302', teacher: 'Prof. S. Iyer', assignments: 1, students: 48, color: 'warn' },
+    { name: 'Data Structures', code: 'CS303', teacher: 'Prof. R. Rao', assignments: 1, students: 48, color: 'accent' },
+    { name: 'Operating Systems', code: 'CS304', teacher: 'Prof. K. Nair', assignments: 0, students: 48, color: 'green' },
+    { name: 'Compiler Design', code: 'CS305', teacher: 'Dr. A. Menon', assignments: 0, students: 48, color: 'accent' },
+    { name: 'Artificial Intelligence', code: 'AI306', teacher: 'Dr. P. Krishnan', assignments: 0, students: 48, color: 'accent' }
+  ];
+
+  return `
+    <div class="view active">
+      <div class="view-head">
+        <div class="view-title-group">
+          <div class="view-eyebrow">Subjects</div>
+          <h1 class="view-title">Course cards</h1>
+          <p class="view-sub">Six subjects with their faculty incharge, active assignments, and cohort size.</p>
+        </div>
+      </div>
+      <div class="res-grid">
+        ${subjects.map(s => `
+          <div class="res-card">
+            <div class="res-head">
+              <div class="res-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 10 6-10 6L2 8z"/><path d="m2 16 10 6 10-6M2 12l10 6 10-6"/></svg>
+              </div>
+              <span class="res-type">${s.code}</span>
+            </div>
+            <div class="res-title">${s.name}</div>
+            <div class="res-meta">
+              <span>${s.teacher}</span>
+              <span class="dot"></span>
+              <span>${s.students} students</span>
+            </div>
+            ${s.assignments > 0 ? `
+              <div style="margin-top:14px;padding-top:12px;border-top:1px dashed var(--border)">
+                <div style="font-size:11px;color:var(--text-3);margin-bottom:6px">Active assignments</div>
+                <div style="display:flex;align-items:center;gap:8px;font-size:12px">
+                  <span class="status-chip accent" style="background:var(--accent-soft);color:var(--accent-2)"><i></i>${s.assignments} open</span>
+                </div>
+              </div>
+            ` : ''}
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+/* ============================================================
+   VIEW: Analytics
+   ============================================================ */
+function renderAnalytics() {
+  return `
+    <div class="view active">
+      <div class="view-head">
+        <div class="view-title-group">
+          <div class="view-eyebrow">Analytics</div>
+          <h1 class="view-title">Cohort submission trends</h1>
+          <p class="view-sub">Real-time cohort health, submission velocity, and defaulter tracking.</p>
+        </div>
+      </div>
+
+      <div class="metric-grid">
+        <div class="metric">
+          <div class="metric-head">
+            <span class="metric-label">Submission Rate</span>
+            <span class="metric-icon green"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></span>
+          </div>
+          <div class="metric-value"><span data-counter="78" data-decimals="0">0</span><small>%</small></div>
+          <div class="metric-foot"><span class="metric-delta up">+12% vs last week</span></div>
+        </div>
+        <div class="metric">
+          <div class="metric-head">
+            <span class="metric-label">Avg Response Time</span>
+            <span class="metric-icon accent"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span>
+          </div>
+          <div class="metric-value"><span data-counter="4.2" data-decimals="1">0</span><small>hrs</small></div>
+          <div class="metric-foot"><span class="metric-delta up">Faster by 1.4h</span></div>
+        </div>
+        <div class="metric">
+          <div class="metric-head">
+            <span class="metric-label">Avg Attendance</span>
+            <span class="metric-icon green"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>
+          </div>
+          <div class="metric-value"><span data-counter="83.8" data-decimals="1">0</span><small>%</small></div>
+          <div class="metric-foot"><span class="metric-delta up">+2.1% MoM</span></div>
+        </div>
+        <div class="metric">
+          <div class="metric-head">
+            <span class="metric-label">Verified Receipts</span>
+            <span class="metric-icon accent"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
+          </div>
+          <div class="metric-value"><span data-counter="142">0</span><small>hashes</small></div>
+          <div class="metric-foot">Zero disputes</div>
+        </div>
+      </div>
+
+      <div class="section-head">
+        <div class="section-title">Subject-wise submission velocity</div>
+      </div>
+      <div class="card card-pad-lg">
+        ${[
+          { name: 'Fluid Mechanics', pct: 71, count: 34, total: 48 },
+          { name: 'Engineering Maths', pct: 58, count: 28, total: 48 },
+          { name: 'Data Structures', pct: 25, count: 12, total: 48 },
+          { name: 'Operating Systems', pct: 100, count: 48, total: 48 }
+        ].map(s => `
+          <div style="margin-bottom:18px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+              <span style="font-size:12.5px;font-weight:500">${s.name}</span>
+              <span style="font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--text-3)">${s.count} / ${s.total} · ${s.pct}%</span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill ${s.pct >= 85 ? 'green' : s.pct >= 50 ? '' : 'amber'}" data-width="${s.pct}"></div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+/* ============================================================
+   VIEW: Growth
+   ============================================================ */
+function renderGrowth() {
+  return `
+    <div class="view active">
+      <div class="view-head">
+        <div class="view-title-group">
+          <div class="view-eyebrow">Growth Portfolio</div>
+          <h1 class="view-title">Holistic academic growth</h1>
+          <p class="view-sub">A lifetime view of your academic record — attendance, submissions, and milestones.</p>
+        </div>
+      </div>
+      <div class="metric-grid" style="grid-template-columns:repeat(3,1fr)">
+        <div class="metric">
+          <div class="metric-head">
+            <span class="metric-label">Milestones</span>
+            <span class="metric-icon accent"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 1.9 5.8L20 10l-6.1 1.2L12 17l-1.9-5.8L4 10l6.1-1.2z"/></svg></span>
+          </div>
+          <div class="metric-value"><span data-counter="24">0</span><small>achieved</small></div>
+          <div class="metric-foot">Across 3 terms</div>
+        </div>
+        <div class="metric">
+          <div class="metric-head">
+            <span class="metric-label">Verified Hand-ins</span>
+            <span class="metric-icon green"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+          </div>
+          <div class="metric-value"><span data-counter="142">0</span><small>total</small></div>
+          <div class="metric-foot">Zero disputes</div>
+        </div>
+        <div class="metric">
+          <div class="metric-head">
+            <span class="metric-label">Terms</span>
+            <span class="metric-icon accent"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
+          </div>
+          <div class="metric-value"><span data-counter="3">0</span><small>active</small></div>
+          <div class="metric-foot">2024 – 2026</div>
+        </div>
+      </div>
+      <div class="empty-state" style="margin-top:24px">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m12 3 1.9 5.8L20 10l-6.1 1.2L12 17l-1.9-5.8L4 10l6.1-1.2z"/>
+        </svg>
+        <h3>Full portfolio coming soon</h3>
+        <p>Your milestone timeline, term-by-term attendance history, and verified submission ledger will appear here.</p>
+      </div>
+    </div>
+  `;
+}
+
+/* ============================================================
+   VIEW: Faculty Oversight
+   ============================================================ */
+function renderOversight() {
+  return `
+    <div class="view active">
+      <div class="view-head">
+        <div class="view-title-group">
+          <div class="view-eyebrow">Faculty Oversight</div>
+          <h1 class="view-title">Administrative visibility</h1>
+          <p class="view-sub">Cohort-wide metrics, defaulter summaries, and administrative controls — without joining a group chat.</p>
+        </div>
+      </div>
+      <div class="metric-grid">
+        <div class="metric">
+          <div class="metric-head">
+            <span class="metric-label">Cohorts</span>
+            <span class="metric-icon accent"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 10 6-10 6L2 8z"/></svg></span>
+          </div>
+          <div class="metric-value"><span data-counter="4">0</span><small>assigned</small></div>
+          <div class="metric-foot">196 students total</div>
+        </div>
+        <div class="metric">
+          <div class="metric-head">
+            <span class="metric-label">Overall Attendance</span>
+            <span class="metric-icon green"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></span>
+          </div>
+          <div class="metric-value"><span data-counter="82.6" data-decimals="1">0</span><small>%</small></div>
+          <div class="metric-foot"><span class="metric-delta up">+1.2% MoM</span></div>
+        </div>
+        <div class="metric">
+          <div class="metric-head">
+            <span class="metric-label">Defaulter Alerts</span>
+            <span class="metric-icon danger"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.3 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.3a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></span>
+          </div>
+          <div class="metric-value"><span data-counter="14">0</span><small>flagged</small></div>
+          <div class="metric-foot">Across all cohorts</div>
+        </div>
+        <div class="metric">
+          <div class="metric-head">
+            <span class="metric-label">Pending Reviews</span>
+            <span class="metric-icon warn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></span>
+          </div>
+          <div class="metric-value"><span data-counter="32">0</span><small>hand-ins</small></div>
+          <div class="metric-foot">Waiting for grade</div>
+        </div>
+      </div>
+      <div class="empty-state" style="margin-top:24px">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        <h3>Full oversight dashboard</h3>
+        <p>Cohort comparison, student deep-dive, and grading controls are being prepared for the faculty portal.</p>
+      </div>
+    </div>
+  `;
+}
+
+/* ============================================================
+   VIEW: Settings
+   ============================================================ */
+function renderSettings() {
+  return `
+    <div class="view active">
+      <div class="view-head">
+        <div class="view-title-group">
+          <div class="view-eyebrow">Settings</div>
+          <h1 class="view-title">Workspace preferences</h1>
+          <p class="view-sub">Export your data, manage cache, and control how StudySync behaves.</p>
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <h4>Data & Export</h4>
+        <div class="card">
+          <div class="settings-row">
+            <div class="settings-row-meta">
+              <b>Export as CSV</b>
+              <span>Download the full cohort roster, attendance, and submission ledger</span>
+            </div>
+            <div class="settings-actions">
+              <button class="btn btn-ghost btn-sm magnetic" data-action="export">Download CSV</button>
+            </div>
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-meta">
+              <b>Export as JSON</b>
+              <span>Full structured data for backup or migration</span>
+            </div>
+            <div class="settings-actions">
+              <button class="btn btn-ghost btn-sm magnetic" data-action="export">Download JSON</button>
+            </div>
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-meta">
+              <b>Reset local cache</b>
+              <span>Clears all localStorage keys — the demo state is restored on reload</span>
+            </div>
+            <div class="settings-actions">
+              <button class="btn btn-ghost btn-sm magnetic" data-action="reset-cache" style="color:var(--red)">Reset cache</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <h4>Interface</h4>
+        <div class="card">
+          <div class="settings-row">
+            <div class="settings-row-meta">
+              <b>Focus soundscapes</b>
+              <span>Rain, brown noise, and binaural tones for deep work</span>
+            </div>
+            <div class="settings-actions">
+              <button class="toggle" data-toggle="soundscapes"></button>
+            </div>
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-meta">
+              <b>Reduce motion</b>
+              <span>Minimizes animations across the workspace</span>
+            </div>
+            <div class="settings-actions">
+              <button class="toggle" data-toggle="reduce-motion"></button>
+            </div>
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-meta">
+              <b>Live sync</b>
+              <span>Real-time updates from the class CR and faculty</span>
+            </div>
+            <div class="settings-actions">
+              <button class="toggle on" data-toggle="live-sync"></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <h4>About</h4>
+        <div class="card">
+          <div class="settings-row">
+            <div class="settings-row-meta">
+              <b>StudySync HUB</b>
+              <span>Version 1.0 · Academic prototype · Data stored locally</span>
+            </div>
+            <div class="settings-actions">
+              <button class="btn btn-ghost btn-sm magnetic" data-action="open-landing">Back to landing</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+/* ============================================================
+   MODALS
+   ============================================================ */
+function openModal(html) {
+  $('#modalBody').innerHTML = html;
+  $('#modalBack').classList.add('open');
+  wireModal();
+}
+function closeModal() {
+  $('#modalBack').classList.remove('open');
+}
+
+function wireModal() {
+  const body = $('#modalBody');
+  // Magnetic on buttons
+  $$('.magnetic', body).forEach(initMagnetic);
+  // Action handlers
+  $$('[data-action]', body).forEach(el => {
+    el.addEventListener('click', () => handleAction(el.dataset.action, el));
+  });
+  // Code inputs
+  const inputs = $$('#codeInputs input', body);
+  if (inputs.length) {
+    inputs.forEach((inp, i) => {
+      inp.addEventListener('input', () => {
+        inp.value = inp.value.replace(/\D/g, '');
+        if (inp.value && i < inputs.length - 1) inputs[i + 1].focus();
+      });
+      inp.addEventListener('keydown', e => {
+        if (e.key === 'Backspace' && !inp.value && i > 0) inputs[i - 1].focus();
+      });
+    });
+    setTimeout(() => inputs[0]?.focus(), 220);
+  }
+}
+
+/* ============================================================
+   ACTION HANDLER
+   ============================================================ */
+function handleAction(action, el) {
+  switch (action) {
+    case 'new-assignment':
+      openModal(`
+        <h3>New assignment</h3>
+        <p class="modal-sub">Post a new assignment to the cohort. Students receive a notification and can submit with cryptographic proof.</p>
+        <div class="form-row">
+          <label>Title</label>
+          <input class="input" id="naTitle" placeholder="e.g. Fluid Mechanics — Lab Experiment 5" />
+        </div>
+        <div class="form-row">
+          <label>Subject</label>
+          <select class="select" id="naSubject">
+            <option>Fluid Mechanics</option>
+            <option>Engineering Maths</option>
+            <option>Data Structures</option>
+            <option>Operating Systems</option>
+            <option>Compiler Design</option>
+            <option>Artificial Intelligence</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>Due date</label>
+          <input class="input" id="naDue" type="datetime-local" />
+        </div>
+        <button class="btn btn-accent btn-lg" id="naSubmit" style="width:100%;margin-top:6px">Post assignment</button>
+      `);
+      setTimeout(() => {
+        $('#naSubmit').addEventListener('click', () => {
+          const t = $('#naTitle').value || 'Untitled assignment';
+          closeModal();
+          toast(`Assignment "${t}" posted to 48 students`, 'green');
+        });
+      }, 20);
+      break;
+
+    case 'take-attendance':
+      openModal(`
+        <h3>Take attendance</h3>
+        <p class="modal-sub">One-click session recorder. Tap once per student present. Sessions are written to the local ledger immediately.</p>
+        <div class="form-row">
+          <label>Subject / period</label>
+          <select class="select">
+            <option>Fluid Mechanics — Period 2</option>
+            <option>Engineering Maths — Period 4</option>
+            <option>Compiler Design — Period 1</option>
+          </select>
+        </div>
+        <div style="max-height:300px;overflow-y:auto;border:1px solid var(--border);border-radius:10px;padding:4px;margin-bottom:14px">
+          ${STUDENTS.map(s => `
+            <label style="display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:8px;cursor:pointer;transition:background .2s" onmouseover="this.style.background='rgba(255,255,255,.04)'" onmouseout="this.style.background=''">
+              <input type="checkbox" checked style="accent-color:#8ba9c4;width:15px;height:15px" />
+              <span class="avatar-sm">${s.name.split(' ').map(n=>n[0]).join('')}</span>
+              <span style="flex:1">
+                <b style="font-size:12.5px;font-weight:500;display:block">${s.name}</b>
+                <span style="font-size:10.5px;color:var(--text-4);font-family:'JetBrains Mono',monospace">${s.code}</span>
+              </span>
+            </label>
+          `).join('')}
+        </div>
+        <button class="btn btn-accent btn-lg" id="attSubmit" style="width:100%">Commit session · 10 present</button>
+      `);
+      setTimeout(() => {
+        $('#attSubmit').addEventListener('click', () => {
+          closeModal();
+          toast('Attendance session committed to local ledger', 'green');
+        });
+      }, 20);
+      break;
+
+    case 'broadcast':
+      openModal(`
+        <h3>New broadcast</h3>
+        <p class="modal-sub">Pin a permanent notice to the class feed. Every student sees it — it never gets buried.</p>
+        <div class="form-row">
+          <label>Message</label>
+          <textarea class="input" id="bText" rows="4" placeholder="Type your broadcast…" style="resize:vertical"></textarea>
+        </div>
+        <label style="display:flex;align-items:center;gap:9px;font-size:12.5px;margin-bottom:16px;cursor:pointer">
+          <input type="checkbox" id="bPin" checked style="accent-color:#8ba9c4;width:14px;height:14px" />
+          Pin to top of feed
+        </label>
+        <button class="btn btn-accent btn-lg" id="bSubmit" style="width:100%">Broadcast</button>
+      `);
+      setTimeout(() => {
+        $('#bSubmit').addEventListener('click', () => {
+          const t = $('#bText').value.trim();
+          if (!t) { toast('Enter a message first', 'amber'); return; }
+          closeModal();
+          toast('Broadcast pinned to class feed', 'green');
+        });
+      }, 20);
+      break;
+
+    case 'nudge-defaulters':
+    case 'nudge':
+      toast('Nudge dispatched via EduTrack push', 'green');
+      if (el) {
+        const orig = el.textContent;
+        el.textContent = '✓ Sent';
+        setTimeout(() => { el.textContent = orig; }, 2200);
+      }
+      break;
+
+    case 'export':
+      toast('CSV exported to downloads', 'green');
+      break;
+
+    case 'upload':
+      toast('Upload dialog opened', 'blue');
+      break;
+
+    case 'new-poll':
+      openModal(`
+        <h3>New poll</h3>
+        <p class="modal-sub">Anonymous, one vote per student. Perfect for viva slots and elective selection.</p>
+        <div class="form-row">
+          <label>Question</label>
+          <input class="input" placeholder="e.g. Which slot works for viva?" />
+        </div>
+        <div class="form-row">
+          <label>Options</label>
+          <input class="input" placeholder="Option 1" style="margin-bottom:8px" />
+          <input class="input" placeholder="Option 2" style="margin-bottom:8px" />
+          <input class="input" placeholder="Option 3" />
+        </div>
+        <button class="btn btn-accent btn-lg" style="width:100%;margin-top:8px" onclick="closeModal();toast('Poll created and shared with cohort','green')">Create poll</button>
+      `);
+      break;
+
+    case 'view-submissions':
+    case 'view-all-submissions':
+      setTab('assignments');
+      break;
+
+    case 'submit':
+      openModal(`
+        <h3>Submit assignment</h3>
+        <p class="modal-sub">Your submission will be hashed with SHA-256 and timestamped. The receipt is immutable.</p>
+        <div class="form-row">
+          <label>File</label>
+          <div style="padding:24px;border:1.5px dashed var(--border-3);border-radius:10px;text-align:center;color:var(--text-3);font-size:12.5px;cursor:pointer">
+            Drop PDF or click to select
+          </div>
+        </div>
+        <div class="form-row">
+          <label>Notes (optional)</label>
+          <input class="input" placeholder="Any context for your CR or faculty" />
+        </div>
+        <button class="btn btn-accent btn-lg" id="subSubmit" style="width:100%;margin-top:6px">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Generate receipt & submit
+        </button>
+      `);
+      setTimeout(() => {
+        $('#subSubmit').addEventListener('click', () => {
+          closeModal();
+          toast('Submitted · SHA-256 receipt generated', 'green');
+        });
+      }, 20);
+      break;
+
+    case 'reset-cache':
+      openModal(`
+        <h3>Reset local cache?</h3>
+        <p class="modal-sub">This will clear all localStorage keys. Demo state is restored on reload.</p>
+        <div style="display:flex;gap:8px;margin-top:20px">
+          <button class="btn btn-ghost btn-lg" style="flex:1" onclick="closeModal()">Cancel</button>
+          <button class="btn btn-accent btn-lg" style="flex:1" id="confirmReset">Reset</button>
+        </div>
+      `);
+      setTimeout(() => {
+        $('#confirmReset').addEventListener('click', () => {
+          try { localStorage.clear(); } catch(e) {}
+          closeModal();
+          toast('Local cache cleared', 'green');
+        });
+      }, 20);
+      break;
+
+    case 'open-landing':
+      try { sessionStorage.removeItem('studysync_entered'); } catch(e) {}
+      toast('Returning to landing…', 'blue');
+      setTimeout(() => { window.location.href = '/'; }, 300);
+      break;
+
+    case 'toggle-live':
+      state.liveOnline = !state.liveOnline;
+      updateLivePill();
+      break;
+  }
+}
+
+/* ============================================================
+   VIEW EVENTS
+   ============================================================ */
+function wireView() {
+  // Magnetic
+  $$('.magnetic').forEach(initMagnetic);
+  // Action
+  $$('[data-action]').forEach(el => {
+    el.addEventListener('click', () => handleAction(el.dataset.action, el));
+  });
+  // Tab jump
+  $$('[data-tab-jump]').forEach(el => {
+    el.addEventListener('click', () => setTab(el.dataset.tabJump));
+  });
+  // Copy buttons
+  $$('[data-copy]').forEach(el => {
+    el.addEventListener('click', () => {
+      const v = el.dataset.copy;
+      navigator.clipboard?.writeText(v).then(
+        () => toast('Copied to clipboard', 'green'),
+        () => toast('Copy blocked', 'amber')
+      );
+    });
+  });
+  // Poll options
+  $$('.poll-option').forEach(opt => {
+    opt.addEventListener('click', () => {
+      const pollId = opt.dataset.poll;
+      const optId = opt.dataset.option;
+      const poll = state.polls.find(p => p.id === pollId);
+      if (!poll || poll.voted) return;
+      poll.voted = optId;
+      // Optimistically bump count
+      const option = poll.options.find(o => o.id === optId);
+      if (option) option.votes += 1;
+      poll.total += 1;
+      renderView();
+      toast('Vote recorded — anonymous', 'green');
+    });
+  });
+  // Toggles in settings
+  $$('[data-toggle]').forEach(t => {
+    t.addEventListener('click', () => {
+      t.classList.toggle('on');
+      const name = t.dataset.toggle;
+      toast(`${name.replace('-', ' ')} ${t.classList.contains('on') ? 'enabled' : 'disabled'}`, 'blue');
+    });
+  });
+}
+
+/* ============================================================
+   COUNTERS + PROGRESS ANIMATION
+   ============================================================ */
+function animateCounters() {
+  $$('[data-counter]').forEach(el => {
+    const target = parseFloat(el.dataset.counter);
+    const decimals = parseInt(el.dataset.decimals || '0');
+    const duration = 1300;
+    const start = performance.now();
+    (function step(now) {
+      const t = clamp((now - start) / duration, 0, 1);
+      const eased = 1 - Math.pow(1 - t, 4);
+      const val = target * eased;
+      el.textContent = val.toFixed(decimals);
+      if (t < 1) requestAnimationFrame(step);
+      else el.textContent = target.toFixed(decimals);
+    })(start);
+  });
+}
+
+function animateProgress() {
+  setTimeout(() => {
+    $$('[data-width]').forEach(el => {
+      el.style.width = el.dataset.width + '%';
+    });
+  }, 180);
+}
+
+/* ============================================================
+   MAGNETIC
+   ============================================================ */
+function initMagnetic(el) {
+  if (el.__magnetic) return;
+  el.__magnetic = true;
+  let raf = null, tx = 0, ty = 0, cx = 0, cy = 0, hovering = false;
+  const strength = 0.28;
+  el.addEventListener('mousemove', e => {
+    const r = el.getBoundingClientRect();
+    tx = (e.clientX - (r.left + r.width / 2)) * strength;
+    ty = (e.clientY - (r.top + r.height / 2)) * strength;
+    hovering = true;
+    if (!raf) raf = requestAnimationFrame(tick);
+  });
+  el.addEventListener('mouseleave', () => {
+    tx = 0; ty = 0; hovering = false;
+    if (!raf) raf = requestAnimationFrame(tick);
+  });
+  function tick() {
+    cx += (tx - cx) * 0.18;
+    cy += (ty - cy) * 0.18;
+    el.style.transform = `translate3d(${cx.toFixed(2)}px, ${cy.toFixed(2)}px, 0)`;
+    if (Math.abs(cx - tx) > 0.08 || Math.abs(cy - ty) > 0.08 || hovering) {
+      raf = requestAnimationFrame(tick);
+    } else {
+      el.style.transform = '';
+      raf = null;
+    }
+  }
+}
+
+/* ============================================================
+   RIPPLE
+   ============================================================ */
+document.addEventListener('click', e => {
+  const host = e.target.closest('.btn');
+  if (!host) return;
+  const r = host.getBoundingClientRect();
+  const size = Math.max(r.width, r.height) * 2.4;
+  const ripple = document.createElement('span');
+  ripple.className = 'ripple';
+  ripple.style.width = ripple.style.height = size + 'px';
+  ripple.style.left = (e.clientX - r.left) + 'px';
+  ripple.style.top = (e.clientY - r.top) + 'px';
+  host.appendChild(ripple);
+  setTimeout(() => ripple.remove(), 750);
+});
+
+/* ============================================================
+   SCHEDULE
+   ============================================================ */
+function renderSchedule() {
+  const items = [
+    { time: '09:00', title: 'Fluid Mechanics', room: 'Room 304', status: 'live' },
+    { time: '10:15', title: 'Engineering Maths', room: 'Room 201', status: 'next' },
+    { time: '11:30', title: 'Compiler Design', room: 'Room 118', status: '' },
+    { time: '14:00', title: 'AI Lab', room: 'Lab 2', status: '' },
+    { time: '15:30', title: 'DSA Tutorial', room: 'Room 302', status: '' }
+  ];
+  $('#scheduleList').innerHTML = items.map(item => `
+    <div class="schedule-item ${item.status === 'live' ? 'now' : ''}">
+      <span class="schedule-time">${item.time}</span>
+      <span class="schedule-body">
+        <b>${item.title}</b>
+        <span>${item.room}</span>
+      </span>
+      ${item.status === 'live' ? `<span class="schedule-status live">Live</span>` :
+        item.status === 'next' ? `<span class="schedule-status next">Next</span>` : ''}
+    </div>
+  `).join('');
+}
+
+/* ============================================================
+   NOTIFICATIONS
+   ============================================================ */
+function renderNotifications() {
+  const list = $('#notifList');
+  list.innerHTML = state.notifications.map(n => `
+    <div class="notif-item ${n.unread ? 'unread' : ''}">
+      <span class="notif-icon ${n.type !== 'default' ? n.type : ''}">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS[n.icon] || ICONS.check}</svg>
+      </span>
+      <span class="notif-meta">
+        <b>${n.title}</b>
+        <span>${n.sub}</span>
+      </span>
+      <span class="notif-time">${n.time}</span>
+    </div>
+  `).join('');
+  const unreadCount = state.notifications.filter(n => n.unread).length;
+  const badge = $('#notifBadge');
+  badge.textContent = unreadCount;
+  badge.style.display = unreadCount > 0 ? '' : 'none';
+}
+
+/* ============================================================
+   VERIFY
+   ============================================================ */
+function setupVerify() {
+  const input = $('#verifyInput');
+  const result = $('#verifyResult');
+  input.addEventListener('input', () => {
+    const v = input.value.trim();
+    if (!v) {
+      result.textContent = 'Enter a hash to verify it against the local ledger.';
+      result.className = 'verify-result';
+      return;
+    }
+    const match = SUBMISSIONS.find(s => s.hash.toLowerCase().includes(v.toLowerCase().slice(0, 8)));
+    if (match) {
+      result.innerHTML = `✓ Verified · ${match.student} · ${match.assignment}<br><span class="mono" style="opacity:.7">${match.ts}</span>`;
+      result.className = 'verify-result valid';
+    } else if (v.length > 6) {
+      result.textContent = '✕ No matching submission found in local ledger.';
+      result.className = 'verify-result invalid';
+    } else {
+      result.textContent = 'Type a few more characters…';
+      result.className = 'verify-result';
+    }
+  });
+}
+
+/* ============================================================
+   SCRATCHPAD
+   ============================================================ */
+function setupScratchpad() {
+  const ta = $('#scratch');
+  const status = $('#scratchStatus');
+  const saved = $('#scratchSaved');
+  try {
+    ta.value = localStorage.getItem('studysync_scratch') || '';
+    if (ta.value) {
+      status.textContent = 'Restored';
+      saved.textContent = 'from cache';
+    }
+  } catch(e) {}
+  ta.addEventListener('input', () => {
+    status.textContent = 'Saving…';
+    clearTimeout(state.scratchTimer);
+    state.scratchTimer = setTimeout(() => {
+      try { localStorage.setItem('studysync_scratch', ta.value); } catch(e) {}
+      status.textContent = 'Saved';
+      saved.textContent = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+    }, 600);
+  });
+}
+
+/* ============================================================
+   LIVE PILL
+   ============================================================ */
+function updateLivePill() {
+  const pill = $('#livePill');
+  const label = $('#liveLabel');
+  pill.classList.toggle('offline', !state.liveOnline);
+  label.textContent = state.liveOnline ? 'Live Sync' : 'Offline';
+}
+
+/* ============================================================
+   CLASS CODE REVEAL
+   ============================================================ */
+function setupClassCode() {
+  const code = $('#classCode');
+  let revealed = false;
+  const pill = $('#classPill');
+  const toggle = () => {
+    revealed = !revealed;
+    code.textContent = revealed ? 'CS2026' : '••••••';
+    code.classList.toggle('revealed', revealed);
+    if (revealed) toast('Join code revealed: CS2026', 'blue');
+  };
+  pill.addEventListener('click', toggle);
+  pill.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } });
+}
+
+/* ============================================================
+   USER SWITCHING
+   ============================================================ */
+function setupUserSwitch() {
+  const btn = $('#userSwitch');
+  const menu = $('#roleMenu');
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    menu.classList.toggle('open');
+    $('#notifMenu').classList.remove('open');
+  });
+  $$('.role-menu-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const user = item.dataset.user;
+      state.activeUser = user;
+      // Update display
+      const map = {
+        ribhav: { name: 'Ribhav Sharma', role: 'Class Rep', initials: 'RS', roleKey: 'CR' },
+        aaditya: { name: 'Aaditya Verma', role: 'Student', initials: 'AV', roleKey: 'STUDENT' },
+        sundaram: { name: 'Dr. M. Sundaram', role: 'Faculty', initials: 'MS', roleKey: 'FACULTY' }
+      };
+      const u = map[user];
+      $('#userName').textContent = u.name;
+      $('#userRole').textContent = u.role;
+      $('#userAvatar').textContent = u.initials;
+      state.activeRole = u.roleKey;
+      // Update active state in menu
+      $$('.role-menu-item').forEach(i => i.classList.toggle('active', i === item));
+      // Re-render nav (role-only items) and view
+      renderNav();
+      renderView();
+      menu.classList.remove('open');
+      toast(`Switched to ${u.name}`, 'blue');
+    });
+  });
+  document.addEventListener('click', e => {
+    if (!menu.contains(e.target) && e.target !== btn) menu.classList.remove('open');
+  });
+}
+
+/* ============================================================
+   NOTIFICATIONS DROPDOWN
+   ============================================================ */
+function setupNotif() {
+  const btn = $('#notifBtn');
+  const menu = $('#notifMenu');
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    menu.classList.toggle('open');
+    $('#roleMenu').classList.remove('open');
+  });
+  document.addEventListener('click', e => {
+    if (!menu.contains(e.target) && e.target !== btn) menu.classList.remove('open');
+  });
+  $('#markRead').addEventListener('click', () => {
+    state.notifications.forEach(n => n.unread = false);
+    renderNotifications();
+    toast('All notifications marked read', 'green');
+  });
+}
+
+/* ============================================================
+   MOBILE MENU
+   ============================================================ */
+function setupMobileMenu() {
+  const menuBtn = $('#menuBtn');
+  if (!menuBtn) return;
+  menuBtn.addEventListener('click', () => {
+    $('#leftPanel').classList.toggle('collapsed');
+  });
+  // Close left panel when a nav link is clicked on mobile
+  document.addEventListener('click', e => {
+    const link = e.target.closest('.nav-link');
+    if (link && window.innerWidth < 860) {
+      setTimeout(() => $('#leftPanel').classList.add('collapsed'), 200);
+    }
+  });
+}
+
+/* ============================================================
+   MODAL WIRING
+   ============================================================ */
+function setupModalBase() {
+  $('#modalX').addEventListener('click', closeModal);
+  $('#modalBack').addEventListener('click', e => {
+    if (e.target === $('#modalBack')) closeModal();
+  });
+  window.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      closeModal();
+      $('#notifMenu').classList.remove('open');
+      $('#roleMenu').classList.remove('open');
+    }
+  });
+}
+
+/* ============================================================
+   HEADER BUTTONS
+   ============================================================ */
+function setupHeaderButtons() {
+  $('#brandBtn').addEventListener('click', () => {
+    toast('Returning to landing…', 'blue');
+    try { sessionStorage.removeItem('studysync_entered'); } catch(e) {}
+    setTimeout(() => { window.location.href = '/'; }, 300);
+  });
+  $('#livePill').addEventListener('click', () => handleAction('toggle-live'));
+  $('#soundscapesBtn').addEventListener('click', () => {
+    openModal(`
+      <h3>Focus soundscapes</h3>
+      <p class="modal-sub">Procedural Web Audio tones. No external files — generated on the fly.</p>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:20px">
+        <button class="role-menu-item" style="border:1px solid var(--border);border-radius:10px">
+          <span class="avatar">🌧️</span>
+          <span class="meta"><b>Rain</b><span>Soft, filtered, continuous</span></span>
+        </button>
+        <button class="role-menu-item" style="border:1px solid var(--border);border-radius:10px">
+          <span class="avatar">🎚️</span>
+          <span class="meta"><b>Brown Noise</b><span>Deep, warm, low-frequency</span></span>
+        </button>
+        <button class="role-menu-item" style="border:1px solid var(--border);border-radius:10px">
+          <span class="avatar">🎧</span>
+          <span class="meta"><b>Binaural Focus</b><span>200 Hz / 210 Hz stereo</span></span>
+        </button>
+        <button class="role-menu-item" style="border:1px solid var(--border);border-radius:10px;color:var(--red)">
+          <span class="avatar">✕</span>
+          <span class="meta"><b>Silence</b><span>Stop all playback</span></span>
+        </button>
+      </div>
+    `);
+  });
+  $('#achievementsBtn').addEventListener('click', () => {
+    openModal(`
+      <h3>Achievements</h3>
+      <p class="modal-sub">Milestones unlocked as you use the workspace.</p>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:22px">
+        ${['First submission','Zero defaulter','Perfect week','100% attendance','Poll starter','5-day streak'].map((a,i)=>`
+          <div style="padding:14px 10px;border-radius:11px;border:1px solid ${i<4?'var(--accent-border)':'var(--border)'};background:${i<4?'var(--accent-soft)':'rgba(255,255,255,.02)'};text-align:center">
+            <div style="font-size:18px;margin-bottom:6px">${i<4?'★':'☆'}</div>
+            <div style="font-size:10.5px;font-weight:500;color:${i<4?'var(--accent-2)':'var(--text-3)'}">${a}</div>
+          </div>
+        `).join('')}
+      </div>
+    `);
+  });
+  $('#shortcutsBtn').addEventListener('click', () => {
+    openModal(`
+      <h3>Keyboard shortcuts</h3>
+      <p class="modal-sub">Quick navigation across the workspace.</p>
+      <div style="margin-top:20px">
+        ${[
+          ['⌘ K', 'Command palette'],
+          ['G then D', 'Go to dashboard'],
+          ['G then A', 'Go to assignments'],
+          ['G then R', 'Attendance radar'],
+          ['G then V', 'Academic vault'],
+          ['N', 'New assignment'],
+          ['Escape', 'Close any modal']
+        ].map(([k, d]) => `
+          <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px dashed rgba(255,255,255,.06);font-size:12.5px">
+            <span style="color:var(--text-3)">${d}</span>
+            <span style="font-family:'JetBrains Mono',monospace;padding:2px 8px;border-radius:6px;background:rgba(255,255,255,.04);border:1px solid var(--border);font-size:11px">${k}</span>
+          </div>
+        `).join('')}
+      </div>
+    `);
+  });
+  $('#rolePortalsBtn').addEventListener('click', () => {
+    openModal(`
+      <h3>Role portals</h3>
+      <p class="modal-sub">Jump directly into any role's dedicated view.</p>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:20px">
+        <button class="role-menu-item" style="border:1px solid var(--border);border-radius:10px" data-persona="ribhav">
+          <span class="avatar">RS</span>
+          <span class="meta"><b>Ribhav Sharma</b><span>CR workspace</span></span>
+          <span class="role-chip">CR</span>
+        </button>
+        <button class="role-menu-item" style="border:1px solid var(--border);border-radius:10px" data-persona="aaditya">
+          <span class="avatar">AV</span>
+          <span class="meta"><b>Aaditya Verma</b><span>Student station</span></span>
+          <span class="role-chip">STUDENT</span>
+        </button>
+        <button class="role-menu-item" style="border:1px solid var(--border);border-radius:10px" data-persona="sundaram">
+          <span class="avatar">MS</span>
+          <span class="meta"><b>Dr. M. Sundaram</b><span>Faculty oversight</span></span>
+          <span class="role-chip">FACULTY</span>
+        </button>
+      </div>
+    `);
+    setTimeout(() => {
+      $$('[data-persona]', $('#modalBody')).forEach(b => {
+        b.addEventListener('click', () => {
+          const map = { ribhav: 0, aaditya: 1, sundaram: 2 };
+          const items = $$('#roleMenu .role-menu-item');
+          items[map[b.dataset.persona]]?.click();
+          closeModal();
+        });
+      });
+    }, 30);
+  });
+}
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+let toastTimer = null;
+function toast(msg, tone = 'green') {
+  const el = $('#toast'), icon = $('#toastIcon'), m = $('#toastMsg');
+  const map = {
+    green: { bg: 'rgba(127,168,140,.14)', color: '#7fa88c',
+      svg: `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>` },
+    blue: { bg: 'rgba(139,169,196,.14)', color: '#a5bdd2',
+      svg: `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>` },
+    amber: { bg: 'rgba(179,154,109,.14)', color: '#b39a6d',
+      svg: `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4M12 16h.01"/></svg>` }
+  };
+  const t = map[tone] || map.green;
+  icon.style.background = t.bg;
+  icon.style.color = t.color;
+  icon.innerHTML = t.svg;
+  m.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
+}
+window.toast = toast;
+
+/* ============================================================
+   SCROLL RAIL (workspace)
+   ============================================================ */
+function setupWorkspaceRail() {
+  const main = $('#mainScroll');
+  const rail = $('#wsRailFill');
+  main.addEventListener('scroll', () => {
+    const max = main.scrollHeight - main.clientHeight;
+    const pct = max > 0 ? (main.scrollTop / max) * 100 : 0;
+    rail.style.height = pct + '%';
+  }, { passive: true });
+}
+
+/* ============================================================
+   MASTER RAF LOOP
+   ============================================================ */
+function tick() {
+  updateCursor();
+  state.raf = requestAnimationFrame(tick);
+}
+
+/* ============================================================
+   BOOT
+   ============================================================ */
+function boot() {
+  setupCursor();
+  renderNav();
+  renderView();
+  renderSchedule();
+  renderNotifications();
+  setupVerify();
+  setupScratchpad();
+  setupClassCode();
+  setupUserSwitch();
+  setupNotif();
+  setupMobileMenu();
+  setupModalBase();
+  setupHeaderButtons();
+  setupWorkspaceRail();
+  updateLivePill();
+
+  // wire initial tab presses
+  $$('.mobile-nav-btn').forEach(b => {
+    b.addEventListener('click', () => {
+      if (b.dataset.tab === 'more') {
+        $('#leftPanel').classList.remove('collapsed');
+        return;
+      }
+      setTab(b.dataset.tab);
+    });
+  });
+
+  // Mobile: start with left panel collapsed
+  if (window.innerWidth < 860) {
+    $('#leftPanel').classList.add('collapsed');
+  }
+
+  // Keyboard shortcuts
+  window.addEventListener('keydown', e => {
+    if (e.target.matches('input, textarea, select')) return;
+    if (e.metaKey && e.key.toLowerCase() === 'k') {
+      e.preventDefault();
+      toast('Command palette (coming soon)', 'blue');
+    }
+  });
+
+  tick();
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', boot);
+} else {
+  boot();
+}
+</script>
+</body>
+</html>

@@ -98,6 +98,9 @@ const MainLayout: React.FC<{ isDarkMode: boolean; setIsDarkMode: React.Dispatch<
   if (showLanding) {
     return <LandingPage onEnterApp={() => {
       try { sessionStorage.setItem('studysync_entered', '1'); } catch {}
+      if (typeof window !== 'undefined' && window.location) {
+        window.location.href = '/workspace.html';
+      }
       setShowLanding(false);
     }} />;
   }
