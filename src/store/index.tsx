@@ -345,7 +345,8 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     if (typeof window === 'undefined') return;
     const validTabs: NavTab[] = [
       'dashboard', 'assignments', 'attendance', 'subjects', 'resources',
-      'polls', 'calendar', 'members', 'broadcasts', 'messages', 'analytics', 'settings'
+      'polls', 'calendar', 'members', 'broadcasts', 'messages', 'analytics', 'settings',
+      'growth', 'oversight'
     ];
 
     const handlePopState = (e: PopStateEvent) => {

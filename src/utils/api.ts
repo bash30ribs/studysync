@@ -1,9 +1,9 @@
 /**
  * StudySync Backend API Client
- * Talks to the Express backend at http://localhost:3001
+ * Talks to the Express backend mounted on the app host
  */
 
-export const API_BASE = 'http://localhost:3001';
+export const API_BASE = '';
 
 export interface ActivityEntry {
   id: string;

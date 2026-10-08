@@ -12,7 +12,7 @@ import { randomUUID } from 'crypto';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
 // ─── Middleware ───────────────────────────────────────────────────────────────
 app.use(cors({ origin: true, credentials: true }));
@@ -234,7 +234,7 @@ app.post('/api/assignments', upload.single('file'), (req, res) => {
       fileName = req.file.originalname;
       const kb = req.file.size / 1024;
       fileSize = kb > 1024 ? `${(kb / 1024).toFixed(1)} MB` : `${kb.toFixed(0)} KB`;
-      fileUrl = `http://localhost:${PORT}/uploads/${req.file.filename}`;
+      fileUrl = `/uploads/${req.file.filename}`;
     } else if (req.body.fileName) {
       fileName = req.body.fileName;
       fileSize = req.body.fileSize || '1.8 MB';
@@ -295,7 +295,7 @@ app.post('/api/upload/assignment-file', upload.single('file'), (req, res) => {
     ? `${(fileSizeKB / 1024).toFixed(1)} MB`
     : `${fileSizeKB.toFixed(0)} KB`;
 
-  const fullUrl = `http://localhost:${PORT}${fileUrl}`;
+  const fullUrl = fileUrl;
 
   logActivity(
     'assignment_file_upload',
@@ -338,7 +338,7 @@ const handleSubmission = (req, res) => {
   let fileSize = '—';
 
   if (req.file) {
-    fileUrl = `http://localhost:${PORT}/uploads/${req.file.filename}`;
+    fileUrl = `/uploads/${req.file.filename}`;
     fileName = req.file.originalname;
     const kb = req.file.size / 1024;
     fileSize = kb > 1024 ? `${(kb / 1024).toFixed(1)} MB` : `${kb.toFixed(0)} KB`;
@@ -465,7 +465,7 @@ app.post('/api/growth', upload.single('file'), (req, res) => {
   let fileUrl = null;
   let fileName = null;
   if (req.file) {
-    fileUrl = `http://localhost:${PORT}/uploads/${req.file.filename}`;
+    fileUrl = `/uploads/${req.file.filename}`;
     fileName = req.file.originalname;
   }
 
@@ -515,7 +515,7 @@ app.post('/api/upload/resource', upload.single('file'), (req, res) => {
   let fileSize = '—';
 
   if (req.file) {
-    fileUrl = `http://localhost:${PORT}/uploads/${req.file.filename}`;
+    fileUrl = `/uploads/${req.file.filename}`;
     fileName = req.file.originalname;
     const kb = req.file.size / 1024;
     fileSize = kb > 1024 ? `${(kb / 1024).toFixed(1)} MB` : `${kb.toFixed(0)} KB`;
@@ -555,10 +555,15 @@ app.use((err, _req, res, _next) => {
   res.status(400).json({ error: err.message });
 });
 
-// ─── START SERVER ─────────────────────────────────────────────────────────────
-app.listen(PORT, () => {
-  console.log(`\n🚀 StudySync Backend running on http://localhost:${PORT}`);
-  console.log(`   📁 File uploads: ${UPLOADS_DIR}`);
-  console.log(`   📡 SSE endpoint: http://localhost:${PORT}/api/events`);
-  console.log(`   🏥 Health:       http://localhost:${PORT}/api/health\n`);
-});
+// ─── START SERVER / EXPORT ────────────────────────────────────────────────────
+const isDirectRun = process.argv[1] && (process.argv[1].endsWith('server/index.js') || process.argv[1].endsWith('server/index'));
+if (isDirectRun || process.env.RUN_STANDALONE === 'true') {
+  app.listen(PORT, () => {
+    console.log(`\n🚀 StudySync Backend running on port ${PORT}`);
+    console.log(`   📁 File uploads: ${UPLOADS_DIR}`);
+    console.log(`   📡 SSE endpoint: /api/events`);
+    console.log(`   🏥 Health:       /api/health\n`);
+  });
+}
+
+export default app;

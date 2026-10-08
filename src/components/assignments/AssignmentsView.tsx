@@ -426,7 +426,7 @@ export const AssignmentsView: React.FC = () => {
 
                             {asg.fileName && (
                               <a
-                                href={asg.fileUrl || `http://localhost:3001/uploads/${asg.fileName}`}
+                                href={asg.fileUrl || `/uploads/${asg.fileName}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 onClick={(e) => e.stopPropagation()}

@@ -69,6 +69,23 @@ const MainLayout: React.FC<{ isDarkMode: boolean; setIsDarkMode: React.Dispatch<
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [setIsShortcutsOpen, goBack]);
 
+  useEffect(() => {
+    const handlePop = (e: PopStateEvent) => {
+      const hash = window.location.hash.replace('#', '');
+      if (e.state?.view === 'landing' || (!e.state && !hash)) {
+        if (!showLanding) {
+          setShowLanding(true);
+        }
+      } else if (e.state?.tab || hash) {
+        if (showLanding) {
+          setShowLanding(false);
+        }
+      }
+    };
+    window.addEventListener('popstate', handlePop);
+    return () => window.removeEventListener('popstate', handlePop);
+  }, [showLanding]);
+
   // Priority 6: Dynamic Page Titles
   useEffect(() => {
     if (showLanding) {
@@ -98,10 +115,12 @@ const MainLayout: React.FC<{ isDarkMode: boolean; setIsDarkMode: React.Dispatch<
   if (showLanding) {
     return <LandingPage onEnterApp={() => {
       try { sessionStorage.setItem('studysync_entered', '1'); } catch {}
-      if (typeof window !== 'undefined' && window.location) {
-        window.location.href = '/workspace.html';
-      }
       setShowLanding(false);
+      try {
+        if (typeof window !== 'undefined') {
+          window.history.pushState({ view: 'app', tab: 'dashboard' }, '', '#dashboard');
+        }
+      } catch {}
     }} />;
   }
 

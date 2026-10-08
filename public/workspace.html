@@ -3239,6 +3239,10 @@ input[type=range]::-moz-range-thumb{
       </span>
       <span class="brand-text"><b>StudySync</b><span>Hub</span></span>
     </button>
+    <button class="btn btn-ghost btn-sm" id="wsBackBtn" title="Go Back (Alt+←)" style="display:none;margin-left:8px;padding:5px 10px;font-size:11.5px;align-items:center;gap:5px;border-radius:8px">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      <span>Back</span>
+    </button>
 
     <div class="role-pill" id="rolePill" data-role="CR"><i></i><span id="rolePillLabel">CR</span></div>
 
@@ -3511,7 +3515,7 @@ const USER_PROFILES = {
   sundaram: { name: 'Dr. M. Sundaram', role: 'Faculty', initials: 'MS', roleKey: 'FACULTY' }
 };
 
-function showWorkspace(user) {
+function showWorkspace(user, skipHistory = false) {
   if (user && USER_PROFILES[user]) {
     state.activeUser = user;
     state.activeRole = USER_PROFILES[user].roleKey;
@@ -3546,10 +3550,16 @@ function showWorkspace(user) {
   if (!validItems.find(it => it.id === state.activeTab)) {
     state.activeTab = 'dashboard';
   }
+  if (!skipHistory) {
+    try {
+      history.pushState({ view: 'workspace', tab: state.activeTab, role: state.activeRole, user: state.activeUser }, '', '#' + state.activeTab);
+    } catch(e) {}
+  }
+  updateBackBtnVisibility();
   toast(`Entered workspace as ${USER_PROFILES[state.activeUser]?.name || 'Ribhav Sharma'}`, 'blue');
 }
 
-function showLanding() {
+function showLanding(skipHistory = false) {
   state.view = 'landing';
   try { sessionStorage.removeItem('studysync_entered'); } catch(e) {}
 
@@ -3560,7 +3570,35 @@ function showLanding() {
   document.body.classList.remove('ws-open');
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (!skipHistory) {
+    try {
+      history.pushState({ view: 'landing' }, '', '#landing');
+    } catch(e) {}
+  }
+  updateBackBtnVisibility();
   toast('Returned to StudySync Landing', 'blue');
+}
+
+function updateBackBtnVisibility() {
+  const btn = $('#wsBackBtn');
+  if (!btn) return;
+  if (state.view === 'workspace' && (state.activeTab !== 'dashboard' || window.history.length > 1)) {
+    btn.style.display = 'inline-flex';
+  } else {
+    btn.style.display = 'none';
+  }
+}
+
+function handleWorkspaceBack() {
+  if ($('#modalBack')?.classList.contains('open')) {
+    closeModal();
+    return;
+  }
+  if (state.activeTab !== 'dashboard') {
+    setTab('dashboard');
+    return;
+  }
+  showLanding();
 }
 
 /* ============================================================
@@ -4780,17 +4818,23 @@ function renderNav() {
 /* ============================================================
    VIEW ROUTER
    ============================================================ */
-function setTab(tab) {
+function setTab(tab, skipHistory = false) {
   if (state.activeTab === tab) return;
   state.activeTab = tab;
+  if (!skipHistory) {
+    try {
+      history.pushState({ view: 'workspace', tab, role: state.activeRole, user: state.activeUser }, '', '#' + tab);
+    } catch(e) {}
+  }
   renderNav();
   renderView();
   // Sync mobile nav
   $$('.mobile-nav-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
   // Scroll main to top
-  $('#mainScroll').scrollTo({ top: 0, behavior: 'smooth' });
+  $('#mainScroll')?.scrollTo({ top: 0, behavior: 'smooth' });
   // Close mobile left panel
-  if (window.innerWidth < 860) $('#leftPanel').classList.add('collapsed');
+  if (window.innerWidth < 860) $('#leftPanel')?.classList.add('collapsed');
+  updateBackBtnVisibility();
 }
 
 function renderView() {
@@ -6055,10 +6099,17 @@ function renderSettings() {
 function openModal(html) {
   $('#modalBody').innerHTML = html;
   $('#modalBack').classList.add('open');
+  try {
+    history.pushState({ view: 'workspace', tab: state.activeTab, modal: true }, '', '#' + state.activeTab);
+  } catch(e) {}
   wireModal();
 }
-function closeModal() {
-  $('#modalBack').classList.remove('open');
+function closeModal(fromPopState = false) {
+  const wasOpen = $('#modalBack')?.classList.contains('open');
+  $('#modalBack')?.classList.remove('open');
+  if (wasOpen && !fromPopState && window.history.state?.modal) {
+    try { window.history.back(); } catch(e) {}
+  }
 }
 
 function wireModal() {
@@ -7246,7 +7297,7 @@ function handleAction(action, el) {
         b.status = 'approved';
         saveBroadcasts();
         try {
-          fetch(`http://localhost:3001/api/broadcasts/${id}/approve`, { method: 'POST' }).catch(() => {});
+          fetch(`/api/broadcasts/${id}/approve`, { method: 'POST' }).catch(() => {});
         } catch(e) {}
         toast('Broadcast approved and published to cohort feed', 'green');
         renderView();
@@ -7273,7 +7324,7 @@ function handleAction(action, el) {
         gw.verifiedBy = 'Dr. M. Sundaram';
         saveGrowthActivities();
         try {
-          fetch(`http://localhost:3001/api/growth/${id}/approve`, { method: 'POST' }).catch(() => {});
+          fetch(`/api/growth/${id}/approve`, { method: 'POST' }).catch(() => {});
         } catch(e) {}
         toast(`Accredited +${gw.points} points for ${gw.studentName}`, 'green');
         renderView();
@@ -7514,7 +7565,7 @@ function handleAction(action, el) {
             fd.append('title', title);
             fd.append('category', category);
             fd.append('points', points);
-            fetch('http://localhost:3001/api/growth', { method: 'POST', body: fd }).catch(() => {});
+            fetch('/api/growth', { method: 'POST', body: fd }).catch(() => {});
           } catch(e) {}
 
           closeModal();
@@ -7689,7 +7740,7 @@ function handleAction(action, el) {
             fd.append('fileName', pdfName);
             fd.append('fileSize', pdfSize);
             fd.append('createdBy', 'Ribhav Sharma (CR)');
-            fetch('http://localhost:3001/api/assignments', { method: 'POST', body: fd }).catch(() => {});
+            fetch('/api/assignments', { method: 'POST', body: fd }).catch(() => {});
           } catch(e) {}
 
           closeModal();
@@ -7769,16 +7820,16 @@ function handleAction(action, el) {
         <p class="modal-sub">One-click session recorder. Tap once per student present. Sessions are written to the local ledger immediately.</p>
         <div class="form-row">
           <label>Subject / period</label>
-          <select class="select">
+          <select class="select" id="attSubjectSelect">
             <option>Fluid Mechanics — Period 2</option>
             <option>Engineering Maths — Period 4</option>
             <option>Compiler Design — Period 1</option>
           </select>
         </div>
-        <div style="max-height:300px;overflow-y:auto;border:1px solid var(--border);border-radius:10px;padding:4px;margin-bottom:14px">
-          ${STUDENTS.map(s => `
+        <div id="attChecklistWrap" style="max-height:300px;overflow-y:auto;border:1px solid var(--border);border-radius:10px;padding:4px;margin-bottom:14px">
+          ${STUDENTS.map((s, idx) => `
             <label style="display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:8px;cursor:pointer;transition:background .2s" onmouseover="this.style.background='rgba(255,255,255,.04)'" onmouseout="this.style.background=''">
-              <input type="checkbox" checked style="accent-color:#8ba9c4;width:15px;height:15px" />
+              <input type="checkbox" class="att-student-checkbox" data-index="${idx}" data-code="${s.code}" checked style="accent-color:#8ba9c4;width:15px;height:15px" />
               <span class="avatar-sm">${s.name.split(' ').map(n=>n[0]).join('')}</span>
               <span style="flex:1">
                 <b style="font-size:12.5px;font-weight:500;display:block">${s.name}</b>
@@ -7787,12 +7838,33 @@ function handleAction(action, el) {
             </label>
           `).join('')}
         </div>
-        <button class="btn btn-accent btn-lg" id="attSubmit" style="width:100%">Commit session · 10 present</button>
+        <button class="btn btn-accent btn-lg" id="attSubmit" style="width:100%">Commit session · ${STUDENTS.length} present</button>
       `);
       setTimeout(() => {
+        const checkboxes = $$('.att-student-checkbox', $('#attChecklistWrap'));
+        const updateCount = () => {
+          const present = Array.from(checkboxes).filter(cb => cb.checked).length;
+          const btn = $('#attSubmit');
+          if (btn) btn.textContent = `Commit session · ${present} present`;
+        };
+        checkboxes.forEach(cb => cb.addEventListener('change', updateCount));
+
         $('#attSubmit')?.addEventListener('click', () => {
+          const subject = $('#attSubjectSelect')?.value || 'Fluid Mechanics';
+          const presentCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+          checkboxes.forEach(cb => {
+            const idx = parseInt(cb.dataset.index);
+            if (STUDENTS[idx]) {
+              STUDENTS[idx].total = (STUDENTS[idx].total || 30) + 1;
+              if (cb.checked) {
+                STUDENTS[idx].sessions = (STUDENTS[idx].sessions || 24) + 1;
+              }
+              STUDENTS[idx].att = Math.round((STUDENTS[idx].sessions / STUDENTS[idx].total) * 100);
+            }
+          });
           closeModal();
-          toast('Attendance session committed to local ledger', 'green');
+          toast(`Attendance session recorded for ${subject}: ${presentCount}/${STUDENTS.length} present`, 'green');
+          renderView();
         });
       }, 20);
       break;
@@ -7848,7 +7920,7 @@ function handleAction(action, el) {
           saveBroadcasts();
 
           try {
-            fetch('http://localhost:3001/api/broadcasts', {
+            fetch('/api/broadcasts', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
@@ -7868,15 +7940,28 @@ function handleAction(action, el) {
       }, 20);
       break;
 
-    case 'nudge-defaulters':
-    case 'nudge':
-      toast('Nudge dispatched via EduTrack push', 'green');
+    case 'nudge-defaulters': {
+      const defaulters = STUDENTS.filter(s => s.att < 75);
+      toast(`Alert sent to ${defaulters.length} attendance defaulters via Push & SMS`, 'amber');
       if (el) {
         const orig = el.textContent;
-        el.textContent = '✓ Sent';
+        el.textContent = `✓ Dispatched to ${defaulters.length}`;
+        setTimeout(() => { el.textContent = orig; }, 2400);
+      }
+      break;
+    }
+    case 'nudge': {
+      const asgId = el ? el.dataset.id : '';
+      const asg = asgId ? ASSIGNMENTS.find(a => a.id === asgId) : null;
+      const targetLabel = asg ? `for "${asg.title}"` : 'to pending students';
+      toast(`Direct reminder dispatched ${targetLabel}`, 'amber');
+      if (el) {
+        const orig = el.textContent;
+        el.textContent = '✓ Dispatched';
         setTimeout(() => { el.textContent = orig; }, 2200);
       }
       break;
+    }
 
     case 'export':
       exportCSV(el?.dataset?.type || state.activeTab);
@@ -8114,16 +8199,47 @@ function handleAction(action, el) {
         <p class="modal-sub">Anonymous, one vote per student. Perfect for viva slots and elective selection.</p>
         <div class="form-row">
           <label>Question</label>
-          <input class="input" placeholder="e.g. Which slot works for viva?" />
+          <input class="input" id="newPollQuestion" placeholder="e.g. Which slot works for viva?" />
         </div>
         <div class="form-row">
           <label>Options</label>
-          <input class="input" placeholder="Option 1" style="margin-bottom:8px" />
-          <input class="input" placeholder="Option 2" style="margin-bottom:8px" />
-          <input class="input" placeholder="Option 3" />
+          <input class="input" id="newPollOpt1" placeholder="Option 1" style="margin-bottom:8px" />
+          <input class="input" id="newPollOpt2" placeholder="Option 2" style="margin-bottom:8px" />
+          <input class="input" id="newPollOpt3" placeholder="Option 3 (optional)" />
         </div>
-        <button class="btn btn-accent btn-lg" style="width:100%;margin-top:8px" onclick="closeModal();toast('Poll created and shared with cohort','green')">Create poll</button>
+        <button class="btn btn-accent btn-lg" id="submitNewPollBtn" style="width:100%;margin-top:8px">Create poll</button>
       `);
+      setTimeout(() => {
+        $('#submitNewPollBtn')?.addEventListener('click', () => {
+          const q = $('#newPollQuestion')?.value.trim();
+          const o1 = $('#newPollOpt1')?.value.trim();
+          const o2 = $('#newPollOpt2')?.value.trim();
+          const o3 = $('#newPollOpt3')?.value.trim();
+          if (!q || !o1 || !o2) {
+            toast('Please enter a question and at least 2 options', 'amber');
+            return;
+          }
+          const options = [
+            { id: 'opt1', text: o1, votes: 0 },
+            { id: 'opt2', text: o2, votes: 0 }
+          ];
+          if (o3) options.push({ id: 'opt3', text: o3, votes: 0 });
+          const newPoll = {
+            id: 'p' + Date.now(),
+            question: q,
+            author: state.activeUser === 'aaditya' ? 'Aaditya Verma' : 'Ribhav Sharma (CR)',
+            time: 'Just now',
+            total: 0,
+            options,
+            voted: null
+          };
+          if (!state.polls) state.polls = [];
+          state.polls.unshift(newPoll);
+          closeModal();
+          toast('Poll created and shared with cohort', 'green');
+          renderView();
+        });
+      }, 20);
       break;
 
     case 'view-submissions':
@@ -8257,7 +8373,7 @@ function handleAction(action, el) {
               fd.append('studentId', studentCode);
               fd.append('assignmentId', asg ? asg.id : 'a1');
               fd.append('assignmentTitle', asgTitle);
-              fetch('http://localhost:3001/api/submit', { method: 'POST', body: fd }).catch(() => {});
+              fetch('/api/submit', { method: 'POST', body: fd }).catch(() => {});
             }
           } catch(e) {}
 
@@ -8545,14 +8661,14 @@ function initBackendLiveSync() {
     if (pill) {
       pill.classList.toggle('offline', !online);
       pill.title = online 
-        ? 'Connected to StudySync Backend (http://localhost:3001) · Real-time SSE push active' 
+        ? 'Connected to StudySync Backend · Real-time SSE push active' 
         : 'Backend offline · Local storage mode';
     }
     if (label) label.textContent = online ? 'Live Sync' : 'Local Sync';
   }
 
   try {
-    const es = new EventSource('http://localhost:3001/api/events');
+    const es = new EventSource('/api/events');
 
     es.addEventListener('open', () => {
       setOnline(true);
@@ -8821,30 +8937,47 @@ function setupHeaderButtons() {
       showLanding();
     });
   }
+  const wsBack = $('#wsBackBtn');
+  if (wsBack) {
+    wsBack.addEventListener('click', (e) => {
+      e.preventDefault();
+      handleWorkspaceBack();
+    });
+  }
   $('#livePill').addEventListener('click', () => handleAction('toggle-live'));
   $('#soundscapesBtn').addEventListener('click', () => {
     openModal(`
       <h3>Focus soundscapes</h3>
       <p class="modal-sub">Procedural Web Audio tones. No external files — generated on the fly.</p>
       <div style="display:flex;flex-direction:column;gap:8px;margin-top:20px">
-        <button class="role-menu-item" style="border:1px solid var(--border);border-radius:10px">
+        <button class="role-menu-item soundscape-btn" data-sound="rain" style="border:1px solid var(--border);border-radius:10px">
           <span class="avatar">🌧️</span>
           <span class="meta"><b>Rain</b><span>Soft, filtered, continuous</span></span>
         </button>
-        <button class="role-menu-item" style="border:1px solid var(--border);border-radius:10px">
+        <button class="role-menu-item soundscape-btn" data-sound="noise" style="border:1px solid var(--border);border-radius:10px">
           <span class="avatar">🎚️</span>
           <span class="meta"><b>Brown Noise</b><span>Deep, warm, low-frequency</span></span>
         </button>
-        <button class="role-menu-item" style="border:1px solid var(--border);border-radius:10px">
+        <button class="role-menu-item soundscape-btn" data-sound="binaural" style="border:1px solid var(--border);border-radius:10px">
           <span class="avatar">🎧</span>
           <span class="meta"><b>Binaural Focus</b><span>200 Hz / 210 Hz stereo</span></span>
         </button>
-        <button class="role-menu-item" style="border:1px solid var(--border);border-radius:10px;color:var(--red)">
+        <button class="role-menu-item soundscape-btn" data-sound="mute" style="border:1px solid var(--border);border-radius:10px;color:var(--red)">
           <span class="avatar">✕</span>
           <span class="meta"><b>Silence</b><span>Stop all playback</span></span>
         </button>
       </div>
     `);
+    setTimeout(() => {
+      $$('.soundscape-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const snd = btn.dataset.sound;
+          playSound(snd);
+          toast(snd === 'mute' ? 'Soundscape silenced' : `Playing ${snd} soundscape`, 'blue');
+          closeModal();
+        });
+      });
+    }, 20);
   });
   $('#achievementsBtn').addEventListener('click', () => {
     openModal(`
@@ -9110,15 +9243,56 @@ function boot() {
       e.preventDefault();
       toast('Command palette (coming soon)', 'blue');
     }
+    if ((e.altKey && e.key === 'ArrowLeft') || (e.key === 'Backspace' && !e.target.matches('input, textarea, select, [contenteditable]'))) {
+      e.preventDefault();
+      handleWorkspaceBack();
+    }
+  });
+
+  // Browser & mobile gesture popstate navigation
+  window.addEventListener('popstate', (e) => {
+    // 1. Close open modal if present
+    if ($('#modalBack')?.classList.contains('open')) {
+      closeModal(true);
+      return;
+    }
+
+    // 2. Collapse mobile left panel if open
+    if (window.innerWidth < 860 && $('#leftPanel') && !$('#leftPanel').classList.contains('collapsed')) {
+      $('#leftPanel').classList.add('collapsed');
+    }
+
+    const s = e.state;
+    // 3. Popped to landing view
+    if (!s || s.view === 'landing' || (!window.location.hash && !s.tab)) {
+      if (state.view !== 'landing') {
+        showLanding(true);
+      }
+      return;
+    }
+
+    // 4. Popped to workspace view
+    if (s.view === 'workspace') {
+      if (state.view !== 'workspace') {
+        if (s.user && s.user !== state.activeUser) {
+          state.activeUser = s.user;
+          state.activeRole = s.role || USER_PROFILES[s.user]?.roleKey || 'CR';
+        }
+        showWorkspace(state.activeUser, true);
+      }
+      if (s.tab && s.tab !== state.activeTab) {
+        setTab(s.tab, true);
+      }
+    }
   });
 
   tick();
 
   // Initial view check
   if (state.view === 'workspace') {
-    showWorkspace(state.activeUser);
+    showWorkspace(state.activeUser, true);
   } else {
-    showLanding();
+    showLanding(true);
   }
 }
 
