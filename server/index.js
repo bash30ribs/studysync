@@ -555,15 +555,10 @@ app.use((err, _req, res, _next) => {
   res.status(400).json({ error: err.message });
 });
 
-// ─── START SERVER / EXPORT ────────────────────────────────────────────────────
-const isDirectRun = process.argv[1] && (process.argv[1].endsWith('server/index.js') || process.argv[1].endsWith('server/index'));
-if (isDirectRun || process.env.RUN_STANDALONE === 'true') {
-  app.listen(PORT, () => {
-    console.log(`\n🚀 StudySync Backend running on port ${PORT}`);
-    console.log(`   📁 File uploads: ${UPLOADS_DIR}`);
-    console.log(`   📡 SSE endpoint: /api/events`);
-    console.log(`   🏥 Health:       /api/health\n`);
-  });
-}
-
-export default app;
+// ─── START SERVER ─────────────────────────────────────────────────────────────
+app.listen(PORT, () => {
+  console.log(`\n🚀 StudySync Backend running on port ${PORT}`);
+  console.log(`   📁 File uploads: ${UPLOADS_DIR}`);
+  console.log(`   📡 SSE endpoint: /api/events`);
+  console.log(`   🏥 Health:       /api/health\n`);
+});
