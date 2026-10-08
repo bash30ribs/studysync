@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useStudySync } from '../../store';
+import { LiveActivityFeed } from '../common/LiveActivityFeed';
 import { AttendanceSession } from '../../types';
 import { calculateStudentStreak } from '../../utils/streakUtils';
 import { 
@@ -250,6 +251,9 @@ export const StudentDashboard: React.FC = () => {
         </div>
       </div>
 
+      {/* 📡 Live Backend Activity Feed */}
+      <LiveActivityFeed maxItems={10} />
+
       {/* 1.5 Holistic Growth & AICTE 100 Points Meter Banner */}
       <div 
         onClick={() => setActiveTab('growth')}
@@ -380,21 +384,24 @@ export const StudentDashboard: React.FC = () => {
 
       {/* 3. Pinned Urgent CR Announcement Banner */}
       {latestBroadcast && (
-        <div className="p-4 sm:p-5 rounded-xl bg-white dark:bg-[#121212] border border-[#DBDBDB] dark:border-[#262626] flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all">
+        <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-[#0095F6]/10 via-[#0095F6]/5 to-transparent border-2 border-[#0095F6]/40 dark:border-[#0095F6]/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all shadow-sm">
           <div className="flex items-start gap-3.5">
-            <div className="p-2 rounded-md bg-[#0095F6]/10 text-[#0095F6] shrink-0 mt-0.5">
-              <Megaphone className="w-4 h-4" />
+            <div className="p-2.5 rounded-xl bg-[#0095F6] text-white shrink-0 mt-0.5 shadow-md shadow-[#0095F6]/20">
+              <Megaphone className="w-5 h-5 animate-pulse" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] font-bold text-[#0095F6] tracking-wider uppercase">
-                  Class Announcement
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-[10px] font-extrabold text-[#0095F6] tracking-wider uppercase bg-[#0095F6]/15 px-2 py-0.5 rounded-full">
+                  📢 Official Broadcast
+                </span>
+                <span className="text-xs font-bold text-black dark:text-white">
+                  {latestBroadcast.authorName || 'Class Representative'}
                 </span>
                 <span className="text-[11px] text-[#8E8E8E] font-mono">
-                  {new Date(latestBroadcast.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  {new Date(latestBroadcast.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} · {new Date(latestBroadcast.sentAt).toLocaleDateString([], { month: 'short', day: 'numeric' })}
                 </span>
               </div>
-              <p className="text-xs sm:text-sm text-black dark:text-white mt-1 leading-relaxed font-medium">
+              <p className="text-sm text-black dark:text-white mt-1.5 leading-relaxed font-semibold">
                 {latestBroadcast.content}
               </p>
             </div>
@@ -402,9 +409,9 @@ export const StudentDashboard: React.FC = () => {
 
           <button
             onClick={() => setActiveTab('broadcasts')}
-            className="self-end sm:self-center px-3 py-1.5 rounded-lg bg-[#EFEFEF] hover:bg-[#DBDBDB] dark:bg-[#262626] dark:hover:bg-[#363636] text-black dark:text-white text-xs font-semibold flex items-center gap-1.5 shrink-0 transition-all border border-[#DBDBDB] dark:border-[#363636]"
+            className="self-end sm:self-center px-3.5 py-2 rounded-xl bg-[#0095F6] hover:bg-[#1877F2] text-white text-xs font-bold flex items-center gap-1.5 shrink-0 transition-all shadow-sm"
           >
-            <span>All Updates</span>
+            <span>Class Feed</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>

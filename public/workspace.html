@@ -1575,6 +1575,174 @@ body.ws-open{overflow:hidden;height:100vh}
   background:linear-gradient(90deg,transparent,rgba(139,169,196,.55),transparent);
 }
 
+/* Floating Circular Scroll Progress Ring */
+.progress-ring {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 50px;
+  height: 50px;
+  z-index: 75;
+  border-radius: 50%;
+  background: rgba(12, 12, 14, .85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-2);
+  display: grid;
+  place-items: center;
+  box-shadow: 0 20px 40px -20px rgba(0, 0, 0, 1);
+  opacity: 0;
+  transform: scale(.8) translate3d(0, 8px, 0);
+  pointer-events: none;
+  transition: opacity .4s var(--ease), transform .4s var(--ease), border-color .3s;
+  cursor: pointer;
+}
+.progress-ring.show {
+  opacity: 1;
+  transform: scale(1) translate3d(0, 0, 0);
+  pointer-events: auto;
+}
+.progress-ring:hover {
+  border-color: var(--accent-border);
+  transform: scale(1.06) translate3d(0, 0, 0);
+}
+.progress-ring svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+.progress-ring circle {
+  fill: none;
+  stroke-width: 2.2;
+}
+.progress-ring .track {
+  stroke: rgba(255, 255, 255, .08);
+}
+.progress-ring .fill {
+  stroke: var(--accent-2);
+  stroke-linecap: round;
+  transition: stroke-dashoffset .08s linear;
+}
+.progress-ring .num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -.02em;
+}
+
+/* Signal Rail */
+.signal-rail {
+  position: fixed;
+  right: 22px;
+  top: 12vh;
+  height: 76vh;
+  width: 64px;
+  z-index: 74;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate3d(0, 0, 0);
+  transition: opacity .8s var(--ease);
+  will-change: opacity;
+}
+.signal-rail.show {
+  opacity: 1;
+}
+.signal-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.signal-path-track,
+.signal-path-progress {
+  fill: none;
+  stroke-width: 1;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+.signal-path-track {
+  stroke: rgba(255, 255, 255, .07);
+}
+.signal-path-progress {
+  stroke: rgba(200, 215, 235, .55);
+  filter: drop-shadow(0 0 3px rgba(200, 215, 235, .35));
+}
+.signal-orb-wrap {
+  position: absolute;
+  left: 20px;
+  top: 0;
+  width: 24px;
+  height: 24px;
+  margin-left: -12px;
+  margin-top: -12px;
+  pointer-events: none;
+  will-change: transform;
+}
+.signal-orb {
+  position: absolute;
+  inset: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 14px var(--accent), 0 0 4px #fff;
+}
+.signal-orb-ring {
+  position: absolute;
+  inset: 2px;
+  border-radius: 50%;
+  border: 1px solid rgba(200, 215, 235, .4);
+  animation: pulseRing 2s var(--ease) infinite;
+}
+.signal-trail {
+  position: absolute;
+  left: 31px;
+  top: 0;
+  width: 2px;
+  background: linear-gradient(180deg, transparent, rgba(200, 215, 235, .4));
+  filter: blur(1px);
+  will-change: height;
+}
+.signal-node {
+  position: absolute;
+  right: 18px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .15);
+  transform: translateY(-50%);
+  transition: background .6s var(--ease), box-shadow .6s var(--ease), transform .4s var(--ease);
+  pointer-events: auto;
+}
+.signal-node::after {
+  content: attr(data-label);
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: .06em;
+  color: var(--text-4);
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity .5s var(--ease), color .5s var(--ease);
+}
+.signal-node.active {
+  background: rgba(200, 215, 235, .9);
+  box-shadow: 0 0 12px rgba(200, 215, 235, .55), 0 0 0 3px rgba(200, 215, 235, .08);
+}
+.signal-node.active::after {
+  opacity: 1;
+  color: rgba(200, 215, 235, .85);
+}
+@media (max-width: 860px) {
+  .signal-rail { display: none !important; }
+}
+
 /* Landing nav */
 .land-nav{
   position:fixed;top:0;left:0;right:0;z-index:70;
@@ -2434,6 +2602,41 @@ input[type=range]::-moz-range-thumb{
 
 .nav-link .nav-badge.violet{background:rgba(155,143,196,.14);color:var(--violet)}
 .nav-link .nav-badge.danger{background:rgba(177,125,125,.12);color:var(--red)}
+
+/* Pinned Broadcast Banner */
+.pinned-broadcast-banner{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 20px;border-radius:14px;background:linear-gradient(90deg,rgba(139,169,196,.12),rgba(139,169,196,.04));border:1.5px solid rgba(139,169,196,.35);margin-bottom:20px;box-shadow:0 4px 20px rgba(0,0,0,.25)}
+.pbb-left{display:flex;align-items:flex-start;gap:14px;min-width:0}
+.pbb-icon{width:36px;height:36px;border-radius:10px;background:var(--accent);color:#08080a;display:flex;align-items:center;justify-content:center;shrink:0;box-shadow:0 2px 10px rgba(139,169,196,.3)}
+.pbb-content{min-width:0}
+.pbb-meta{display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap}
+.pbb-tag{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--accent-2);background:var(--accent-soft);padding:2px 7px;border-radius:4px}
+.pbb-author{font-size:12px;font-weight:600;color:var(--text)}
+.pbb-time{font-size:11px;color:var(--text-4);font-family:'JetBrains Mono',monospace}
+.pbb-text{font-size:13px;line-height:1.5;color:var(--text);font-weight:500}
+
+/* Live Backend Sync Badge */
+.live-sync-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--text-3);font-family:'JetBrains Mono',monospace}
+.sync-dot{width:7px;height:7px;border-radius:50%}
+.sync-dot.live{background:var(--green);box-shadow:0 0 8px var(--green);animation:pulseDot 2s infinite}
+.sync-dot.offline{background:var(--text-4)}
+@keyframes pulseDot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.85)}}
+
+/* Growth Portfolio Styles */
+.growth-hero{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:24px;border-radius:16px;background:linear-gradient(135deg,rgba(127,168,168,.12),rgba(139,169,196,.06));border:1px solid rgba(127,168,168,.25);margin-bottom:24px;flex-wrap:wrap}
+.growth-meter-box{display:flex;align-items:center;gap:18px}
+.growth-circle{width:74px;height:74px;border-radius:50%;background:conic-gradient(var(--teal) calc(var(--pct) * 1%),rgba(255,255,255,.08) 0);display:flex;align-items:center;justify-content:center;position:relative}
+.growth-circle-inner{width:56px;height:56px;border-radius:50%;background:#09090b;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--teal)}
+.growth-cats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin-bottom:24px}
+.growth-cat-card{padding:14px;border-radius:12px;background:rgba(255,255,255,.02);border:1px solid var(--border);display:flex;flex-direction:column;justify-content:space-between;gap:10px}
+.growth-cat-head{display:flex;justify-content:space-between;align-items:flex-start}
+.growth-cat-title{font-size:12px;font-weight:600;color:var(--text)}
+.growth-cat-pts{font-size:13px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--teal)}
+
+/* Approval Queue tabs & rich cards */
+.queue-filter-bar{display:flex;gap:8px;margin-bottom:18px;overflow-x:auto;padding-bottom:4px}
+.queue-filter-btn{padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;background:rgba(255,255,255,.03);border:1px solid var(--border);color:var(--text-3);cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .2s;white-space:nowrap}
+.queue-filter-btn:hover{color:var(--text);border-color:var(--border-2)}
+.queue-filter-btn.active{background:var(--accent-soft);border-color:var(--accent-border);color:var(--accent-2)}
 </style>
 </head>
 <body>
@@ -2453,6 +2656,28 @@ input[type=range]::-moz-range-thumb{
 
 <!-- SCROLL PROGRESS (landing only) -->
 <div class="scroll-progress" id="scrollProg" aria-hidden="true"><i id="sprog"></i></div>
+
+<!-- CIRCULAR FLOATING SCROLL PROGRESS RING -->
+<div class="progress-ring" id="progressRing" role="progressbar" title="Scroll to top" aria-label="Scroll to top">
+  <svg viewBox="0 0 44 44">
+    <circle cx="22" cy="22" r="18" class="track"></circle>
+    <circle cx="22" cy="22" r="18" class="fill" id="progressFill"></circle>
+  </svg>
+  <span class="num" id="progressNum">0</span>
+</div>
+
+<!-- SIGNAL RAIL — vertical curved data stream that travels with scroll -->
+<div class="signal-rail" id="signalRail" aria-hidden="true">
+  <svg class="signal-svg" id="signalSvg" viewBox="0 0 64 1000" preserveAspectRatio="none">
+    <path id="signalPath" class="signal-path-track" d="M 32 0 C 52 140, 12 260, 32 400 C 52 540, 12 660, 32 800 C 46 880, 24 950, 32 1000" pathLength="1"></path>
+    <path id="signalPathProgress" class="signal-path-progress" d="M 32 0 C 52 140, 12 260, 32 400 C 52 540, 12 660, 32 800 C 46 880, 24 950, 32 1000" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"></path>
+  </svg>
+  <div class="signal-trail" id="signalTrail"></div>
+  <div class="signal-orb-wrap" id="signalOrbWrap">
+    <div class="signal-orb-ring"></div>
+    <div class="signal-orb"></div>
+  </div>
+</div>
 
 <!-- ============================================================
      LANDING VIEW ROOT
@@ -2490,7 +2715,7 @@ input[type=range]::-moz-range-thumb{
   </header>
 
   <!-- HERO -->
-  <section class="hero" id="top">
+  <section class="hero" id="top" data-section="Overview">
     <div class="hero-mesh" id="heroMesh"><span></span><span></span></div>
     <canvas id="net"></canvas>
 
@@ -2712,7 +2937,7 @@ input[type=range]::-moz-range-thumb{
   </div>
 
   <!-- CALCULATOR -->
-  <section class="land-section" id="calculator">
+  <section class="land-section" id="calculator" data-section="Bunk Radar">
     <div class="wrap">
       <div class="reveal">
         <span class="eyebrow">Bunk Radar</span>
@@ -2774,7 +2999,7 @@ input[type=range]::-moz-range-thumb{
   </section>
 
   <!-- PROOF SIMULATOR -->
-  <section class="land-section" id="proof">
+  <section class="land-section" id="proof" data-section="Proof Ledger">
     <div class="wrap">
       <div class="reveal">
         <span class="eyebrow">Immutable Proof</span>
@@ -2834,7 +3059,7 @@ input[type=range]::-moz-range-thumb{
   </section>
 
   <!-- SPLIT PREVIEW -->
-  <section class="land-section">
+  <section class="land-section" id="realities" data-section="The Contrast">
     <div class="wrap">
       <div class="reveal">
         <span class="eyebrow">The Difference</span>
@@ -2890,7 +3115,7 @@ input[type=range]::-moz-range-thumb{
   </section>
 
   <!-- ARCHITECTURE -->
-  <section class="land-section" id="features">
+  <section class="land-section" id="features" data-section="Architecture">
     <div class="wrap">
       <div class="reveal">
         <span class="eyebrow">Prototype Architecture</span>
@@ -2905,7 +3130,7 @@ input[type=range]::-moz-range-thumb{
   </section>
 
   <!-- COMPARISON -->
-  <section class="land-section" id="comparison">
+  <section class="land-section" id="comparison" data-section="Comparison">
     <div class="wrap">
       <div class="reveal">
         <span class="eyebrow">Head to Head</span>
@@ -3341,18 +3566,31 @@ function showLanding() {
 /* ============================================================
    LANDING INTERACTIONS
    ============================================================ */
+function setupSignalNodes() {
+  const rail = $('#signalRail');
+  if (!rail) return;
+  rail.querySelectorAll('.signal-node').forEach(n => n.remove());
+  const sections = $$('#landing section[data-section]');
+  if (!sections.length) return;
+  sections.forEach((sec, i) => {
+    const node = document.createElement('div');
+    node.className = 'signal-node';
+    const pct = sections.length === 1 ? 0.5 : i / (sections.length - 1);
+    node.style.top = (pct * 100) + '%';
+    node.dataset.label = sec.dataset.section || '';
+    node.dataset.pct = String(pct);
+    node.title = sec.dataset.section || '';
+    node.addEventListener('click', () => {
+      sec.scrollIntoView({ behavior: 'smooth' });
+    });
+    rail.appendChild(node);
+  });
+}
+
 function setupLandingNav() {
   const nav = $('#landNav');
   const bar = $('#sprog');
   if (!nav || !bar) return;
-  const onScroll = () => {
-    if (state.view !== 'landing') return;
-    const h = document.documentElement.scrollHeight - window.innerHeight;
-    bar.style.transform = `scaleX(${h > 0 ? window.scrollY / h : 0})`;
-    nav.classList.toggle('stuck', window.scrollY > 24);
-  };
-  window.addEventListener('scroll', onScroll, { passive: true });
-  onScroll();
 
   const brand = $('#landBrand');
   if (brand) {
@@ -3361,6 +3599,16 @@ function setupLandingNav() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   }
+
+  const ring = $('#progressRing');
+  if (ring) {
+    ring.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+
+  setupSignalNodes();
+  window.addEventListener('resize', setupSignalNodes);
 }
 
 function setupReveals() {
@@ -4286,14 +4534,46 @@ function saveResources() {
   try { localStorage.setItem('studysync_resources', JSON.stringify(RESOURCES)); } catch(e) {}
 }
 
-const BROADCASTS = [
+const INITIAL_BROADCASTS = [
+  { id: 'b1', author: 'Ribhav Sharma', role: 'CR', code: 'CS21532', text: 'Fluid Mechanics Lab 4 submission portal closes tomorrow at 5:00 PM. 34 of 48 submitted. Check the Assignment Tracker for real-time status.', time: '2h ago', pinned: true, reactions: 12, status: 'approved' },
+  { id: 'b2', author: 'Ribhav Sharma', role: 'CR', code: 'CS21532', text: 'Viva dates for Fluid Mechanics will be decided via poll. Please vote by tonight — anonymous, one vote per student.', time: '5h ago', pinned: true, reactions: 24, status: 'approved' },
+  { id: 'b3', author: 'Dr. M. Sundaram', role: 'Faculty', code: 'EMP-AIML-004', text: 'Unit 3 notes uploaded to the Academic Vault. Lab manual revision is available for download.', time: '1d ago', pinned: false, reactions: 18, status: 'approved' },
+  { id: 'b4', author: 'Ribhav Sharma', role: 'CR', code: 'CS21532', text: 'Attendance radar updated after Monday sessions. 4 defaulters flagged below 75% — check your personal radar.', time: '2d ago', pinned: false, reactions: 9, status: 'approved' },
   { id: 'b5', author: 'Ribhav Sharma', role: 'CR', code: 'CS21532', text: 'Reminder: fee payment window closes this Friday. Please check your portal.', time: '15m ago', pinned: false, reactions: 0, status: 'pending' },
-  { id: 'b6', author: 'Ribhav Sharma', role: 'CR', code: 'CS21532', text: 'Requesting department to reschedule Wednesday lab — conflicts with mid-term review.', time: '30m ago', pinned: false, reactions: 0, status: 'pending' },
-  { id: 'b1', author: 'Ribhav Sharma', role: 'CR', code: 'CS21532', text: 'Fluid Mechanics Lab 4 submission portal closes tomorrow at 5:00 PM. 34 of 48 submitted. Check the Assignment Tracker for real-time status.', time: '2h ago', pinned: true, reactions: 12 },
-  { id: 'b2', author: 'Ribhav Sharma', role: 'CR', code: 'CS21532', text: 'Viva dates for Fluid Mechanics will be decided via poll. Please vote by tonight — anonymous, one vote per student.', time: '5h ago', pinned: true, reactions: 24 },
-  { id: 'b3', author: 'Dr. M. Sundaram', role: 'Faculty', code: 'EMP-AIML-004', text: 'Unit 3 notes uploaded to the Academic Vault. Lab manual revision is available for download.', time: '1d ago', pinned: false, reactions: 18 },
-  { id: 'b4', author: 'Ribhav Sharma', role: 'CR', code: 'CS21532', text: 'Attendance radar updated after Monday sessions. 4 defaulters flagged below 75% — check your personal radar.', time: '2d ago', pinned: false, reactions: 9 }
+  { id: 'b6', author: 'Ribhav Sharma', role: 'CR', code: 'CS21532', text: 'Requesting department to reschedule Wednesday lab — conflicts with mid-term review.', time: '30m ago', pinned: false, reactions: 0, status: 'pending' }
 ];
+
+let BROADCASTS = (() => {
+  try {
+    const s = localStorage.getItem('studysync_broadcasts');
+    if (s) return JSON.parse(s);
+  } catch(e) {}
+  return [...INITIAL_BROADCASTS];
+})();
+
+function saveBroadcasts() {
+  try { localStorage.setItem('studysync_broadcasts', JSON.stringify(BROADCASTS)); } catch(e) {}
+}
+
+const INITIAL_GROWTH = [
+  { id: 'gw1', studentName: 'Aaditya Verma', rollNo: 'CS21571', title: 'AWS Cloud Solutions Architect Certification', category: 'Certifications & MOOCs', points: 20, status: 'approved', verifiedBy: 'Dr. M. Sundaram', ts: '2 days ago', fileName: 'AWS_Solutions_Architect.pdf', hash: '0x8f2a1b9c' },
+  { id: 'gw2', studentName: 'Aaditya Verma', rollNo: 'CS21571', title: 'Smart India Hackathon 2025 Regional Winner', category: 'Hackathons & Competitions', points: 25, status: 'approved', verifiedBy: 'Dr. M. Sundaram', ts: '1 week ago', fileName: 'SIH2025_Winner_Certificate.pdf', hash: '0x3d4e5f6a' },
+  { id: 'gw3', studentName: 'Aaditya Verma', rollNo: 'CS21571', title: 'IEEE International Student Paper on Edge ML', category: 'Research & Publications', points: 15, status: 'pending', verifiedBy: null, ts: 'Yesterday', fileName: 'IEEE_Paper_Proof.pdf', hash: '0x7b8c9d0e' },
+  { id: 'gw4', studentName: 'Sneha Nair', rollNo: 'CS21566', title: 'NPTEL Deep Learning with Distinction (Top 5%)', category: 'Certifications & MOOCs', points: 20, status: 'pending', verifiedBy: null, ts: '3 hours ago', fileName: 'NPTEL_DeepLearning_Score.pdf', hash: '0x1a2b3c4d' },
+  { id: 'gw5', studentName: 'Rohan Kulkarni', rollNo: 'CS21554', title: 'Summer Research Internship at C-DAC (8 Weeks)', category: 'Internships', points: 20, status: 'pending', verifiedBy: null, ts: '5 hours ago', fileName: 'CDAC_Internship_Certificate.pdf', hash: '0x5e6f7a8b' }
+];
+
+let GROWTH_ACTIVITIES = (() => {
+  try {
+    const s = localStorage.getItem('studysync_growth');
+    if (s) return JSON.parse(s);
+  } catch(e) {}
+  return [...INITIAL_GROWTH];
+})();
+
+function saveGrowthActivities() {
+  try { localStorage.setItem('studysync_growth', JSON.stringify(GROWTH_ACTIVITIES)); } catch(e) {}
+}
 
 
 /* ============================================================
@@ -5489,53 +5769,128 @@ function renderAnalytics() {
 }
 
 /* ============================================================
-   VIEW: Growth
+   VIEW: Growth Portfolio (AICTE 100-Activity Points)
    ============================================================ */
-function renderGrowth() {
+function renderStudentGrowth() {
+  const approvedPts = GROWTH_ACTIVITIES.filter(g => g.status === 'approved').reduce((sum, g) => sum + (g.points || 0), 0);
+  const pendingPts = GROWTH_ACTIVITIES.filter(g => g.status === 'pending').reduce((sum, g) => sum + (g.points || 0), 0);
+  const totalPct = Math.min(100, Math.round((approvedPts / 100) * 100));
+
+  const cats = [
+    { name: 'Certifications & MOOCs', max: 25, earned: GROWTH_ACTIVITIES.filter(g => g.category.includes('Cert') && g.status === 'approved').reduce((s, g) => s + g.points, 0) },
+    { name: 'Hackathons & Competitions', max: 25, earned: GROWTH_ACTIVITIES.filter(g => g.category.includes('Hack') && g.status === 'approved').reduce((s, g) => s + g.points, 0) },
+    { name: 'Internships & Training', max: 30, earned: GROWTH_ACTIVITIES.filter(g => g.category.includes('Intern') && g.status === 'approved').reduce((s, g) => s + g.points, 0) },
+    { name: 'Research & Publications', max: 20, earned: GROWTH_ACTIVITIES.filter(g => g.category.includes('Research') && g.status === 'approved').reduce((s, g) => s + g.points, 0) },
+    { name: 'Sports, NSS & Leadership', max: 20, earned: GROWTH_ACTIVITIES.filter(g => (g.category.includes('Sports') || g.category.includes('Leader')) && g.status === 'approved').reduce((s, g) => s + g.points, 0) }
+  ];
+
   return `
     <div class="view active">
       <div class="view-head">
         <div class="view-title-group">
-          <div class="view-eyebrow">Growth Portfolio</div>
-          <h1 class="view-title">Holistic academic growth</h1>
-          <p class="view-sub">A lifetime view of your academic record — attendance, submissions, and milestones.</p>
+          <div class="view-eyebrow teal">AICTE 100-Points Portfolio</div>
+          <h1 class="view-title">Holistic Growth Record</h1>
+          <p class="view-sub">Verified academic and co-curricular milestones, certifications, and faculty accreditations — backed by tamper-evident receipts.</p>
+        </div>
+        <div class="view-actions">
+          <button class="btn btn-accent magnetic" data-action="add-growth-activity">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
+            Add Achievement & Proof
+          </button>
         </div>
       </div>
-      <div class="metric-grid" style="grid-template-columns:repeat(3,1fr)">
-        <div class="metric">
-          <div class="metric-head">
-            <span class="metric-label">Milestones</span>
-            <span class="metric-icon accent"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 1.9 5.8L20 10l-6.1 1.2L12 17l-1.9-5.8L4 10l6.1-1.2z"/></svg></span>
+
+      <!-- Growth Hero Progress Meter -->
+      <div class="growth-hero">
+        <div class="growth-meter-box">
+          <div class="growth-circle" style="--pct:${totalPct}">
+            <div class="growth-circle-inner">${totalPct}%</div>
           </div>
-          <div class="metric-value"><span data-counter="24">0</span><small>achieved</small></div>
-          <div class="metric-foot">Across 3 terms</div>
+          <div>
+            <div style="font-size:24px;font-weight:700;color:var(--text);font-family:'JetBrains Mono',monospace">
+              ${approvedPts} <span style="font-size:14px;color:var(--text-3);font-weight:400">/ 100 AICTE Points</span>
+            </div>
+            <div style="font-size:12px;color:var(--text-3);margin-top:4px">
+              ${pendingPts > 0 ? `<span>⏳ <b>${pendingPts} points</b> pending Faculty Incharge signoff</span> · ` : ''}
+              <span>${approvedPts >= 75 ? '<span style="color:var(--green)">✓ Degree Honors Threshold Met</span>' : `${75 - approvedPts} points needed for Honors distinction`}</span>
+            </div>
+          </div>
         </div>
-        <div class="metric">
-          <div class="metric-head">
-            <span class="metric-label">Verified Hand-ins</span>
-            <span class="metric-icon green"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
-          </div>
-          <div class="metric-value"><span data-counter="142">0</span><small>total</small></div>
-          <div class="metric-foot">Zero disputes</div>
-        </div>
-        <div class="metric">
-          <div class="metric-head">
-            <span class="metric-label">Terms</span>
-            <span class="metric-icon accent"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
-          </div>
-          <div class="metric-value"><span data-counter="3">0</span><small>active</small></div>
-          <div class="metric-foot">2024 – 2026</div>
+        <div>
+          <button class="btn btn-ghost btn-sm" onclick="exportJSON()">Export Portfolio Proof</button>
         </div>
       </div>
-      <div class="empty-state" style="margin-top:24px">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-          <path d="m12 3 1.9 5.8L20 10l-6.1 1.2L12 17l-1.9-5.8L4 10l6.1-1.2z"/>
-        </svg>
-        <h3>Full portfolio coming soon</h3>
-        <p>Your milestone timeline, term-by-term attendance history, and verified submission ledger will appear here.</p>
+
+      <!-- Category Buckets -->
+      <div class="section-head"><div class="section-title">AICTE Category Distribution</div></div>
+      <div class="growth-cats-grid">
+        ${cats.map(c => `
+          <div class="growth-cat-card">
+            <div class="growth-cat-head">
+              <span class="growth-cat-title">${c.name}</span>
+              <span class="growth-cat-pts">${c.earned} / ${c.max}</span>
+            </div>
+            <div class="progress-track" style="height:5px">
+              <div class="progress-fill ${c.earned >= c.max ? 'green' : ''}" style="width:${Math.min(100, Math.round((c.earned / c.max) * 100))}%"></div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+
+      <!-- Verified Achievements Feed -->
+      <div class="section-head">
+        <div class="section-title">Submitted Activities & Accreditations <span class="count-chip">${GROWTH_ACTIVITIES.length}</span></div>
+      </div>
+      <div class="card card-pad">
+        ${GROWTH_ACTIVITIES.length === 0 ? '<div class="empty-hint">No activities submitted yet. Click "Add Achievement & Proof" above to submit certificates.</div>' : GROWTH_ACTIVITIES.map(gw => `
+          <div class="feed-item" style="padding:14px 0">
+            <div class="feed-icon ${gw.status === 'approved' ? 'green' : 'amber'}">
+              ${gw.status === 'approved' ? `
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg>
+              ` : `
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+              `}
+            </div>
+            <div class="feed-meta">
+              <div class="feed-title">
+                ${escapeHtml(gw.title)}
+                <span class="status-chip ${gw.status === 'approved' ? 'green' : 'amber'}" style="margin-left:8px">
+                  <i></i>${gw.status === 'approved' ? `+${gw.points} pts · Verified` : `+${gw.points} pts · Under Faculty Review`}
+                </span>
+              </div>
+              <div class="feed-sub">
+                <span>${gw.category}</span>
+                <span class="dot"></span>
+                <span>Submitted ${gw.ts}</span>
+                ${gw.verifiedBy ? `<span class="dot"></span><span>Accredited by ${gw.verifiedBy}</span>` : ''}
+                <span class="dot"></span>
+                <span class="mono">${gw.hash || '0x' + gw.id.slice(2, 10)}</span>
+              </div>
+              ${gw.fileName ? `
+                <div style="margin-top:6px">
+                  <span class="attached-file-badge" style="display:inline-flex;padding:3px 8px;font-size:11px">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+                    <span>${gw.fileName}</span>
+                  </span>
+                </div>
+              ` : ''}
+            </div>
+            <div style="display:flex;align-items:center;gap:6px">
+              ${gw.status === 'approved' ? `
+                <span style="font-size:12px;font-weight:700;color:var(--green);font-family:'JetBrains Mono',monospace">+${gw.points} pts</span>
+              ` : `
+                <span style="font-size:11px;color:var(--amber);font-style:italic">Pending review</span>
+              `}
+            </div>
+          </div>
+        `).join('')}
       </div>
     </div>
   `;
+}
+
+function renderGrowth() {
+  return renderStudentGrowth();
 }
 
 /* ============================================================
@@ -5832,8 +6187,15 @@ function exportJSON() {
 function renderStudentStation() {
   const me = STUDENTS[1]; // Aaditya Verma
   const safe = Math.max(0, Math.floor((4 / 3) * me.sessions - me.total));
-  const pending = ASSIGNMENTS.filter(a => a.status === 'active');
-  const myReceipts = SUBMISSIONS.filter(s => s.code === me.code);
+  const isAsgSubmitted = (a) => SUBMISSIONS.some(s => 
+    (s.code === me.code || s.code === 'CS21540' || s.student === me.name) && 
+    (s.assignmentId === a.id || s.assignment === a.title || (a.title && s.assignment && (a.title.includes(s.assignment) || s.assignment.includes(a.title))))
+  );
+  const pending = ASSIGNMENTS.filter(a => a.status === 'active' && !isAsgSubmitted(a));
+  const myReceipts = SUBMISSIONS.filter(s => s.code === me.code || s.code === 'CS21540' || s.student === me.name);
+  const latestBroadcast = (BROADCASTS && BROADCASTS.length > 0)
+    ? (BROADCASTS.find(b => b.pinned && b.status !== 'rejected') || BROADCASTS.find(b => b.status === 'approved') || BROADCASTS[0])
+    : null;
 
   return `
     <div class="view active">
@@ -5844,6 +6206,27 @@ function renderStudentStation() {
           <p class="view-sub">Your personal attendance radar, pending submissions, and cryptographic receipts — always in sync. This is your private record.</p>
         </div>
       </div>
+
+      ${latestBroadcast ? `
+        <div class="pinned-broadcast-banner">
+          <div class="pbb-left">
+            <div class="pbb-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>
+            </div>
+            <div class="pbb-content">
+              <div class="pbb-meta">
+                <span class="pbb-tag">${latestBroadcast.pinned ? '📌 Pinned Announcement' : '📢 Official Notice'}</span>
+                <span class="pbb-author">${latestBroadcast.author || 'Ribhav Sharma'} (${latestBroadcast.role || 'CR'})</span>
+                <span class="pbb-time">${latestBroadcast.time || latestBroadcast.ts || 'Today'}</span>
+              </div>
+              <div class="pbb-text">${escapeHtml(latestBroadcast.text || '')}</div>
+            </div>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="setTab('broadcasts')" style="white-space:nowrap;margin-left:auto;display:inline-flex;align-items:center;gap:6px">
+            Class Feed <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+      ` : ''}
 
       <div class="metric-grid">
         <div class="metric">
@@ -5859,7 +6242,7 @@ function renderStudentStation() {
         <div class="metric">
           <div class="metric-head"><span class="metric-label">Pending Tasks</span><span class="metric-icon warn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></span></div>
           <div class="metric-value"><span data-counter="${pending.length}">0</span><small>active</small></div>
-          <div class="metric-foot">1 closes tomorrow</div>
+          <div class="metric-foot">${pending.length === 0 ? 'All caught up!' : '1 closes tomorrow'}</div>
         </div>
         <div class="metric">
           <div class="metric-head"><span class="metric-label">My Receipts</span><span class="metric-icon green"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span></div>
@@ -5885,7 +6268,12 @@ function renderStudentStation() {
 
       <div class="section-head"><div class="section-title">My Pending Submissions <span class="count-chip">${pending.length}</span></div></div>
       <div class="card card-pad" style="margin-bottom:24px">
-        ${pending.map(a => `
+        ${pending.length === 0 ? `
+          <div class="empty-hint" style="padding:16px;text-align:center;color:var(--text-2);display:flex;align-items:center;justify-content:center;gap:8px">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            <span>All assignments submitted! No pending submissions.</span>
+          </div>
+        ` : pending.map(a => `
           <div class="feed-item">
             <div class="feed-icon amber"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></div>
             <div class="feed-meta">
@@ -5921,8 +6309,13 @@ function renderStudentStation() {
 
 /* STUDENT: Assignments */
 function renderStudentAssignments() {
-  const pending = ASSIGNMENTS.filter(a => a.status === 'active');
-  const done = ASSIGNMENTS.filter(a => a.status === 'closed');
+  const me = STUDENTS[1];
+  const isAsgSubmitted = (a) => SUBMISSIONS.some(s => 
+    (s.code === me.code || s.code === 'CS21540' || s.student === me.name) && 
+    (s.assignmentId === a.id || s.assignment === a.title || (a.title && s.assignment && (a.title.includes(s.assignment) || s.assignment.includes(a.title))))
+  );
+  const pending = ASSIGNMENTS.filter(a => a.status === 'active' && !isAsgSubmitted(a));
+  const done = ASSIGNMENTS.filter(a => isAsgSubmitted(a) || a.status === 'closed');
   return `
     <div class="view active">
       <div class="view-head">
@@ -5935,7 +6328,12 @@ function renderStudentAssignments() {
 
       <div class="section-head"><div class="section-title">Open · ${pending.length}</div></div>
       <div class="card" style="margin-bottom:24px">
-        ${pending.map(a => `
+        ${pending.length === 0 ? `
+          <div class="empty-hint" style="padding:24px;text-align:center;color:var(--text-2);display:flex;align-items:center;justify-content:center;gap:8px">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            <span>All active assignments submitted! You are completely up to date.</span>
+          </div>
+        ` : pending.map(a => `
           <div style="padding:20px;border-bottom:1px solid var(--border)">
             <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:14px;flex-wrap:wrap">
               <div style="min-width:0">
@@ -5963,16 +6361,18 @@ function renderStudentAssignments() {
 
       <div class="section-head"><div class="section-title">Submitted · ${done.length}</div></div>
       <div class="card card-pad">
-        ${done.map(a => `
+        ${done.length === 0 ? '<div class="empty-hint">No submissions completed yet.</div>' : done.map(a => {
+          const isSubmitted = isAsgSubmitted(a);
+          return `
           <div class="feed-item">
             <div class="feed-icon green"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
             <div class="feed-meta">
               <div class="feed-title">${a.title}</div>
-              <div class="feed-sub"><span>${a.subject}</span><span class="dot"></span><span>Submitted · verified</span></div>
+              <div class="feed-sub"><span>${a.subject}</span><span class="dot"></span><span>${isSubmitted ? 'Submitted & verified' : 'Closed'}</span></div>
             </div>
-            <span class="status-chip green"><i></i>Done</span>
+            <span class="status-chip green" style="display:inline-flex;align-items:center;gap:4px"><i></i>${isSubmitted ? 'Submitted' : 'Closed'}</span>
           </div>
-        `).join('')}
+        `;}).join('')}
       </div>
     </div>
   `;
@@ -6424,37 +6824,97 @@ function renderFacultyExecutive() {
 
 /* FACULTY: All Cohorts */
 function renderFacultyCohorts() {
+  const totalStudents = COHORTS.reduce((sum, c) => sum + c.students, 0);
+  const totalDefaulters = COHORTS.reduce((sum, c) => sum + c.defaulters, 0);
+  const avgAttendance = (COHORTS.reduce((sum, c) => sum + c.attendance, 0) / COHORTS.length).toFixed(1);
+
   return `
     <div class="view active">
       <div class="view-head">
         <div class="view-title-group">
-          <div class="view-eyebrow violet">All Cohorts</div>
-          <h1 class="view-title">Cohort Directory</h1>
-          <p class="view-sub">Active engineering divisions under Dr. Sundaram. Attendance tracking and CR contacts.</p>
+          <div class="view-eyebrow violet">Department Management</div>
+          <h1 class="view-title">Cohort Directory & Registry</h1>
+          <p class="view-sub">All active academic divisions under Dr. M. Sundaram. Real-time class codes, CR contacts, and attendance compliance radars.</p>
+        </div>
+        <div class="view-actions">
+          <button class="btn btn-violet" data-action="broadcast">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>
+            Broadcast to All Cohorts
+          </button>
         </div>
       </div>
 
+      <!-- Department Metrics Deck -->
+      <div class="metric-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:24px">
+        <div class="metric">
+          <div class="metric-head"><span class="metric-label">Enrolled Students</span><span class="metric-icon accent"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span></div>
+          <div class="metric-value"><span data-counter="${totalStudents}">0</span><small>students</small></div>
+          <div class="metric-foot">Across 4 divisions</div>
+        </div>
+        <div class="metric">
+          <div class="metric-head"><span class="metric-label">Department Avg</span><span class="metric-icon green"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span></div>
+          <div class="metric-value"><span data-counter="${avgAttendance}" data-decimals="1">0</span><small>%</small></div>
+          <div class="metric-foot"><span class="metric-delta up">+1.4% MoM</span></div>
+        </div>
+        <div class="metric">
+          <div class="metric-head"><span class="metric-label">Defaulters Flagged</span><span class="metric-icon danger"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.3 3.3 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.3a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></span></div>
+          <div class="metric-value"><span data-counter="${totalDefaulters}">0</span><small>below 75%</small></div>
+          <div class="metric-foot">Action required</div>
+        </div>
+        <div class="metric">
+          <div class="metric-head"><span class="metric-label">Designated CRs</span><span class="metric-icon accent"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span></div>
+          <div class="metric-value"><span data-counter="4">0</span><small>reps</small></div>
+          <div class="metric-foot">100% active</div>
+        </div>
+      </div>
+
+      <!-- Cohorts Grid with Actions -->
+      <div class="section-head"><div class="section-title">Active Divisions (${COHORTS.length})</div></div>
       <div class="cohort-grid">
         ${COHORTS.map(c => `
-          <div class="cohort-card">
-            <div class="cohort-card-head">
-              <div>
-                <div class="cohort-card-title">${c.name}</div>
-                <div class="cohort-card-meta">Class Code: ${c.code} · CR: ${c.cr}</div>
+          <div class="cohort-card" style="display:flex;flex-direction:column;justify-content:space-between">
+            <div>
+              <div class="cohort-card-head">
+                <div>
+                  <div class="cohort-card-title" style="font-size:15px">${c.name}</div>
+                  <div class="cohort-card-meta" style="margin-top:4px">
+                    Class Code: <span style="color:var(--accent);font-weight:700">${c.code}</span> · CR: <b>${c.cr}</b>
+                  </div>
+                </div>
+                <span class="status-chip ${c.attendance >= 80 ? 'green' : 'amber'}">
+                  <i></i>${c.attendance}% avg
+                </span>
               </div>
-              <span class="status-chip ${c.attendance >= 80 ? 'green' : 'amber'}"><i></i>${c.attendance}% avg</span>
-            </div>
-            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0">
-              <div class="mini"><span>Enrolled</span><b>${c.students}</b></div>
-              <div class="mini"><span>Defaulters</span><b style="color:${c.defaulters > 3 ? 'var(--red)' : 'var(--text)'}">${c.defaulters}</b></div>
-              <div class="mini"><span>Assignments</span><b>${c.assignments}</b></div>
-            </div>
-            <div style="margin-top:12px">
-              <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-3);margin-bottom:6px">
-                <span>Eligibility rate</span>
-                <span class="mono">${c.attendance}%</span>
+
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0">
+                <div class="mini"><span>Enrolled</span><b>${c.students}</b></div>
+                <div class="mini"><span>Defaulters</span><b style="color:${c.defaulters > 3 ? 'var(--red)' : 'var(--text)'}">${c.defaulters}</b></div>
+                <div class="mini"><span>Active Tasks</span><b>${c.assignments}</b></div>
               </div>
-              <div class="progress-track"><div class="progress-fill ${c.attendance >= 80 ? 'green' : 'amber'}" data-width="${c.attendance}"></div></div>
+
+              <div style="margin-top:10px">
+                <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-3);margin-bottom:6px">
+                  <span>Attendance Compliance</span>
+                  <span class="mono">${c.attendance}% / 75% req</span>
+                </div>
+                <div class="progress-track">
+                  <div class="progress-fill ${c.attendance >= 80 ? 'green' : 'amber'}" data-width="${c.attendance}"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Cohort Management Action Bar -->
+            <div style="display:flex;gap:8px;margin-top:16px;padding-top:14px;border-top:1px solid var(--border);flex-wrap:wrap">
+              <button class="btn btn-ghost btn-sm" data-action="inspect-cohort" data-id="${c.id}" style="flex:1">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                Inspect Roster
+              </button>
+              <button class="btn btn-ghost btn-sm" data-action="view-cohort-defaulters" data-id="${c.id}" style="color:${c.defaulters > 0 ? 'var(--red)' : 'var(--text-3)'}">
+                Defaulters (${c.defaulters})
+              </button>
+              <button class="btn btn-accent btn-sm" onclick="exportCSV('roster')" title="Export attendance CSV">
+                Export CSV
+              </button>
             </div>
           </div>
         `).join('')}
@@ -6465,23 +6925,85 @@ function renderFacultyCohorts() {
 
 /* FACULTY: Approval Queue */
 function renderFacultyApprovals() {
-  const pendingApprovals = BROADCASTS.filter(b => b.status === 'pending');
-  const approved = BROADCASTS.filter(b => b.status === 'approved');
+  const pendingBroadcasts = BROADCASTS.filter(b => b.status === 'pending');
+  const pendingGrowth = GROWTH_ACTIVITIES.filter(g => g.status === 'pending');
+  const approvedBroadcasts = BROADCASTS.filter(b => b.status === 'approved');
+  const approvedGrowth = GROWTH_ACTIVITIES.filter(g => g.status === 'approved');
+
+  const totalPending = pendingBroadcasts.length + pendingGrowth.length;
 
   return `
     <div class="view active">
       <div class="view-head">
         <div class="view-title-group">
-          <div class="view-eyebrow violet">Official Signoff</div>
-          <h1 class="view-title">Broadcast Approval Queue</h1>
-          <p class="view-sub">Review announcements submitted by Class Representatives before they are published to cohort feeds.</p>
+          <div class="view-eyebrow violet">Faculty Oversight & Accreditation Hub</div>
+          <h1 class="view-title">Approval Queue</h1>
+          <p class="view-sub">Review AICTE student growth certifications, CR official broadcasts, and attendance waiver requests before signoff.</p>
         </div>
       </div>
 
-      <div class="section-head"><div class="section-title">Awaiting Approval <span class="count-chip">${pendingApprovals.length}</span></div></div>
+      <!-- Overview Metric Badges -->
+      <div class="metric-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:24px">
+        <div class="metric">
+          <div class="metric-head"><span class="metric-label">Total Awaiting Review</span><span class="metric-icon warn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span></div>
+          <div class="metric-value"><span data-counter="${totalPending}">0</span><small>requests</small></div>
+          <div class="metric-foot">Action needed</div>
+        </div>
+        <div class="metric">
+          <div class="metric-head"><span class="metric-label">AICTE Certifications</span><span class="metric-icon accent"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3 1.9 5.8L20 10l-6.1 1.2L12 17l-1.9-5.8L4 10l6.1-1.2z"/></svg></span></div>
+          <div class="metric-value"><span data-counter="${pendingGrowth.length}">0</span><small>pending</small></div>
+          <div class="metric-foot">Student portfolio proofs</div>
+        </div>
+        <div class="metric">
+          <div class="metric-head"><span class="metric-label">CR Broadcast Drafts</span><span class="metric-icon green"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg></span></div>
+          <div class="metric-value"><span data-counter="${pendingBroadcasts.length}">0</span><small>pending</small></div>
+          <div class="metric-foot">Official class notices</div>
+        </div>
+      </div>
+
+      <!-- SECTION 1: AICTE 100-Points Activity Approvals -->
+      <div class="section-head">
+        <div class="section-title">AICTE Growth Activity Requests <span class="count-chip">${pendingGrowth.length}</span></div>
+      </div>
       <div class="card card-pad" style="margin-bottom:24px">
-        ${pendingApprovals.length === 0 ? '<div class="empty-hint">No broadcasts pending review. All drafts have been acted on.</div>' : pendingApprovals.map(b => `
-          <div class="approval-card pending">
+        ${pendingGrowth.length === 0 ? '<div class="empty-hint">No student certification proofs currently pending accreditation.</div>' : pendingGrowth.map(gw => `
+          <div class="approval-card pending" style="border-left:3px solid var(--teal)">
+            <div class="approval-head">
+              <div>
+                <b style="font-size:13.5px;color:var(--text)">${gw.studentName} · <span class="mono" style="color:var(--teal)">${gw.rollNo}</span></b>
+                <div style="font-size:11px;color:var(--text-4);margin-top:2px">Category: <b>${gw.category}</b> · Submitted ${gw.ts}</div>
+              </div>
+              <span class="status-chip teal"><i></i>+${gw.points} pts requested</span>
+            </div>
+            <div class="approval-body" style="font-size:13px;font-weight:600;color:var(--text)">
+              ${escapeHtml(gw.title)}
+              ${gw.fileName ? `
+                <div style="margin-top:8px">
+                  <span class="attached-file-badge" style="display:inline-flex;padding:4px 9px;font-size:11px">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+                    <span>${gw.fileName}</span>
+                  </span>
+                </div>
+              ` : ''}
+            </div>
+            <div class="approval-actions">
+              <button class="btn btn-accent btn-sm" data-action="approve-growth" data-id="${gw.id}">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg>
+                Accredit & Award ${gw.points} Points
+              </button>
+              <button class="btn btn-ghost btn-sm" data-action="reject-growth" data-id="${gw.id}">Return / Reject</button>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+
+      <!-- SECTION 2: CR Broadcast Draft Approvals -->
+      <div class="section-head">
+        <div class="section-title">CR Broadcast Approvals <span class="count-chip">${pendingBroadcasts.length}</span></div>
+      </div>
+      <div class="card card-pad" style="margin-bottom:24px">
+        ${pendingBroadcasts.length === 0 ? '<div class="empty-hint">All CR broadcast drafts have been reviewed and published.</div>' : pendingBroadcasts.map(b => `
+          <div class="approval-card pending" style="border-left:3px solid var(--accent)">
             <div class="approval-head">
               <div>
                 <b style="font-size:13px">${b.author} · <span class="mono" style="color:var(--accent)">${b.code}</span></b>
@@ -6492,8 +7014,8 @@ function renderFacultyApprovals() {
             <div class="approval-body">${escapeHtml(b.text)}</div>
             <div class="approval-actions">
               <button class="btn btn-accent btn-sm" data-action="approve-broadcast" data-id="${b.id}">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
-                Approve Broadcast
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg>
+                Approve & Publish to Feed
               </button>
               <button class="btn btn-ghost btn-sm" data-action="reject-broadcast" data-id="${b.id}">Reject</button>
             </div>
@@ -6501,14 +7023,25 @@ function renderFacultyApprovals() {
         `).join('')}
       </div>
 
-      <div class="section-head"><div class="section-title">Recently Approved <span class="count-chip">${approved.length}</span></div></div>
+      <!-- SECTION 3: Recently Approved Signoffs -->
+      <div class="section-head"><div class="section-title">Recently Approved Signoffs <span class="count-chip">${approvedGrowth.length + approvedBroadcasts.length}</span></div></div>
       <div class="card card-pad">
-        ${approved.map(b => `
+        ${approvedGrowth.slice(0, 3).map(gw => `
           <div class="feed-item">
-            <div class="feed-icon green"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+            <div class="feed-icon green"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg></div>
+            <div class="feed-meta">
+              <div class="feed-title">${escapeHtml(gw.title)} · <span class="mono">+${gw.points} pts</span></div>
+              <div class="feed-sub"><span>${gw.studentName} (${gw.rollNo})</span><span class="dot"></span><span>Accredited by Dr. M. Sundaram</span></div>
+            </div>
+            <span class="status-chip green"><i></i>Accredited</span>
+          </div>
+        `).join('')}
+        ${approvedBroadcasts.slice(0, 2).map(b => `
+          <div class="feed-item">
+            <div class="feed-icon green"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg></div>
             <div class="feed-meta">
               <div class="feed-title">${escapeHtml(b.text.slice(0, 70))}…</div>
-              <div class="feed-sub"><span>${b.author} (${b.role})</span><span class="dot"></span><span>${b.time}</span></div>
+              <div class="feed-sub"><span>${b.author} (${b.role})</span><span class="dot"></span><span>Published to Class Feed</span></div>
             </div>
             <span class="status-chip green"><i></i>Approved</span>
           </div>
@@ -6711,6 +7244,10 @@ function handleAction(action, el) {
       const b = BROADCASTS.find(x => x.id === id);
       if (b) {
         b.status = 'approved';
+        saveBroadcasts();
+        try {
+          fetch(`http://localhost:3001/api/broadcasts/${id}/approve`, { method: 'POST' }).catch(() => {});
+        } catch(e) {}
         toast('Broadcast approved and published to cohort feed', 'green');
         renderView();
         renderNotifications();
@@ -6722,9 +7259,269 @@ function handleAction(action, el) {
       const idx = BROADCASTS.findIndex(x => x.id === id);
       if (idx !== -1) {
         BROADCASTS.splice(idx, 1);
+        saveBroadcasts();
         toast('Broadcast draft rejected', 'amber');
         renderView();
       }
+      break;
+    }
+    case 'approve-growth': {
+      const id = el.dataset.id;
+      const gw = GROWTH_ACTIVITIES.find(x => x.id === id);
+      if (gw) {
+        gw.status = 'approved';
+        gw.verifiedBy = 'Dr. M. Sundaram';
+        saveGrowthActivities();
+        try {
+          fetch(`http://localhost:3001/api/growth/${id}/approve`, { method: 'POST' }).catch(() => {});
+        } catch(e) {}
+        toast(`Accredited +${gw.points} points for ${gw.studentName}`, 'green');
+        renderView();
+      }
+      break;
+    }
+    case 'reject-growth': {
+      const id = el.dataset.id;
+      const gw = GROWTH_ACTIVITIES.find(x => x.id === id);
+      if (gw) {
+        gw.status = 'rejected';
+        saveGrowthActivities();
+        toast(`Growth submission returned for revision`, 'amber');
+        renderView();
+      }
+      break;
+    }
+    case 'inspect-cohort': {
+      const cohortId = el?.dataset?.id || 'c1';
+      const c = COHORTS.find(x => x.id === cohortId) || COHORTS[0];
+      const studentsInCohort = STUDENTS;
+      openModal(`
+        <h3>Cohort Roster · ${c.name} (${c.code})</h3>
+        <p class="modal-sub">CR: <b>${c.cr}</b> · Enrolled: <b>${c.students} Students</b> · Avg Attendance: <b>${c.attendance}%</b></p>
+        <div style="max-height:360px;overflow-y:auto;border:1px solid var(--border);border-radius:10px;margin-bottom:16px">
+          <table class="table" style="width:100%;font-size:12px;margin:0">
+            <thead style="position:sticky;top:0;background:var(--card);z-index:2">
+              <tr>
+                <th style="padding:10px 14px">Student</th>
+                <th style="padding:10px 14px">Roll No</th>
+                <th style="padding:10px 14px">Sessions</th>
+                <th style="padding:10px 14px">Attendance</th>
+                <th style="padding:10px 14px">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${studentsInCohort.map(s => `
+                <tr>
+                  <td style="padding:8px 14px"><b>${s.name}</b></td>
+                  <td style="padding:8px 14px" class="mono">${s.code}</td>
+                  <td style="padding:8px 14px">${s.sessions} / ${s.total}</td>
+                  <td style="padding:8px 14px"><b style="color:${s.att >= 75 ? 'var(--green)' : 'var(--red)'}">${s.att}%</b></td>
+                  <td style="padding:8px 14px">
+                    <span class="status-chip ${s.att >= 75 ? 'green' : 'danger'}" style="font-size:10px;padding:2px 7px">
+                      <i></i>${s.att >= 75 ? 'Compliant' : 'Defaulter'}
+                    </span>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+        <div style="display:flex;gap:10px;justify-content:flex-end">
+          <button class="btn btn-ghost" onclick="closeModal()">Close</button>
+          <button class="btn btn-accent" onclick="exportCSV('roster')">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5M12 15V3"/></svg>
+            Export Cohort CSV
+          </button>
+        </div>
+      `);
+      break;
+    }
+    case 'view-cohort-defaulters': {
+      const cohortId = el?.dataset?.id || 'c1';
+      const c = COHORTS.find(x => x.id === cohortId) || COHORTS[0];
+      const defaulters = STUDENTS.filter(s => s.att < 75);
+      openModal(`
+        <h3>Defaulter Radar · ${c.name} (&lt;75% Attendance)</h3>
+        <p class="modal-sub">Flagged <b>${defaulters.length} students</b> below the 75% attendance threshold. Mandatory push notice alert required.</p>
+        <div style="max-height:320px;overflow-y:auto;border:1px solid rgba(177,125,125,.3);border-radius:10px;margin-bottom:16px;background:rgba(177,125,125,.03)">
+          <table class="table" style="width:100%;font-size:12px;margin:0">
+            <thead>
+              <tr>
+                <th style="padding:10px 14px">Student</th>
+                <th style="padding:10px 14px">Roll No</th>
+                <th style="padding:10px 14px">Attendance</th>
+                <th style="padding:10px 14px">Shortfall</th>
+                <th style="padding:10px 14px">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${defaulters.map(s => {
+                const deficit = Math.max(1, Math.ceil(0.75 * s.total - s.sessions));
+                return `
+                  <tr>
+                    <td style="padding:8px 14px"><b>${s.name}</b></td>
+                    <td style="padding:8px 14px" class="mono">${s.code}</td>
+                    <td style="padding:8px 14px"><b style="color:var(--red)">${s.att}%</b></td>
+                    <td style="padding:8px 14px;color:var(--amber)">Need +${deficit} classes</td>
+                    <td style="padding:8px 14px">
+                      <button class="btn btn-ghost btn-sm" onclick="toast('Direct warning sent to ${s.name}', 'amber')" style="padding:3px 8px;font-size:11px">
+                        Alert
+                      </button>
+                    </td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+        <div style="display:flex;gap:10px;justify-content:flex-end">
+          <button class="btn btn-ghost" onclick="closeModal()">Close</button>
+          <button class="btn btn-accent" id="pushBulkNudge">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+            Dispatch Nudge to All Defaulters
+          </button>
+        </div>
+      `);
+      setTimeout(() => {
+        $('#pushBulkNudge')?.addEventListener('click', () => {
+          closeModal();
+          toast(`Dispatched official attendance warnings to ${defaulters.length} students via EduTrack Push`, 'green');
+        });
+      }, 20);
+      break;
+    }
+    case 'add-growth-activity': {
+      openModal(`
+        <h3>Submit AICTE Growth Activity</h3>
+        <p class="modal-sub">Submit documentation for AICTE 100-Points Portfolio accreditation. Upload your certificate or competition proof.</p>
+        <div class="form-row">
+          <label>Activity / Achievement Title</label>
+          <input class="input" id="gwTitle" placeholder="e.g. AWS Solutions Architect / Smart India Hackathon Finalist" />
+        </div>
+        <div class="form-row">
+          <label>Activity Category</label>
+          <select class="select" id="gwCat">
+            <option value="Certifications & MOOCs">Certifications & MOOCs (NPTEL, Coursera, AWS)</option>
+            <option value="Hackathons & Competitions">Hackathons & Competitions</option>
+            <option value="Research & Publications">Research & Paper Publications</option>
+            <option value="Internships & Industrial">Internships & Industrial Training</option>
+            <option value="Sports & Cultural">Sports & Cultural Achievements</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>Claimed AICTE Activity Points</label>
+          <select class="select" id="gwPoints">
+            <option value="25">25 Points (National Level / Major Certification)</option>
+            <option value="20" selected>20 Points (State / Advanced Level / 8-wk MOOC)</option>
+            <option value="15">15 Points (College Level / Paper Presentation)</option>
+            <option value="10">10 Points (Participation / Workshop)</option>
+            <option value="5">5 Points (Seminar / Micro-credential)</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>Upload Certificate or Proof (PDF or Image)</label>
+          <div class="dropzone" id="gwDropzone">
+            <div class="dropzone-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M12 18v-6"/><path d="m9 15 3-3 3 3"/></svg>
+            </div>
+            <div class="dropzone-title">Click or drag & drop certificate proof</div>
+            <div class="dropzone-sub">PDF, PNG, JPG up to 25 MB</div>
+          </div>
+          <input type="file" id="gwFileInput" accept=".pdf,.png,.jpg,.jpeg" style="display:none" />
+          <div id="gwAttachedFile" class="attached-file-badge" style="display:none">
+            <div class="attached-file-info">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+              <span id="gwFileName" class="mono" style="font-weight:500">certificate.pdf</span>
+              <span id="gwFileSize" style="color:var(--text-3);font-size:11px">(1.5 MB)</span>
+            </div>
+            <button type="button" id="gwRemoveFile" class="attached-file-remove">✕</button>
+          </div>
+        </div>
+        <button class="btn btn-accent btn-lg" id="gwSubmit" style="width:100%;margin-top:10px">
+          Submit for Faculty Accreditation
+        </button>
+      `);
+
+      setTimeout(() => {
+        let attachedGwFile = null;
+        const dropzone = $('#gwDropzone');
+        const fileInput = $('#gwFileInput');
+        const badge = $('#gwAttachedFile');
+        const fnEl = $('#gwFileName');
+        const fsEl = $('#gwFileSize');
+        const rmBtn = $('#gwRemoveFile');
+
+        if (dropzone && fileInput) {
+          dropzone.addEventListener('click', () => fileInput.click());
+          dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('dragover'); });
+          dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+          dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropzone.classList.remove('dragover');
+            if (e.dataTransfer.files && e.dataTransfer.files[0]) attachGw(e.dataTransfer.files[0]);
+          });
+          fileInput.addEventListener('change', () => {
+            if (fileInput.files && fileInput.files[0]) attachGw(fileInput.files[0]);
+          });
+        }
+
+        function attachGw(file) {
+          attachedGwFile = file;
+          fnEl.textContent = file.name;
+          fsEl.textContent = '(' + (file.size ? (file.size / (1024*1024)).toFixed(1) + ' MB' : '1.5 MB') + ')';
+          badge.style.display = 'flex';
+          dropzone.style.display = 'none';
+        }
+
+        if (rmBtn) {
+          rmBtn.addEventListener('click', () => {
+            attachedGwFile = null;
+            fileInput.value = '';
+            badge.style.display = 'none';
+            dropzone.style.display = 'flex';
+          });
+        }
+
+        $('#gwSubmit')?.addEventListener('click', () => {
+          const title = $('#gwTitle').value.trim();
+          if (!title) { toast('Please enter activity title', 'amber'); return; }
+          const category = $('#gwCat').value;
+          const points = parseInt($('#gwPoints').value, 10) || 15;
+          const fileName = attachedGwFile ? attachedGwFile.name : (title.replace(/\s+/g, '_') + '_Proof.pdf');
+
+          const newGw = {
+            id: 'gw' + Date.now(),
+            studentName: 'Aaditya Verma',
+            rollNo: 'CS21571',
+            title,
+            category,
+            points,
+            status: 'pending_approval',
+            verifiedBy: null,
+            ts: 'Just now',
+            fileName,
+            fileUrl: null
+          };
+
+          GROWTH_ACTIVITIES.unshift(newGw);
+          saveGrowthActivities();
+
+          try {
+            const fd = new FormData();
+            if (attachedGwFile) fd.append('file', attachedGwFile);
+            fd.append('studentName', 'Aaditya Verma');
+            fd.append('rollNo', 'CS21571');
+            fd.append('title', title);
+            fd.append('category', category);
+            fd.append('points', points);
+            fetch('http://localhost:3001/api/growth', { method: 'POST', body: fd }).catch(() => {});
+          } catch(e) {}
+
+          closeModal();
+          renderView();
+          toast(`Submitted "${title}" (+${points} pts) for faculty accreditation`, 'green');
+        });
+      }, 20);
       break;
     }
     case 'submit-assignment': {
@@ -6882,6 +7679,19 @@ function handleAction(action, el) {
           };
           ASSIGNMENTS.unshift(newAsg);
           saveAssignments();
+
+          try {
+            const fd = new FormData();
+            if (attachedFile) fd.append('file', attachedFile);
+            fd.append('title', title);
+            fd.append('subject', subject);
+            fd.append('due', due);
+            fd.append('fileName', pdfName);
+            fd.append('fileSize', pdfSize);
+            fd.append('createdBy', 'Ribhav Sharma (CR)');
+            fetch('http://localhost:3001/api/assignments', { method: 'POST', body: fd }).catch(() => {});
+          } catch(e) {}
+
           closeModal();
           renderView();
           toast(`Assignment "${title}" posted with attached brief (${pdfName}) to 48 students`, 'green');
@@ -6989,24 +7799,71 @@ function handleAction(action, el) {
 
     case 'broadcast':
       openModal(`
-        <h3>New broadcast</h3>
-        <p class="modal-sub">Pin a permanent notice to the class feed. Every student sees it — it never gets buried.</p>
+        <h3>New Broadcast Announcement</h3>
+        <p class="modal-sub">Broadcast an official notice to the cohort feed and student radar. Never gets buried.</p>
         <div class="form-row">
-          <label>Message</label>
-          <textarea class="input" id="bText" rows="4" placeholder="Type your broadcast…" style="resize:vertical"></textarea>
+          <label>Broadcast Message</label>
+          <textarea class="input" id="bText" rows="4" placeholder="e.g. Fluid Mechanics Lab 4 deadline extended to Friday 11:59 PM. Please submit your lab reports." style="resize:vertical"></textarea>
+        </div>
+        <div class="form-row">
+          <label>Announcement Category</label>
+          <select class="select" id="bTag">
+            <option value="Urgent Alert">Urgent Alert</option>
+            <option value="Official Notice" selected>Official Class Notice</option>
+            <option value="Lab & Submission">Lab & Submission Update</option>
+            <option value="Attendance Warning">Attendance Warning</option>
+          </select>
         </div>
         <label style="display:flex;align-items:center;gap:9px;font-size:12.5px;margin-bottom:16px;cursor:pointer">
           <input type="checkbox" id="bPin" checked style="accent-color:#8ba9c4;width:14px;height:14px" />
-          Pin to top of feed
+          <b>Pin to top of Student Station & Class Feed</b>
         </label>
-        <button class="btn btn-accent btn-lg" id="bSubmit" style="width:100%">Broadcast</button>
+        <button class="btn btn-accent btn-lg" id="bSubmit" style="width:100%">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>
+          Publish Broadcast
+        </button>
       `);
       setTimeout(() => {
         $('#bSubmit')?.addEventListener('click', () => {
           const t = $('#bText').value.trim();
           if (!t) { toast('Enter a message first', 'amber'); return; }
+          const isPinned = $('#bPin')?.checked ?? true;
+          const tag = $('#bTag')?.value || 'Official Notice';
+          const fullText = `[${tag}] ${t}`;
+
+          const newBc = {
+            id: 'b' + Date.now(),
+            author: 'Ribhav Sharma',
+            role: 'CR',
+            code: 'CS21532',
+            text: fullText,
+            time: 'Just now',
+            ts: 'Just now',
+            pinned: isPinned,
+            reactions: 0,
+            status: 'approved'
+          };
+
+          BROADCASTS.unshift(newBc);
+          saveBroadcasts();
+
+          try {
+            fetch('http://localhost:3001/api/broadcasts', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                author: 'Ribhav Sharma',
+                role: 'CR',
+                code: 'CS21532',
+                text: fullText,
+                pinned: isPinned
+              })
+            }).catch(() => {});
+          } catch(e) {}
+
           closeModal();
-          toast('Broadcast pinned to class feed', 'green');
+          renderView();
+          toast('📢 Broadcast published live to cohort and pinned to student station', 'green');
         });
       }, 20);
       break;
@@ -7276,24 +8133,30 @@ function handleAction(action, el) {
 
     case 'submit': {
       const asgId = el ? el.dataset.id : '';
-      const asg = ASSIGNMENTS.find(a => a.id === asgId);
+      const me = STUDENTS[1];
+      const isAsgSubmitted = (a) => SUBMISSIONS.some(s => 
+        (s.code === me.code || s.code === 'CS21540' || s.student === me.name) && 
+        (s.assignmentId === a.id || s.assignment === a.title || (a.title && s.assignment && (a.title.includes(s.assignment) || s.assignment.includes(a.title))))
+      );
+      const asg = (asgId ? ASSIGNMENTS.find(a => a.id === asgId) : null) || ASSIGNMENTS.find(a => a.status === 'active' && !isAsgSubmitted(a)) || ASSIGNMENTS[0];
       const asgTitle = asg ? asg.title : 'Assignment';
       openModal(`
         <h3>Submit assignment</h3>
         <p class="modal-sub">Submitting for <b>${asgTitle}</b>. Your submission will be hashed with SHA-256 and timestamped. The receipt is immutable.</p>
         <div class="form-row">
-          <label>Submission PDF File</label>
+          <label>Submission PDF, Photo or Document</label>
           <div class="dropzone" id="subDropzone">
             <div class="dropzone-icon">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M12 18v-6"/><path d="m9 15 3-3 3 3"/></svg>
             </div>
-            <div class="dropzone-title">Click to upload or drag & drop PDF</div>
-            <div class="dropzone-sub">Single PDF up to 25 MB</div>
+            <div class="dropzone-title">Click to upload or drag & drop PDF or photo</div>
+            <div class="dropzone-sub">PDF, PNG, JPG, DOCX up to 25 MB</div>
           </div>
-          <input type="file" id="subFileInput" accept=".pdf" style="display:none" />
+          <input type="file" id="subFileInput" accept=".pdf,.png,.jpg,.jpeg,.webp,.doc,.docx,.zip" style="display:none" />
           <div id="subAttachedFile" class="attached-file-badge" style="display:none">
             <div class="attached-file-info">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+              <div id="subImgPreviewWrap" style="display:none;margin-right:6px"><img id="subImgPreview" style="width:28px;height:28px;object-fit:cover;border-radius:4px" /></div>
+              <svg id="subDocIcon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
               <span id="subFileName" class="mono" style="font-weight:500">submission.pdf</span>
               <span id="subFileSize" style="color:var(--text-3);font-size:11px">(1.4 MB)</span>
             </div>
@@ -7317,6 +8180,9 @@ function handleAction(action, el) {
         const fnEl = $('#subFileName');
         const fsEl = $('#subFileSize');
         const rmBtn = $('#subRemoveFile');
+        const imgWrap = $('#subImgPreviewWrap');
+        const imgEl = $('#subImgPreview');
+        const docIcon = $('#subDocIcon');
 
         if (dropzone && fileInput) {
           dropzone.addEventListener('click', () => fileInput.click());
@@ -7340,6 +8206,14 @@ function handleAction(action, el) {
           attachedSubFile = file;
           fnEl.textContent = file.name;
           fsEl.textContent = '(' + (file.size ? (file.size / (1024*1024)).toFixed(1) + ' MB' : '1.4 MB') + ')';
+          if (file.type && file.type.startsWith('image/') && imgWrap && imgEl) {
+            imgEl.src = URL.createObjectURL(file);
+            imgWrap.style.display = 'block';
+            if (docIcon) docIcon.style.display = 'none';
+          } else {
+            if (imgWrap) imgWrap.style.display = 'none';
+            if (docIcon) docIcon.style.display = 'block';
+          }
           badge.style.display = 'flex';
           dropzone.style.display = 'none';
         }
@@ -7354,19 +8228,39 @@ function handleAction(action, el) {
         }
 
         $('#subSubmit')?.addEventListener('click', () => {
+          const studentName = state.activeUser === 'aaditya' ? 'Aaditya Verma' : (USER_PROFILES[state.activeUser]?.name || 'Aaditya Verma');
+          const studentCode = state.activeUser === 'aaditya' ? 'CS21571' : 'CS21532';
           const hash = '0x' + Array.from({length: 16}, () => Math.floor(Math.random()*16).toString(16)).join('');
-          if (asg) asg.submitted = Math.min(asg.total, asg.submitted + 1);
-          SUBMISSIONS.unshift({
+          if (asg) asg.submitted = Math.min(asg.total, (asg.submitted || 0) + 1);
+          
+          const newSub = {
             id: 'sub' + Date.now(),
-            student: state.activeUser === 'aaditya' ? 'Aaditya Verma' : 'Ribhav Sharma',
-            code: state.activeUser === 'aaditya' ? 'CS21540' : 'CS21532',
+            student: studentName,
+            code: studentCode,
             assignment: asgTitle,
+            assignmentId: asg ? asg.id : 'a1',
+            fileName: attachedSubFile ? attachedSubFile.name : 'submission.pdf',
             ts: 'Just now',
             hash,
             status: 'verified'
-          });
+          };
+          
+          SUBMISSIONS = [newSub, ...SUBMISSIONS.filter(s => !(s.code === studentCode && (s.assignmentId === (asg ? asg.id : 'a1') || s.assignment === asgTitle)))];
           saveAssignments();
           saveSubmissions();
+
+          try {
+            if (attachedSubFile) {
+              const fd = new FormData();
+              fd.append('file', attachedSubFile);
+              fd.append('studentName', studentName);
+              fd.append('studentId', studentCode);
+              fd.append('assignmentId', asg ? asg.id : 'a1');
+              fd.append('assignmentTitle', asgTitle);
+              fetch('http://localhost:3001/api/submit', { method: 'POST', body: fd }).catch(() => {});
+            }
+          } catch(e) {}
+
           closeModal();
           renderView();
           toast('Submitted · SHA-256 receipt generated: ' + hash.slice(0, 10) + '…', 'green');
@@ -7638,9 +8532,156 @@ function setupScratchpad() {
 function updateLivePill() {
   const pill = $('#livePill');
   const label = $('#liveLabel');
-  pill.classList.toggle('offline', !state.liveOnline);
-  label.textContent = state.liveOnline ? 'Live Sync' : 'Offline';
+  if (pill) pill.classList.toggle('offline', !state.liveOnline);
+  if (label) label.textContent = state.liveOnline ? 'Live Sync' : 'Offline';
 }
+
+function initBackendLiveSync() {
+  const pill = $('#livePill');
+  const label = $('#liveLabel');
+
+  function setOnline(online) {
+    state.liveOnline = online;
+    if (pill) {
+      pill.classList.toggle('offline', !online);
+      pill.title = online 
+        ? 'Connected to StudySync Backend (http://localhost:3001) · Real-time SSE push active' 
+        : 'Backend offline · Local storage mode';
+    }
+    if (label) label.textContent = online ? 'Live Sync' : 'Local Sync';
+  }
+
+  try {
+    const es = new EventSource('http://localhost:3001/api/events');
+
+    es.addEventListener('open', () => {
+      setOnline(true);
+    });
+
+    es.addEventListener('connected', () => {
+      setOnline(true);
+    });
+
+    es.addEventListener('assignment_created', (e) => {
+      try {
+        const asg = JSON.parse(e.data);
+        if (!ASSIGNMENTS.some(a => a.id === asg.id || a.title === asg.title)) {
+          ASSIGNMENTS.unshift({
+            id: asg.id,
+            title: asg.title,
+            subject: asg.subject,
+            due: asg.due || 'Tomorrow · 5:00 PM',
+            submitted: asg.submitted || 0,
+            total: asg.total || 48,
+            status: asg.status || 'active',
+            hash: asg.hash || ('0x' + Math.random().toString(16).slice(2, 10)),
+            pdfName: asg.fileName || (asg.title.replace(/[^a-zA-Z0-9]/g, '_') + '_Brief.pdf'),
+            pdfSize: asg.fileSize || '1.8 MB'
+          });
+          saveAssignments();
+          toast(`📢 New assignment posted: "${asg.title}"`, 'green');
+          renderView();
+        }
+      } catch(err) {}
+    });
+
+    es.addEventListener('submission', (e) => {
+      try {
+        const sub = JSON.parse(e.data);
+        const asg = ASSIGNMENTS.find(a => a.id === sub.assignmentId || a.title === sub.assignment || a.title === sub.assignmentTitle);
+        if (asg) {
+          asg.submitted = sub.assignmentSubmittedCount ?? Math.min(asg.total, (asg.submitted || 0) + 1);
+          saveAssignments();
+        }
+        if (!SUBMISSIONS.some(s => s.id === sub.id || (s.code === sub.code && s.assignmentId === sub.assignmentId))) {
+          SUBMISSIONS.unshift({
+            id: sub.id || ('sub' + Date.now()),
+            student: sub.student || sub.studentName || 'Student',
+            code: sub.code || sub.studentId || 'CS21571',
+            assignment: sub.assignment || sub.assignmentTitle || (asg ? asg.title : 'Assignment'),
+            assignmentId: sub.assignmentId || (asg ? asg.id : 'a1'),
+            fileName: sub.fileName || 'submission.pdf',
+            ts: sub.ts || 'Just now',
+            hash: sub.submissionHash || sub.hash || '0x' + Math.random().toString(16).slice(2, 18),
+            status: 'verified'
+          });
+          saveSubmissions();
+        }
+        toast(`✅ Submission verified: ${sub.studentName || sub.student || 'Student'} (${sub.assignmentTitle || sub.assignment || 'Assignment'})`, 'green');
+        renderView();
+      } catch(err) {}
+    });
+
+    es.addEventListener('broadcast', (e) => {
+      try {
+        const bc = JSON.parse(e.data);
+        if (!BROADCASTS.some(b => b.id === bc.id || b.text === bc.text)) {
+          BROADCASTS.unshift({
+            id: bc.id,
+            author: bc.author || 'Ribhav Sharma',
+            role: bc.role || 'CR',
+            code: bc.code || 'CS21532',
+            text: bc.text,
+            time: bc.time || 'Just now',
+            ts: 'Just now',
+            pinned: bc.pinned ?? true,
+            reactions: bc.reactions || 0,
+            status: bc.status || 'approved'
+          });
+          saveBroadcasts();
+          toast(`📢 New Announcement: ${(bc.text || '').slice(0, 45)}...`, 'green');
+          renderView();
+        }
+      } catch(err) {}
+    });
+
+    es.addEventListener('broadcast_approved', (e) => {
+      try {
+        const bc = JSON.parse(e.data);
+        const item = BROADCASTS.find(b => b.id === bc.id);
+        if (item) {
+          item.status = 'approved';
+          saveBroadcasts();
+          renderView();
+        }
+      } catch(err) {}
+    });
+
+    es.addEventListener('growth_activity', (e) => {
+      try {
+        const act = JSON.parse(e.data);
+        if (!GROWTH_ACTIVITIES.some(g => g.id === act.id)) {
+          GROWTH_ACTIVITIES.unshift(act);
+          saveGrowthActivities();
+          toast(`🏆 New AICTE Activity: ${act.title} (+${act.points} pts)`, 'teal');
+          renderView();
+        }
+      } catch(err) {}
+    });
+
+    es.addEventListener('growth_approved', (e) => {
+      try {
+        const act = JSON.parse(e.data);
+        const item = GROWTH_ACTIVITIES.find(g => g.id === act.id);
+        if (item) {
+          item.status = 'approved';
+          item.verifiedBy = act.verifiedBy || 'Dr. M. Sundaram';
+          saveGrowthActivities();
+          toast(`🎖️ Accredited: ${act.title} (+${act.points} pts)`, 'green');
+          renderView();
+        }
+      } catch(err) {}
+    });
+
+    es.addEventListener('error', () => {
+      setOnline(false);
+    });
+
+  } catch(e) {
+    setOnline(false);
+  }
+}
+
 
 /* ============================================================
    CLASS CODE REVEAL
@@ -7915,10 +8956,96 @@ function setupWorkspaceRail() {
 }
 
 /* ============================================================
-   MASTER RAF LOOP
+   MASTER RAF LOOP (Cursor, Scroll Parallax, Progress Ring, Signal Rail)
    ============================================================ */
 function tick() {
   updateCursor();
+
+  if (state.view === 'landing') {
+    const scrollY = window.scrollY;
+    const docHeight = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
+    const totalScrollable = docHeight - window.innerHeight;
+    const p = totalScrollable > 0 ? clamp(scrollY / totalScrollable, 0, 1) : 0;
+
+    // 1. Top progress bar
+    const sprog = $('#sprog');
+    if (sprog) sprog.style.transform = `scaleX(${p})`;
+
+    // 2. Sticky nav blur & border on scroll
+    const landNav = $('#landNav');
+    if (landNav) landNav.classList.toggle('stuck', scrollY > 24);
+
+    // 3. Circular floating scroll progress ring (appears after scrolling 180px)
+    const ring = $('#progressRing');
+    const ringFill = $('#progressFill');
+    const ringNum = $('#progressNum');
+    if (ring) {
+      ring.classList.toggle('show', scrollY > 180);
+      const circ = 2 * Math.PI * 18; // ~113.1
+      if (ringFill) {
+        ringFill.style.strokeDasharray = circ;
+        ringFill.style.strokeDashoffset = circ * (1 - p);
+      }
+      if (ringNum) ringNum.textContent = Math.round(p * 100);
+    }
+
+    // 4. Hero Parallax: mesh glows and headline move with scroll
+    if (scrollY < 950) {
+      const mesh = $('#heroMesh');
+      const head = $('#heroHead');
+      if (mesh) mesh.style.transform = `translate3d(0, ${(scrollY * 0.28).toFixed(1)}px, 0)`;
+      if (head) {
+        head.style.transform = `translate3d(0, ${(scrollY * 0.12).toFixed(1)}px, 0)`;
+        head.style.opacity = String(clamp(1 - scrollY / 550, 0, 1));
+      }
+    }
+
+    // 5. Signal Rail with animated orb & trail traveling along curved circuit
+    const signalRail = $('#signalRail');
+    const signalPath = $('#signalPath');
+    const signalProgress = $('#signalPathProgress');
+    const signalOrb = $('#signalOrbWrap');
+    const signalTrail = $('#signalTrail');
+    if (signalRail && window.innerWidth >= 860) {
+      signalRail.classList.toggle('show', scrollY > 80);
+      if (signalProgress) signalProgress.style.strokeDashoffset = String(1 - p);
+      try {
+        if (signalPath && signalPath.getTotalLength) {
+          const len = signalPath.getTotalLength();
+          const pt = signalPath.getPointAtLength(p * len);
+          const railRect = signalRail.getBoundingClientRect();
+          const py = pt.y * (railRect.height / 1000);
+          if (signalOrb) signalOrb.style.transform = `translate3d(0, ${py.toFixed(1)}px, 0)`;
+          if (signalTrail) signalTrail.style.height = `${py.toFixed(1)}px`;
+        }
+      } catch(e) {}
+
+      // Highlight active section node along the rail
+      const nodes = signalRail.querySelectorAll('.signal-node');
+      nodes.forEach(n => {
+        const np = parseFloat(n.dataset.pct || '0');
+        const dist = Math.abs(np - p);
+        n.classList.toggle('active', dist < 0.08);
+        n.classList.toggle('passed', np < p - 0.08);
+      });
+    }
+
+    // 6. Split Cards Parallax / Perspective Depth on scroll
+    const chaosCard = $('.split-card.chaos');
+    const calmCard = $('.split-card.calm');
+    const splitSec = chaosCard ? chaosCard.closest('section') : null;
+    if (splitSec && chaosCard && calmCard && window.innerWidth >= 768) {
+      const rect = splitSec.getBoundingClientRect();
+      const viewH = window.innerHeight;
+      if (rect.top < viewH && rect.bottom > 0) {
+        const splitProgress = clamp((viewH - rect.top) / (viewH + rect.height), 0, 1);
+        const offset = (1 - splitProgress) * Math.min(window.innerWidth * 0.12, 60);
+        chaosCard.style.transform = `translate3d(${-offset.toFixed(1)}px, 0, 0) rotate(${(- (1 - splitProgress) * 2).toFixed(1)}deg)`;
+        calmCard.style.transform = `translate3d(${offset.toFixed(1)}px, 0, 0) rotate(${((1 - splitProgress) * 2).toFixed(1)}deg)`;
+      }
+    }
+  }
+
   state.raf = requestAnimationFrame(tick);
 }
 
@@ -7958,6 +9085,7 @@ function boot() {
   setupHeaderButtons();
   setupWorkspaceRail();
   updateLivePill();
+  initBackendLiveSync();
 
   // wire initial tab presses
   $$('.mobile-nav-btn').forEach(b => {

@@ -23,6 +23,7 @@ import {
 import { Modal } from '../common/Feedback';
 import { generateAssignmentsICS, downloadICSFile } from '../../utils/calendarExport';
 import { SubTask } from '../../types';
+import { uploadAssignmentFile, createAssignmentBackend } from '../../utils/api';
 
 export const AssignmentsView: React.FC = () => {
   const { 
@@ -57,6 +58,8 @@ export const AssignmentsView: React.FC = () => {
   const [newDeadlineTime, setNewDeadlineTime] = useState('23:59');
   const [newFileName, setNewFileName] = useState('');
   const [newFileSize, setNewFileSize] = useState('');
+  const [selectedAssignmentFile, setSelectedAssignmentFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [notifyToggle, setNotifyToggle] = useState(true);
   const [isRecurring, setIsRecurring] = useState(false);
   const [recurrenceRule, setRecurrenceRule] = useState<'weekly' | 'biweekly'>('weekly');
@@ -165,8 +168,26 @@ export const AssignmentsView: React.FC = () => {
     if (!newTitle.trim() || !newDeadlineDate) return;
 
     setIsPublishing(true);
-    // Simulate optimistic creation delay
-    await new Promise(r => setTimeout(r, 400));
+
+    let uploadedFileUrl: string | undefined = undefined;
+    let finalFileName = newFileName;
+    let finalFileSize = newFileSize;
+
+    if (selectedAssignmentFile) {
+      finalFileName = selectedAssignmentFile.name;
+      finalFileSize = `${(selectedAssignmentFile.size / 1024 / 1024).toFixed(1)} MB`;
+      try {
+        const upRes = await uploadAssignmentFile(
+          selectedAssignmentFile,
+          currentUser.name,
+          currentUser.role,
+          newTitle.trim()
+        );
+        uploadedFileUrl = upRes.fileUrl;
+      } catch (err) {
+        console.warn('Backend assignment file upload fallback:', err);
+      }
+    }
 
     const fullDeadline = new Date(`${newDeadlineDate}T${newDeadlineTime || '23:59'}:00`).toISOString();
 
@@ -175,13 +196,32 @@ export const AssignmentsView: React.FC = () => {
       subject: newSubject,
       description: newDesc.trim() || 'No additional instructions provided.',
       deadline: fullDeadline,
-      fileName: newFileName || undefined,
-      fileSize: newFileSize || undefined,
+      fileName: finalFileName || undefined,
+      fileSize: finalFileSize || undefined,
+      fileUrl: uploadedFileUrl,
       notifyOnCreate: notifyToggle,
       isRecurring,
       recurrenceRule: isRecurring ? recurrenceRule : undefined,
       subtasks: draftSubtasks
     });
+
+    // Also broadcast to backend API if file wasn't already uploaded through that endpoint
+    if (!uploadedFileUrl) {
+      createAssignmentBackend({
+        title: newTitle.trim(),
+        subject: newSubject,
+        due: newDeadlineDate,
+        deadline: fullDeadline,
+        description: newDesc.trim(),
+        createdBy: currentUser.name,
+        role: currentUser.role,
+        fileName: finalFileName,
+        fileSize: finalFileSize,
+        isRecurring,
+        recurrenceRule,
+        subtasks: draftSubtasks
+      }).catch(() => {});
+    }
 
     setIsPublishing(false);
     setIsNewAssignmentModalOpen(false);
@@ -190,6 +230,7 @@ export const AssignmentsView: React.FC = () => {
     setNewDeadlineDate('');
     setNewFileName('');
     setNewFileSize('');
+    setSelectedAssignmentFile(null);
     setIsRecurring(false);
     setDraftSubtasks([]);
   };
@@ -382,6 +423,21 @@ export const AssignmentsView: React.FC = () => {
                             <span className="text-[10px] font-semibold text-[#0095F6]">
                               {asg.subject}
                             </span>
+
+                            {asg.fileName && (
+                              <a
+                                href={asg.fileUrl || `http://localhost:3001/uploads/${asg.fileName}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={(e) => e.stopPropagation()}
+                                className="inline-flex items-center gap-1 text-[10px] text-emerald-600 dark:text-emerald-400 font-medium hover:underline bg-emerald-500/10 px-1.5 py-0.5 rounded transition-colors"
+                                title="Download or view question paper attachment"
+                              >
+                                <FileText className="w-2.5 h-2.5" />
+                                <span>{asg.fileName}</span>
+                                {asg.fileSize && <span className="opacity-70">({asg.fileSize})</span>}
+                              </a>
+                            )}
 
                             {/* Subtasks Progress Badge / Toggle */}
                             {asg.subtasks && asg.subtasks.length > 0 && (
@@ -890,22 +946,57 @@ export const AssignmentsView: React.FC = () => {
           {/* Attachment upload */}
           <div>
             <label className="block text-xs font-semibold text-black dark:text-white mb-1">
-              Attach Reference Document (Optional)
+              Attach Reference Document / Problem Sheet (Optional)
             </label>
-            <div 
-              onClick={() => {
-                setNewFileName('Assgn_Specification_Sheet.pdf');
-                setNewFileSize('2.2 MB');
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".pdf,.doc,.docx,.zip,.png,.jpg,.jpeg,.dwg,.xlsx,.pptx,.txt"
+              onChange={(e) => {
+                const f = e.target.files?.[0] || null;
+                setSelectedAssignmentFile(f);
+                if (f) {
+                  setNewFileName(f.name);
+                  setNewFileSize(`${(f.size / 1024 / 1024).toFixed(1)} MB`);
+                }
               }}
-              className="border-2 border-dashed border-[#DBDBDB] dark:border-[#262626] rounded-xl p-4 text-center cursor-pointer hover:border-[#0095F6] transition-colors bg-[#FAFAFA] dark:bg-[#181818]"
+              className="hidden"
+            />
+            <div 
+              onClick={() => fileInputRef.current?.click()}
+              onDrop={(e) => {
+                e.preventDefault();
+                const f = e.dataTransfer.files?.[0] || null;
+                setSelectedAssignmentFile(f);
+                if (f) {
+                  setNewFileName(f.name);
+                  setNewFileSize(`${(f.size / 1024 / 1024).toFixed(1)} MB`);
+                }
+              }}
+              onDragOver={(e) => e.preventDefault()}
+              className={`border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-colors ${
+                selectedAssignmentFile || newFileName
+                  ? 'border-[#0095F6] bg-[#0095F6]/5'
+                  : 'border-[#DBDBDB] dark:border-[#262626] hover:border-[#0095F6] bg-[#FAFAFA] dark:bg-[#181818]'
+              }`}
             >
-              {newFileName ? (
+              {(selectedAssignmentFile || newFileName) ? (
                 <div className="flex items-center justify-between p-2 rounded bg-[#0095F6]/10 text-[#0095F6] text-xs font-medium">
-                  <span className="truncate">{newFileName} ({newFileSize})</span>
+                  <div className="flex items-center gap-2 truncate">
+                    <FileText className="w-4 h-4 shrink-0" />
+                    <span className="truncate">{selectedAssignmentFile?.name || newFileName} ({selectedAssignmentFile ? `${(selectedAssignmentFile.size / 1024 / 1024).toFixed(1)} MB` : newFileSize})</span>
+                  </div>
                   <button 
                     type="button" 
-                    onClick={(e) => { e.stopPropagation(); setNewFileName(''); }}
-                    className="p-1 text-[#ED4956]"
+                    onClick={(e) => { 
+                      e.stopPropagation(); 
+                      setSelectedAssignmentFile(null); 
+                      setNewFileName(''); 
+                      setNewFileSize(''); 
+                      if (fileInputRef.current) fileInputRef.current.value = '';
+                    }}
+                    className="p-1 text-[#ED4956] hover:bg-rose-500/10 rounded"
+                    title="Remove file"
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
@@ -913,7 +1004,8 @@ export const AssignmentsView: React.FC = () => {
               ) : (
                 <div className="flex flex-col items-center gap-1.5 text-xs text-[#8E8E8E]">
                   <UploadCloud className="w-5 h-5 text-[#0095F6]" />
-                  <span>Click to attach PDF / DWG / Doc (Max 20MB)</span>
+                  <span className="font-medium text-black dark:text-white">Click or drag & drop reference file</span>
+                  <span className="text-[10px]">PDF, DOCX, DWG, ZIP (Server stored, max 50 MB)</span>
                 </div>
               )}
             </div>

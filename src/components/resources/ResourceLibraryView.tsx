@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { useStudySync } from '../../store';
 import { ResourceCategory, ResourceItem } from '../../types';
 import { 
@@ -7,17 +7,18 @@ import {
   Download, 
   Plus, 
   Search, 
-  Filter, 
   Trash2, 
-  BookOpen, 
-  FileCode, 
-  Layers, 
   Upload,
   CheckCircle2,
   X,
-  Sparkles
+  Sparkles,
+  Loader2,
+  ExternalLink,
+  AlertCircle
 } from 'lucide-react';
 import { generateResourceStudyAids, FormattedSummary } from '../../utils/resourceFormatter';
+import { uploadResourceBackend } from '../../utils/api';
+import { useBackendSSE, SSEResourceEvent } from '../../hooks/useBackendSSE';
 
 export const ResourceLibraryView: React.FC = () => {
   const { 
@@ -40,7 +41,27 @@ export const ResourceLibraryView: React.FC = () => {
   const [subject, setSubject] = useState(currentClass.subjects[0] || 'Fluid Mechanics');
   const [category, setCategory] = useState<ResourceCategory>('notes');
   const [description, setDescription] = useState('');
-  const [fileName, setFileName] = useState('');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [lastUploadedUrl, setLastUploadedUrl] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // SSE — get new resources pushed from backend in real time
+  useBackendSSE({
+    onResource: useCallback((ev: SSEResourceEvent) => {
+      // Only add if not already present (backend may push to all clients)
+      uploadResource({
+        title: ev.title,
+        subject: ev.subject,
+        category: ev.category as ResourceCategory,
+        description: `Uploaded via backend`,
+        fileName: ev.fileName,
+        fileSize: ev.fileSize,
+      });
+    }, [uploadResource]),
+  });
 
   const categories: { id: ResourceCategory | 'ALL'; label: string }[] = [
     { id: 'ALL', label: 'All Resources' },
@@ -60,23 +81,54 @@ export const ResourceLibraryView: React.FC = () => {
     return matchesSub && matchesCat && matchesSearch;
   });
 
-  const handleUploadSubmit = (e: React.FormEvent) => {
+  const handleUploadSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
 
+    setIsUploading(true);
+    setUploadProgress(0);
+    setUploadError(null);
+
+    const progressInterval = setInterval(() => {
+      setUploadProgress(prev => Math.min(prev + 20, 85));
+    }, 120);
+
+    let backendResult = null;
+    try {
+      backendResult = await uploadResourceBackend({
+        file: selectedFile,
+        uploader: currentUser.name,
+        title: title.trim(),
+        subject,
+        category,
+        fileName: selectedFile?.name || `${title.replace(/\s+/g, '_')}.pdf`,
+      });
+      setLastUploadedUrl(backendResult.fileUrl);
+    } catch {
+      // backend unavailable — fall through to local-only
+    }
+
+    clearInterval(progressInterval);
+    setUploadProgress(100);
+
+    // Always update local store
     uploadResource({
       title: title.trim(),
       subject,
       category,
       description: description.trim() || 'Shared course study reference',
-      fileName: fileName.trim() || `${title.replace(/\s+/g, '_')}.pdf`,
-      fileSize: `${(Math.random() * 8 + 1.2).toFixed(1)} MB`
+      fileName: backendResult?.fileName || selectedFile?.name || `${title.replace(/\s+/g, '_')}.pdf`,
+      fileSize: backendResult?.fileSize || (selectedFile ? `${(selectedFile.size / 1024 / 1024).toFixed(1)} MB` : `${(Math.random() * 8 + 1.2).toFixed(1)} MB`),
     });
 
+    await new Promise(r => setTimeout(r, 400)); // let progress show 100%
+    setIsUploading(false);
     setIsUploadModalOpen(false);
     setTitle('');
     setDescription('');
-    setFileName('');
+    setSelectedFile(null);
+    setUploadProgress(0);
+    setLastUploadedUrl(null);
   };
 
   const getCategoryBadge = (cat: ResourceCategory) => {
@@ -341,31 +393,86 @@ export const ResourceLibraryView: React.FC = () => {
                   <label className="block text-[11px] font-semibold text-neutral-600 dark:text-neutral-300 mb-1">
                     File Attachment
                   </label>
-                  <div className="border-2 border-dashed border-[#DBDBDB] dark:border-[#262626] rounded-xl p-4 text-center bg-[#FAFAFA] dark:bg-[#1C1C1C]">
-                    <Upload className="w-5 h-5 mx-auto text-[#0095F6] mb-1" />
-                    <p className="text-xs text-black dark:text-white font-semibold">
-                      Drag and drop PDF/DOCX or click to browse
-                    </p>
-                    <p className="text-[10px] text-neutral-400 mt-0.5">
-                      Max file size: 25 MB
-                    </p>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".pdf,.doc,.docx,.zip,.png,.jpg,.pptx,.xlsx,.txt"
+                    onChange={e => { setSelectedFile(e.target.files?.[0] || null); setUploadError(null); }}
+                    className="hidden"
+                  />
+                  <div
+                    onClick={() => fileInputRef.current?.click()}
+                    onDrop={e => { e.preventDefault(); setSelectedFile(e.dataTransfer.files?.[0] || null); }}
+                    onDragOver={e => e.preventDefault()}
+                    className={`border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-colors ${
+                      selectedFile
+                        ? 'border-[#0095F6] bg-[#0095F6]/5'
+                        : 'border-[#DBDBDB] dark:border-[#262626] bg-[#FAFAFA] dark:bg-[#1C1C1C] hover:border-[#0095F6]'
+                    }`}
+                  >
+                    {selectedFile ? (
+                      <div className="space-y-1">
+                        <CheckCircle2 className="w-5 h-5 mx-auto text-[#0095F6]" />
+                        <p className="text-xs text-black dark:text-white font-semibold truncate">{selectedFile.name}</p>
+                        <p className="text-[10px] text-neutral-400">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB · Click to change</p>
+                        {lastUploadedUrl && (
+                          <a href={lastUploadedUrl} target="_blank" rel="noopener noreferrer"
+                            onClick={e => e.stopPropagation()}
+                            className="inline-flex items-center gap-1 text-[10px] text-[#0095F6] font-semibold hover:underline">
+                            View uploaded file <ExternalLink className="w-2.5 h-2.5" />
+                          </a>
+                        )}
+                      </div>
+                    ) : (
+                      <>
+                        <Upload className="w-5 h-5 mx-auto text-[#0095F6] mb-1" />
+                        <p className="text-xs text-black dark:text-white font-semibold">Drag & drop or click to browse</p>
+                        <p className="text-[10px] text-neutral-400 mt-0.5">PDF, DOCX, ZIP, IMG — max 50 MB</p>
+                      </>
+                    )}
                   </div>
+                  {isUploading && (
+                    <div className="mt-2 space-y-1">
+                      <div className="flex justify-between text-[10px] text-neutral-500">
+                        <span>Uploading...</span>
+                        <span className="font-bold text-[#0095F6]">{uploadProgress}%</span>
+                      </div>
+                      <div className="h-1 bg-neutral-200 dark:bg-[#262626] rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-[#0095F6] rounded-full transition-all duration-300"
+                          style={{ width: `${uploadProgress}%` }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                  {uploadError && (
+                    <div className="mt-2 flex items-center gap-1.5 text-[10px] text-red-500">
+                      <AlertCircle className="w-3 h-3" />
+                      {uploadError}
+                    </div>
+                  )}
                 </div>
               </div>
 
               <div className="px-6 py-4 border-t border-[#DBDBDB] dark:border-[#262626] bg-[#FAFAFA] dark:bg-[#121212] flex items-center justify-end gap-2.5">
                 <button
                   type="button"
-                  onClick={() => setIsUploadModalOpen(false)}
+                  onClick={() => { setIsUploadModalOpen(false); setSelectedFile(null); setUploadError(null); }}
                   className="btn-secondary"
+                  disabled={isUploading}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   className="btn-primary"
+                  disabled={isUploading}
                 >
-                  Publish Resource
+                  {isUploading ? (
+                    <><Loader2 className="w-4 h-4 animate-spin" /> Uploading...</>
+                  ) : (
+                    <><Upload className="w-4 h-4" /> Publish Resource</>
+                  )}
                 </button>
               </div>
             </form>

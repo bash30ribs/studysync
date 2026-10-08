@@ -45,6 +45,8 @@ import {
   generateStudentRollNo, 
   generateSecureTempPassword 
 } from '../utils/edutrackUid';
+import { useBackendSSE } from '../hooks/useBackendSSE';
+import { sendBroadcastBackend, notifyAssignmentCreated } from '../utils/api';
 
 export type ThemeAccent = 'blue' | 'indigo' | 'emerald' | 'amber' | 'cyan' | 'teal';
 
@@ -460,6 +462,128 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }, duration);
   };
 
+  // 📡 Real-Time SSE Synchronization from Backend
+  useBackendSSE({
+    onAssignmentCreated: (newAsg) => {
+      setAssignments(prev => {
+        if (prev.some(a => a.id === newAsg.id || a.title === newAsg.title)) return prev;
+        const mapped: Assignment = {
+          id: newAsg.id,
+          classId: currentClass.id,
+          title: newAsg.title,
+          subject: newAsg.subject,
+          description: newAsg.description || '',
+          deadline: newAsg.deadline || new Date().toISOString(),
+          fileName: newAsg.fileName || undefined,
+          fileSize: newAsg.fileSize || undefined,
+          fileUrl: newAsg.fileUrl || undefined,
+          postedAt: newAsg.postedAt || new Date().toISOString(),
+          createdBy: newAsg.createdBy || 'Class Representative',
+          status: 'active',
+          notifyOnCreate: true,
+          subtasks: newAsg.subtasks || []
+        };
+        return [mapped, ...prev];
+      });
+
+      setSubmissions(prev => {
+        if (prev.some(s => s.assignmentId === newAsg.id)) return prev;
+        const studentUsers = allUsers.filter(u => u.role === 'Student');
+        const newSubs: Submission[] = studentUsers.map(stu => ({
+          id: `sub-${newAsg.id}-${stu.id}`,
+          assignmentId: newAsg.id,
+          studentId: stu.id,
+          studentName: stu.name,
+          studentEmail: stu.email,
+          status: 'assigned',
+          completedSubTaskIds: []
+        }));
+        return [...prev, ...newSubs];
+      });
+
+      showToast(`📢 New Assignment Posted: "${newAsg.title}"`, 'info');
+    },
+
+    onSubmission: (ev) => {
+      setSubmissions(prev => {
+        const studentId = ev.studentId || (ev.code ? allUsers.find(u => u.rollNo === ev.code)?.id : undefined) || 'user-stu-1';
+        const targetAsgId = ev.assignmentId || assignments.find(a => a.title === ev.assignmentTitle)?.id || 'asg-1';
+        
+        const existingIdx = prev.findIndex(s => (s.assignmentId === targetAsgId || s.assignmentId === ev.assignmentId) && (s.studentId === studentId || s.studentName === ev.studentName));
+        if (existingIdx !== -1) {
+          const updated = [...prev];
+          updated[existingIdx] = {
+            ...updated[existingIdx],
+            status: 'submitted',
+            submittedAt: ev.submittedAt || new Date().toISOString(),
+            fileName: ev.fileName || updated[existingIdx].fileName,
+            fileSize: ev.fileSize || updated[existingIdx].fileSize,
+            fileUrl: ev.fileUrl || updated[existingIdx].fileUrl,
+            proof: {
+              os: 'Linux x86_64',
+              browser: 'StudySync Hub',
+              submissionHash: ev.submissionHash || ev.hash || '0x' + Math.random().toString(16).slice(2, 10),
+              timestamp: ev.submittedAt || new Date().toISOString(),
+            }
+          };
+          return updated;
+        }
+        return prev;
+      });
+
+      showToast(`✅ ${ev.studentName || 'Student'} submitted "${ev.assignmentTitle || 'Assignment'}"`, 'info');
+    },
+
+    onBroadcast: (bc) => {
+      setBroadcasts(prev => {
+        if (prev.some(b => b.id === bc.id || b.content === bc.text)) return prev;
+        const newBc: Broadcast = {
+          id: bc.id,
+          classId: currentClass.id,
+          content: bc.text,
+          sentAt: new Date().toISOString(),
+          sentBy: bc.code || 'CR',
+          authorName: bc.author,
+          deliveredCount: 48,
+          isPinned: bc.pinned,
+          readBy: []
+        };
+        return [newBc, ...prev];
+      });
+
+      showToast(`📢 Official Announcement: ${bc.text.slice(0, 45)}...`, 'info');
+    },
+
+    onGrowthActivity: (gw) => {
+      setHolisticActivities(prev => {
+        if (prev.some(g => g.id === gw.id)) return prev;
+        const mapCategory = (cat: string): any => {
+          const l = (cat || '').toLowerCase();
+          if (l.includes('cert') || l.includes('mooc')) return 'certification';
+          if (l.includes('hack') || l.includes('sport') || l.includes('cultur')) return 'sports_cultural';
+          if (l.includes('research') || l.includes('paper')) return 'research';
+          return 'certification';
+        };
+
+        const newGw: HolisticActivity = {
+          id: gw.id,
+          studentId: gw.rollNo || 'user-stu-1',
+          studentName: gw.studentName,
+          studentRollNo: gw.rollNo,
+          title: gw.title,
+          category: mapCategory(gw.category),
+          organizationOrEvent: 'AICTE Activity Repository',
+          date: new Date().toISOString().split('T')[0],
+          points: gw.points || 15,
+          status: gw.status === 'approved' ? 'approved' : 'pending_approval',
+          proofUrl: gw.fileUrl || undefined,
+          description: 'AICTE 100-Points Portfolio submission'
+        };
+        return [newGw, ...prev];
+      });
+    }
+  });
+
   const switchRole = (role: UserRole, targetUserId?: string) => {
     if (targetUserId) {
       const found = allUsers.find(u => u.id === targetUserId);
@@ -733,6 +857,14 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
     const reminderMsg = data.reminderConfig?.enabled ? ' with automated reminder scheduled 🔔' : '';
     showToast(`Assignment "${data.title}" posted to all students${reminderMsg}`, 'success');
+
+    // Notify backend
+    notifyAssignmentCreated({
+      createdBy: currentUser.name,
+      title: data.title,
+      subject: data.subject,
+      deadline: data.deadline
+    });
   };
 
   const toggleStudentSubTask = (assignmentId: string, subTaskId: string) => {
@@ -1048,6 +1180,15 @@ export const StudySyncProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setBroadcasts(prev => [newBc, ...prev]);
     setNotifications(prev => [notif, ...prev]);
     showToast('Broadcast sent to all students', 'success');
+
+    // Notify backend
+    sendBroadcastBackend({
+      author: currentUser.name,
+      role: currentUser.role,
+      code: currentClass.code,
+      text: clean,
+      pinned: true
+    }).catch(() => {});
   };
 
   const sendMessage = (content: string, recipientId: string | null, file?: { name: string }) => {

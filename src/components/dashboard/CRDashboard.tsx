@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useStudySync } from '../../store';
 import { getRelativeDeadline } from '../../utils/deadlineUtils';
 import { getTopStudentStreaks } from '../../utils/streakUtils';
+import { LiveActivityFeed } from '../common/LiveActivityFeed';
 import { 
   Plus, 
   Users, 
@@ -284,6 +285,9 @@ export const CRDashboard: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/* 📡 Live Backend Activity Feed */}
+      <LiveActivityFeed maxItems={15} />
 
       {/* Faculty Incharge Direct Hub Access Banner */}
       {currentUser?.role === 'Faculty' && (

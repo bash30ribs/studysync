@@ -11,6 +11,12 @@ export default defineConfig({
   server: {
     host: true,
     port: 5173,
+    allowedHosts: ['studysync-ohdj.onrender.com', '.onrender.com'],
+  },
+  preview: {
+    host: true,
+    port: 5173,
+    allowedHosts: ['studysync-ohdj.onrender.com', '.onrender.com'],
   },
   build: {
     chunkSizeWarningLimit: 800,
