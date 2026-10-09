@@ -16,10 +16,10 @@
   --text-3: #73767c;
   --text-4: #4d5055;
 
-  --accent: #8ba9c4;
-  --accent-2: #a5bdd2;
-  --accent-soft: rgba(139, 169, 196, .09);
-  --accent-border: rgba(139, 169, 196, .20);
+  --accent: #0095F6;
+  --accent-2: #38bdf8;
+  --accent-soft: rgba(0, 149, 246, .12);
+  --accent-border: rgba(0, 149, 246, .28);
 
   --green: #7fa88c;
   --amber: #b39a6d;
@@ -217,19 +217,16 @@ body.pointer-on .cursor-ring {
 .studysync-landing .reveal {
   opacity: 0;
   transform: translateY(30px);
-  filter: blur(9px);
   transition:
     opacity .9s var(--ease),
-    transform .9s var(--ease),
-    filter .9s var(--ease);
+    transform .9s var(--ease);
   transition-delay: 0s;
-  will-change: opacity, transform, filter;
+  will-change: opacity, transform;
 }
 
 .studysync-landing .reveal.in {
   opacity: 1;
   transform: translateY(0);
-  filter: blur(0);
   transition-delay: var(--d, 0s);
 }
 
@@ -605,15 +602,14 @@ body.pointer-on .cursor-ring {
   display: inline-block;
   opacity: 0;
   transform: translate3d(0, 34px, 0) rotateX(-40deg);
-  filter: blur(8px);
   transform-origin: 50% 100%;
   animation: letterIn .9s var(--ease) forwards;
   animation-delay: var(--ld, 0s);
-  will-change: opacity, transform, filter;
+  will-change: opacity, transform;
 }
 .hero h1 .split > span.space { width: .28em; }
 @keyframes letterIn {
-  to { opacity: 1; transform: translate3d(0, 0, 0) rotateX(0); filter: blur(0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) rotateX(0); }
 }
 
 .hero h1 .accent {
@@ -637,13 +633,12 @@ body.pointer-on .cursor-ring {
   display: inline-block;
   opacity: 0;
   transform: translate3d(0, 14px, 0);
-  filter: blur(6px);
   animation: wordIn .8s var(--ease) forwards;
   animation-delay: var(--wd, 0s);
-  will-change: opacity, transform, filter;
+  will-change: opacity, transform;
 }
 @keyframes wordIn {
-  to { opacity: 1; transform: translate3d(0, 0, 0); filter: blur(0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
 }
 
 .hero-sub strong {
@@ -2853,11 +2848,11 @@ body.pointer-on .cursor-ring {
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  background: radial-gradient(circle at 40% 40%, #fff 0%, #d7e2ec 35%, #8ba9c4 70%, transparent 100%);
+  background: radial-gradient(circle at 40% 40%, #fff 0%, #d7e2ec 35%, #0095F6 70%, transparent 100%);
   box-shadow:
     0 0 10px rgba(200, 215, 235, .7),
-    0 0 24px rgba(139, 169, 196, .4),
-    0 0 48px rgba(139, 169, 196, .2);
+    0 0 24px rgba(0, 149, 246, .45),
+    0 0 48px rgba(0, 149, 246, .25);
 }
 
 .signal-orb-ring {
@@ -2881,7 +2876,6 @@ body.pointer-on .cursor-ring {
   height: 0;
   background: linear-gradient(180deg, transparent, rgba(200, 215, 235, .55), transparent);
   transform-origin: 0 0;
-  filter: blur(1px);
   will-change: transform;
 }
 

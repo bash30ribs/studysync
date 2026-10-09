@@ -595,7 +595,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp }) => {
       p.style.cssText = `
         position:fixed;left:${r.left + r.width / 2}px;top:${r.top + r.height / 2}px;
         width:${size}px;height:${size}px;border-radius:50%;
-        background:${i % 2 ? 'rgba(200,215,235,.9)' : 'rgba(139,169,196,.9)'};
+        background:${i % 2 ? 'rgba(56,189,248,.9)' : 'rgba(0,149,246,.9)'};
         pointer-events:none;z-index:99;
       `;
       document.body.appendChild(p);
@@ -2095,12 +2095,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp }) => {
           id="toastIcon"
           style={{
             background: toastState.tone === 'blue'
-              ? 'rgba(139,169,196,.14)'
+              ? 'rgba(0,149,246,.15)'
               : toastState.tone === 'amber'
               ? 'rgba(179,154,109,.14)'
               : 'rgba(127,168,140,.14)',
             color: toastState.tone === 'blue'
-              ? '#a5bdd2'
+              ? '#38bdf8'
               : toastState.tone === 'amber'
               ? '#b39a6d'
               : '#7fa88c'
