@@ -94,11 +94,11 @@ export const LiveActivityFeed: React.FC<Props> = ({ compact = false, maxItems = 
       <button
         onClick={() => { setExpanded(e => !e); setNewCount(0); }}
         className="relative flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white dark:bg-[#121212] border border-[#DBDBDB] dark:border-[#262626] text-xs font-semibold text-neutral-700 dark:text-neutral-300 hover:border-neutral-400 transition-colors"
-        title="Live activity feed"
+        title="Activity feed"
       >
         <span className={`w-1.5 h-1.5 rounded-full ${connected ? 'bg-emerald-500 animate-pulse' : 'bg-neutral-400'}`} />
         <Activity className="w-3.5 h-3.5" />
-        <span className="hidden sm:inline">Live Feed</span>
+        <span className="hidden sm:inline">Activity Feed</span>
         {newCount > 0 && (
           <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-[#0095F6] text-white text-[9px] font-bold flex items-center justify-center">
             {newCount}
@@ -124,7 +124,7 @@ export const LiveActivityFeed: React.FC<Props> = ({ compact = false, maxItems = 
               <WifiOff className="w-3.5 h-3.5 text-neutral-400" />
             )}
           </div>
-          <span className="text-xs font-bold text-black dark:text-white">Live Activity Feed</span>
+          <span className="text-xs font-bold text-black dark:text-white">Activity Feed</span>
           {newCount > 0 && (
             <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-[#0095F6] text-white">
               +{newCount} new

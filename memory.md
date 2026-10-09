@@ -213,7 +213,8 @@ cp public/workspace.html workspace.html
 
 ## 9. Recent Git Commit Log
 
-- `main`: `fix(theme): replace muted steel blue with vibrant high-contrast blue and eliminate text blur filters`
+- `main`: `fix(theme): remove live sync pills, fix light/dark mode contrast collisions, and eliminate text blur`
+- `c611a47`: `fix(theme): upgrade accent to vibrant high-contrast blue and remove text blur filters`
 - `6c40167`: `docs: add comprehensive memory.md architecture and system reference`
 - `24c71cf`: `fix(build): remove express import from vite.config.ts to resolve Render build failure`
 - `bd23074`: `fix: back gesture navigation, live backend sync, and role action wiring`

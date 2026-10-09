@@ -2,8 +2,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useStudySync } from '../../store';
 import { 
   Bell, 
-  Wifi, 
-  WifiOff, 
   CheckCheck, 
   Clock, 
   Megaphone, 
@@ -50,8 +48,6 @@ export const Header: React.FC<HeaderProps> = ({
     currentClass, 
     allUsers, 
     notifications, 
-    isOffline, 
-    toggleOffline, 
     switchRole, 
     markNotificationRead, 
     markAllNotificationsRead,
@@ -66,18 +62,8 @@ export const Header: React.FC<HeaderProps> = ({
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isUserSwitcherOpen, setIsUserSwitcherOpen] = useState(false);
   const [showClassCode, setShowClassCode] = useState(false);
-  const [syncMinutesAgo, setSyncMinutesAgo] = useState(0);
   const notifRef = useRef<HTMLDivElement>(null);
   const userSwitcherRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setSyncMinutesAgo(prev => prev + 1);
-    }, 60000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const syncTimeText = syncMinutesAgo === 0 ? 'just now' : `${syncMinutesAgo}m ago`;
 
   const unreadCount = notifications.filter(n => !n.read && (n.userId === 'ALL' || n.userId === currentUser.id)).length;
 
@@ -164,44 +150,16 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Current Class Badge with masked code */}
         <div className="flex items-center gap-2 px-2.5 py-1 rounded-md bg-[#EFEFEF] dark:bg-[#121212] text-xs border border-[#DBDBDB] dark:border-[#262626]">
-          <span className="text-[#8E8E8E] font-medium hidden sm:inline">Class:</span>
+          <span className="text-[#52525b] dark:text-[#A8A8A8] font-medium hidden sm:inline">Class:</span>
           <span className="font-semibold text-black dark:text-white">{currentClass.name}</span>
           <button
             onClick={() => setShowClassCode(prev => !prev)}
             title={showClassCode ? 'Hide join code' : 'Tap to reveal join code'}
-            className="font-mono text-[10px] font-semibold text-[#0095F6] bg-white dark:bg-[#262626] px-1.5 py-0.5 rounded border border-[#DBDBDB] dark:border-[#363636] cursor-pointer hover:border-[#0095F6] transition-colors tracking-widest select-none"
+            className="font-mono text-[10px] font-bold text-[#0284c7] dark:text-[#38bdf8] bg-white dark:bg-[#262626] px-1.5 py-0.5 rounded border border-[#DBDBDB] dark:border-[#363636] cursor-pointer hover:border-neutral-400 dark:hover:border-neutral-500 transition-colors tracking-widest select-none"
           >
             {showClassCode ? currentClass.code : '••••••'}
           </button>
         </div>
-
-        {/* Live Network Sync Pill */}
-        <button
-          onClick={toggleOffline}
-          title={isOffline ? "Offline mode (Click to go online)" : "Connected (Click to toggle offline simulation)"}
-          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-all ${
-            isOffline 
-              ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30' 
-              : 'bg-[#EFEFEF] dark:bg-[#121212] text-[#8E8E8E] dark:text-[#A8A8A8] border border-[#DBDBDB] dark:border-[#262626] hover:text-black dark:hover:text-white'
-          }`}
-        >
-          {isOffline ? (
-            <>
-              <WifiOff className="w-3.5 h-3.5 text-amber-500" />
-              <span className="hidden md:inline">Offline</span>
-            </>
-          ) : (
-            <>
-              <span className="w-1.5 h-1.5 rounded-full bg-[#0095F6] animate-pulse" />
-              <span className="hidden md:inline font-semibold">● Live</span>
-            </>
-          )}
-        </button>
-
-        {/* Subtle Last synced indicator */}
-        <span className="text-[10px] text-[#737373] dark:text-[#8E8E8E] hidden lg:inline select-none">
-          Last synced: {syncTimeText}
-        </span>
       </div>
 
       {/* Right Controls */}

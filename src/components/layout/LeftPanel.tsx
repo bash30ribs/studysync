@@ -113,7 +113,7 @@ export const LeftPanel: React.FC = () => {
             </span>
             <div className="flex items-center gap-1.5 text-[11px] text-[#737373] dark:text-[#A8A8A8]">
               <span className={`w-2 h-2 rounded-full ${isOffline ? 'bg-amber-500' : 'bg-emerald-500'}`} />
-              <span className="font-medium">{isOffline ? 'Offline' : 'Live'}</span>
+              <span className="font-medium">{isOffline ? 'Offline' : 'Connected'}</span>
             </div>
           </div>
 
